@@ -1,2 +1,2 @@
 # BoL
-Goodbye BoL free users! :(
+Leaning to code!
