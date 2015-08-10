@@ -1,2 +1,2 @@
 # BoL
-Leaning to code!
+Learning to code!
