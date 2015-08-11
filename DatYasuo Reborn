@@ -2,8 +2,8 @@ if myHero.charName ~= "Yasuo" then return end
 
 	--require 'SimpleLib'
 	--require 'VPrediction'
-    require ("UPL")
-    UPL = UPL()
+    --require ("UPL")
+   --UPL = UPL()
 
 if _G.BuffFix then
 _G.BUFF_NONE = 0
@@ -749,27 +749,20 @@ local Knockups = {}
 local eStack = 0
 local qBuffName = "Yasuo_Q_wind_ready_buff.troy"
 local farmSafe = false
-local VP
 local i
 local attacked = false
 local tower = nil
 local towerUnit = nil
-local QHitVPRE = 2
 local Tdashing = false
 local Tdashing2 = false
-local ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)
 local isSx
 local isSac
 local count = 0
-local param1
-local param1
-local param2
-local param2
 
 --local Ignite = { name = "summonerdot", range = 600, slot = nil }
 
 function OnLoad()
-    --[[
+ 
     if not _G.UPLloaded then
         if FileExist(LIB_PATH .. "/UPL.lua") then
             require("UPL")
@@ -779,7 +772,7 @@ function OnLoad()
             DelayAction(function() DownloadFile("https://raw.github.com/nebelwolfi/BoL/master/Common/UPL.lua".."?rand="..math.random(1,10000), LIB_PATH.."UPL.lua", function () print("Successfully downloaded UPL. Press F9 twice.") end) end, 3) 
             return
         end
-    end]]
+    end
 
     if VIP_USER then
         AdvancedCallback:bind('OnTowerFocus', function(tower, unit) OnTowerFocus(tower,unit) end)
@@ -798,7 +791,7 @@ function OnLoad()
 
 	--QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = true, Type = SPELL_TYPE.LINEAR}):AddDraw()
     UPL:AddSpell(_Q, { speed = math.huge, delay = 0.25, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
-    UPL:AddSpell(-2, { speed = 1500, delay = 0.5, range = 1150, width = 90, collision = false, aoe = true, type = "linear" })
+    UPL:AddSpell(-2, { speed = math.huge, delay = 0.5, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
 
 	PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn</b></font>")
 
@@ -857,7 +850,7 @@ function OnProcessSpell(object,spellProc)
 						if GetDistance(spellProc.endPos) <= wRange then
 							if WREADY and Config.SMblocks[spellProc.name] then
                                 --PrintChat("W TEST")
-								CastSpell(_W, object, object)
+								CastSpell(_W, object.x, object.z)
 							end
 						end
 					end
@@ -928,7 +921,7 @@ function fuckedUpSpells()
                 object = fuckedUpParticle
                 PrintChat("FUP: "..fuckedUpParticle.x .."/"..fuckedUpParticle.z.."   MH:"..myHero.x..""..myHero.z)
                 fuckedUpParticle = nil                
-                CastSpell(_W, object, object)
+                CastSpell(_W, object.x, object.z)
             end 
     end
 end
@@ -954,7 +947,7 @@ function Init()
     EnemyMinions = minionManager(MINION_ENEMY, eRange, player, MINION_SORT_HEALTH_ASC)
 	JungleFarmMinions = minionManager(MINION_JUNGLE, eRange, player, MINION_SORT_HEALTH_ASC)
 	JungleMinions = minionManager(MINION_JUNGLE, 1300, player, MINION_SORT_HEALTH_ASC)
-        ts = TargetSelector(TARGET_NEAR_MOUSE, 1300, DAMAGE_PHYSICAL)   
+        ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)   
     ts.name = "Gosu"
     Config:addTS(ts)
 
@@ -987,8 +980,8 @@ function Menu()
     --Config:addSubMenu("E-vade", "SMevade")
     Config:addSubMenu("Drawing Options", "SMdraw")
     Config:addSubMenu("Blocks", "SMblocks")
-    Config:addSubMenu("Prediction HitChance", "predhc")
-    Config.predhc:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 2, 0, 3, 1)
+    --Config:addSubMenu("Prediction HitChance", "predhc")
+    Config:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 2, 0, 3, 1)
 
     --Add prediction selector to the given scriptConfig-menu
 
@@ -1018,7 +1011,7 @@ function Menu()
     Config.SMsbtw:addParam("DistanceToE", "min Distance for GC E",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
 	Config.SMsbtw:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
 	Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsbtw:addParam("autoRPercent", "Ult when at % Health",SCRIPT_PARAM_SLICE, 1, 1, 100, 0)
+    --Config.SMsbtw:addParam("autoRPercent", "Ult when at % Health",SCRIPT_PARAM_SLICE, 1, 1, 100, 0)
     --Config.SMsbtw:addParam("useAA", "Autoattack",SCRIPT_PARAM_ONOFF, true)
    -- Config.SMsbtw:addParam("useMove", "Move to Mouse", SCRIPT_PARAM_ONOFF, true)
 
@@ -1131,55 +1124,136 @@ function OnTick()
             AutoUltKillable()
         end
         --killSteal()
+        if Config.qflee then
+            AutoQenemy()
+        end
         
         AutoIgnite()
     end
 end
---[[
-function QFlee()
 
-    if Target ~= nil then
-        if Q12READY and ValidTarget(Target) and Ranges.Q12 then
-            QSpell:Cast(Target)
-        end
-        if Q3READY and ValidTarget(Target) and Ranges.Q3 then
-            QSpell:Cast(Target)
+--[[function Low(unit)
+    if Target.health <= (Config.SMult.autoRPercent/100*unit.maxHealth) then
+        return true
+    else
+        return false
+    end
+end]]
+
+function Rks(unit)
+    if Target.health <= (Config.SMult.autoRkillable/100*unit.maxHealth) then
+        return true
+    else
+        return false
+    end
+end
+
+function E(unit)
+    posAfterE = eEndPos(unit)
+    if VIP_USER and Config.SMother.usePackets then
+        Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+    else
+        CastSpell(_E, unit) 
+    end
+end
+
+function sbtwR()
+    for i = 1, heroManager.iCount, 1 do
+        local Target = heroManager:getHero(i)
+        if ValidTarget(Target, rRange) and Rks(Target) then
+            DelayAction(function()
+                CastSpell(_R)
+            end, 1 - GetLatency() / 100)
         end
     end
 end
-]]
-        --[[if Config.qflee and Config.SMsbtw.useQ and QREADY then
-            AutoQminion(minion)
-        end
-        ]]      
 
---[[
-function AutoQminion(unit)
-    selectMinion()
-    for index, minion in pairs(EnemyMinions.objects) do
-        if ValidTarget(minion) then
-            if QREADY and GetDistance(minion) <= q[i].Range then
-                QSpell:Cast(minion)
+function AutoUltKillable()
+    for i = 1, heroManager.iCount, 1 do
+        local Target = heroManager:getHero(i)
+        if ValidTarget(Target, rRange) and Rks(Target) then
+            DelayAction(function()
+                CastSpell(_R)
+            end, 1 - GetLatency() / 100)
+        end
+    end
+end
+    --[[knocked = 0
+    for i, v in ipairs(GetEnemyHeroes()) do
+        if not v.canMove and v.y > 130 and ValidTarget(v) then
+        knocked = knocked + 1
+        if knocked >= Config.SMult.Ult3 and Config.SMsbtw.useR and CanCast(_R) then
+            CastSpell(_R)
+            end
+        end
+    end
+end]]
+
+function AutoUlt()
+    knocked = 0
+    for i, v in ipairs(GetEnemyHeroes()) do
+        if not v.canMove and v.y > 130 and ValidTarget(v) then
+        knocked = knocked + 1
+        if knocked >= Config.SMult.Ult3 and Config.SMult.autoult and CanCast(_R) then
+            CastSpell(_R)
             end
         end
     end
 end
-]]
 
---[[
-function Q123(unit)
-    if Target ~= nil then
-        if Q12READY and ValidTarget(Target) and q[0].Range then
-            QSpell:Cast(Target)
+function AutoIgnite()
+    if Config.SMother.ignite and ignite ~= nil and CanCast(ignite) then
+        local igniteDamage = 50 + 20 * myHero.level
+    for i = 1, heroManager.iCount, 1 do
+      local target = heroManager:getHero(i)
+      if ValidTarget(target, 600) and target.team ~= myHero.team then
+        if igniteDamage > (target.health - 25) then
+          CastSpell(ignite, target)
         end
-        if Q3READY and ValidTarget(Target) and q[1].Range then
-            QSpell:Cast(Target)
+      end
+    end
+  end
+end
+
+function CanCast(spell)
+return myHero:CanUseSpell(spell) == READY
+end
+
+function killSteal()
+    for i = 1, heroManager.iCount, 1 do
+        if ksTarget == nil then
+            local damage = 0
+            local eTarget = heroManager:getHero(i)
+            if ValidTarget(eTarget, eRange) then
+                local qDmg = myHero:CalcDamage(eTarget,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+                local eDmg = getEDmg(eTarget)
+                if QREADY then 
+                    damage = qDmg
+                end
+                if EREADY then 
+                    damage = damage + eDmg
+                end 
+                if damage > eTarget.health then
+                    ksTarget = eTarget
+                end
+            end
         end
     end
+    if ksTarget and GetDistance(ksTarget)<eRange then
+        if ValidTarget(ksTarget) then
+            E(ksTarget)
+        end
+        if ValidTarget(ksTarget) then
+            if dashed ~= nil and GetDistance(ksTarget) <= q[0].Width then
+                Q(ksTarget)
+            end
+        end
+    else 
+      ksTarget = nil
+    end
 end
-]]
 
-function Q12(unit)
+function Q12(unit, minion)
     local CastPacket = Config.SMother.usePackets
     if Q12READY and ValidTarget(unit,475) then
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q12, Widths.Q12, Ranges.Q12, Speeds.Q12, myHero, false)
@@ -1188,15 +1262,15 @@ function Q12(unit)
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
                     CastSpell(_Q, CastPosition.x, CastPosition.z)
-                end
-            elseif CastPacket and not IsDashing() then
+                elseif CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
                 Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+            end
         end
     end
 end
 
-function Q3(unit)
+function Q3(unit, minion)
     local CastPacket = Config.SMother.usePackets
     if Q3READY and ValidTarget(unit,900) then
 
@@ -1205,10 +1279,55 @@ function Q3(unit)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 900^2 then
-                    CastSpell(_Q3, CastPosition.x, CastPosition.z)
-                end
-            elseif CastPacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+                    CastSpell(_Q, CastPosition.x, CastPosition.z)
+                elseif CastPacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+            end
+        end     
+    end
+end
+
+function AutoQenemy(unit, minion)
+    if Target ~= nil then
+        if Q12READY and ValidTarget(Target) and Ranges.Q12 then
+            Qstrike12(Target)
+        end
+        if Q3READY and ValidTarget(Target) and Ranges.Q3 then
+            Qstrike3(Target)
+        end
+    end
+end
+
+function Qstrike12(unit, minion)
+    local CastPacket = Config.SMother.usePackets
+    if Q12READY and ValidTarget(unit,475) then
+            --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q12, Widths.Q12, Ranges.Q12, Speeds.Q12, myHero, false)
+            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, Target)
+            if HitChance >= Config.hc then
+                if not CastPacket and not IsDashing() then
+                --if GetDistanceSqr(CastPosition) <= 475^2 then
+                    CastSpell(_Q, CastPosition.x, CastPosition.z)
+                elseif CastPacket and not IsDashing() then
+                --if GetDistanceSqr(CastPosition) <= 475^2 then
+                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+            end
+        end
+    end
+end
+
+function Qstrike3(unit, minion)
+    local CastPacket = Config.SMother.usePackets
+    if Q3READY and ValidTarget(unit,900) then
+
+            --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q3, Widths.Q3, Ranges.Q3, Speeds.Q3, myHero, false)
+            local CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, Target)
+            if HitChance >= Config.hc then
+                if not CastPacket and not IsDashing() then
+                --if GetDistanceSqr(CastPosition) <= 900^2 then
+                    CastSpell(_Q, CastPosition.x, CastPosition.z)
+                elseif CastPacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+            end
         end     
     end
 end
@@ -1220,93 +1339,6 @@ end
 function IsDashing2()
     return Dashing
 end
-
-function smartfarm() -- BY LittleRedEye
-    selectMinion()
-    for index, minion in pairs(EnemyMinions.objects) do
-        if ValidTarget(minion) then
-            local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
-            if QREADY and GetDistance(minion) <= q[i].Range and Config.SMfarm.useQFarm then
-                if qDmg >= minion.health then 
-                    if not (Config.SMfarm.saveQ and SteelTempest) then
-                        Q(minion, true)
-                    end
-                end
-            end
-            local eDmg = getEDmg(minion)
-            if EREADY and GetDistance(minion) <= eRange and Config.SMfarm.useEFarm then
-                if eDmg >= minion.health and not UnderTurret(eEndPos(minion), true) then 
-                    E(minion)
-                end
-            end
-            local aDmg = getDmg("AD", minion, myHero)
-            if GetDistance(minion) <= (myHero.range + 75) then
-                if minion.health < aDmg and isattacking - os.clock() < 0 and Config.SMfarm.useAA then
-                    isattacking = os.clock() + animTime
-                    myHero:Attack(minion)
-                    break
-                elseif isattacking - os.clock() < 0 and Config.SMfarm.useMove then
-                    MoveToMouse()
-                end
-            end
-        end
-        break
-    end
-    if isattacking - os.clock() < 0 and Config.SMfarm.useMove then MoveToMouse() end
-end
-
-function dodgeTowerMinion(position, distance)
-    EnemyMinions:update()
-    for index, minion in pairs(EnemyMinions.objects) do
-        if ValidTarget(minion) and GetDistance(eEndPos(minion), position) > distance then
-                return minion
-        end
-    end 
-    return nil    
-end
-
-function eMinion()
-    EnemyMinions:update()
-    JungleMinions:update()
-    local distance = eRange
-    for index, minion in pairs(EnemyMinions.objects) do
-        if ValidTarget(minion) then
-            local eDmg = getEDmg(minion)
-            if eDmg >= minion.health then 
-                return minion
-            end
-        end
-    end 
-    for index, minion in pairs(JungleMinions.objects) do
-        if ValidTarget(minion) then
-            local eDmg = getEDmg(minion)
-            if eDmg >= minion.health then 
-                return minion
-            end
-        end
-    end 
-    return nil
-end
-
-function OnTowerFocus(tower, unit) 
-    if GetDistance(tower) < 775+eRange and not (myHero.team == tower.team) and not unit.isMe then
-        towerUnit = unit
-    end
-    if unit.isMe then 
-        Tower = tower
-    end
-end 
-
-function OnTowerIdle(tower) 
-    if GetDistance(tower) < 775+eRange and not (myHero.team == tower.team) then
-        --towerUnit = nil
-    end    
-    if towerUnit and towerUnit.dead then
-        towerUnit = nil
-    end
-    Tower = nil
-end
-
 
 function farm()
 
@@ -1327,11 +1359,11 @@ function farm()
             end
         end
     end
-	if ValidTarget(EnemyMinion, eRange) then
-				if QREADY then
+    if ValidTarget(EnemyMinion, eRange) then
+                if QREADY then
                     local mCount = minionCount(q[0].Width, myHero)
                     --PrintChat("bla: "..mCount)
-					if Config.SMfarm.useQFarm and dashed ~= nil and mCount > 1 then 
+                    if Config.SMfarm.useQFarm and dashed ~= nil and mCount > 1 then 
                         --PrintChat("1")
                         Q(EnemyMinion, true) 
                     end
@@ -1341,7 +1373,7 @@ function farm()
                             Q(EnemyMinion, true)
                         end
                     end
-				end
+                end
                 if Config.SMfarm.useEFarm and not Config.SMfarm.onlyLHE and EREADY then --and GetDistance(farmMinion) >= (eRange-q[0].Width)
                     if VIP_USER and Config.SMfarm.towerFarm then
                         if (not UnderTurret(eEndPos(EnemyMinion), true)) or towerUnit~=nil then
@@ -1349,23 +1381,23 @@ function farm()
                         end
                     else
                         if eMin ~= nil then 
-                        	if ValidTarget(eMin, eRange) then E(eMin) end
+                            if ValidTarget(eMin, eRange) then E(eMin) end
                         end
                     end
                 elseif not QREADY and EREADY and Config.SMfarm.useEFarm and not Config.SMfarm.onlyLHE then
                         if (not UnderTurret(eEndPos(EnemyMinion), true)) or towerUnit~=nil then
                             E(EnemyMinion)
                         end
-				else
-					if Config.SMfarm.useQFarm and QREADY then Q(EnemyMinion, true) end
-					if TiamatR and GetDistance(EnemyMinion) < 400 then CastSpell(Tiamat) end
-					if HydraR and GetDistance(EnemyMinion) < 400 then CastSpell(Hydra) end
-					if Config.SMfarm.useAA then myHero:Attack(EnemyMinion) end 
-				end
-	else
-		EnemyMinion = selectMinion()
-		if Config.SMfarm.useMove then myHero:MoveTo(mousePos.x, mousePos.z) end
-	end
+                else
+                    if Config.SMfarm.useQFarm and QREADY then Q(EnemyMinion, true) end
+                    if TiamatR and GetDistance(EnemyMinion) < 400 then CastSpell(Tiamat) end
+                    if HydraR and GetDistance(EnemyMinion) < 400 then CastSpell(Hydra) end
+                    if Config.SMfarm.useAA then myHero:Attack(EnemyMinion) end 
+                end
+    else
+        EnemyMinion = selectMinion()
+        if Config.SMfarm.useMove then myHero:MoveTo(mousePos.x, mousePos.z) end
+    end
 end
 
 function teamfight()
@@ -1389,28 +1421,28 @@ end
 ]]
 
 function selectMinion()
-	EnemyMinions:update()
-	JungleFarmMinions:update()
-	local distance = eRange
-	for index, minion in pairs(EnemyMinions.objects) do
-		if ValidTarget(minion) then
-			check = GetDistance(minion)
-			if check < distance then 
-				distance = check
-				AllMinion = minion 
-			end
-		end
-	end	
-	for index, minion in pairs(JungleFarmMinions.objects) do
-		if ValidTarget(minion) then
-			check = GetDistance(minion)
-			if check < distance then 
-				distance = check
-				AllMinion = minion 
-			end
-		end
-	end	
-	return AllMinion
+    EnemyMinions:update()
+    JungleFarmMinions:update()
+    local distance = eRange
+    for index, minion in pairs(EnemyMinions.objects) do
+        if ValidTarget(minion) then
+            check = GetDistance(minion)
+            if check < distance then 
+                distance = check
+                AllMinion = minion 
+            end
+        end
+    end 
+    for index, minion in pairs(JungleFarmMinions.objects) do
+        if ValidTarget(minion) then
+            check = GetDistance(minion)
+            if check < distance then 
+                distance = check
+                AllMinion = minion 
+            end
+        end
+    end 
+    return AllMinion
 end
 
 function minionCount(distance, pos)
@@ -1478,80 +1510,6 @@ AddTickCallback(function()
             end
 end)
 
-function killSteal()
-    for i = 1, heroManager.iCount, 1 do
-        if ksTarget == nil then
-            local damage = 0
-            local eTarget = heroManager:getHero(i)
-            if ValidTarget(eTarget, eRange) then
-                local qDmg = myHero:CalcDamage(eTarget,(GetSpellData(_Q).level*20)+myHero.totalDamage)
-                local eDmg = getEDmg(eTarget)
-                if QREADY then 
-                    damage = qDmg
-                end
-                if EREADY then 
-                    damage = damage + eDmg
-                end 
-                if damage > eTarget.health then
-                    ksTarget = eTarget
-                end
-            end
-        end
-    end
-    if ksTarget and GetDistance(ksTarget)<eRange then
-        if ValidTarget(ksTarget) then
-            E(ksTarget)
-        end
-        if ValidTarget(ksTarget) then
-            if dashed ~= nil and GetDistance(ksTarget) <= q[0].Width then
-                Q(ksTarget)
-            end
-        end
-    else 
-      ksTarget = nil
-    end
-end
-
-function smartfarm() -- BY LittleRedEye
-    selectMinion()
-    for index, minion in pairs(EnemyMinions.objects) do
-        if ValidTarget(minion) then
-            local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
-            if QREADY and GetDistance(minion) <= q[i].Range and Config.SMfarm.useQFarm then
-                if qDmg >= minion.health then 
-                    if not (Config.SMfarm.saveQ and SteelTempest) then
-                        Q(minion, true)
-                    end
-                end
-            end
-            local eDmg = getEDmg(minion)
-            if EREADY and GetDistance(minion) <= eRange and Config.SMfarm.useEFarm then
-                if eDmg >= minion.health and not UnderTurret(eEndPos(minion), true) then 
-                    E(minion)
-                end
-            end
-            local aDmg = getDmg("AD", minion, myHero)
-            if GetDistance(minion) <= (myHero.range + 75) then
-                if minion.health < aDmg and isattacking - os.clock() < 0 and Config.SMfarm.useAA then
-                    isattacking = os.clock() + animTime
-                    myHero:Attack(minion)
-                    break
-                elseif isattacking - os.clock() < 0 and Config.SMfarm.useMove then
-                    MoveToMouse()
-                end
-            end
-        end
-        break
-    end
-    if isattacking - os.clock() < 0 and Config.SMfarm.useMove then MoveToMouse() end
-end
-
-function MoveToMouse()
-        local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
-        local Position = myHero + (Vector(MousePos) - myHero):normalized()*300
-        myHero:MoveTo(mousePos.x, mousePos.z)
-end
-
 function Q(unit, minion)
     if minion == nil then minion = false end
     local bias = 0
@@ -1597,187 +1555,44 @@ function Q(unit, minion)
     end
 end
 
-function E(unit)
-    posAfterE = eEndPos(unit)
-    if VIP_USER and Config.SMother.usePackets then
-        Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
-    else
-        CastSpell(_E, unit) 
-    end
-end
-
-function sbtwR()
-    for i = 1, heroManager.iCount, 1 do
-        local Target = heroManager:getHero(i)
-        if ValidTarget(Target, rRange) and Low(Target) then
-            DelayAction(function()
-                CastSpell(_R)
-            end, 0.9 - GetLatency() / 1000)
-        end
-    end
-end
-
-function AutoUltKillable()
-    for i = 1, heroManager.iCount, 1 do
-        local Target = heroManager:getHero(i)
-        if ValidTarget(Target, rRange) and Rks(Target) then
-            DelayAction(function()
-                CastSpell(_R)
-            end, 0.9 - GetLatency() / 1000)
-        end
-    end
-end
-    --[[knocked = 0
-    for i, v in ipairs(GetEnemyHeroes()) do
-        if not v.canMove and v.y > 130 and ValidTarget(v) then
-        knocked = knocked + 1
-        if knocked >= Config.SMult.Ult3 and Config.SMsbtw.useR and CanCast(_R) then
-            CastSpell(_R)
+function smartfarm() -- BY LittleRedEye
+    selectMinion()
+    for index, minion in pairs(EnemyMinions.objects) do
+        if ValidTarget(minion) then
+            local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+            if QREADY and GetDistance(minion) <= q[i].Range and Config.SMfarm.useQFarm then
+                if qDmg >= minion.health then 
+                    if not (Config.SMfarm.saveQ and SteelTempest) then
+                        Q(minion, true)
+                    end
+                end
+            end
+            local eDmg = getEDmg(minion)
+            if EREADY and GetDistance(minion) <= eRange and Config.SMfarm.useEFarm then
+                if eDmg >= minion.health and not UnderTurret(eEndPos(minion), true) then 
+                    E(minion)
+                end
+            end
+            local aDmg = getDmg("AD", minion, myHero)
+            if GetDistance(minion) <= (myHero.range + 75) then
+                if minion.health < aDmg and isattacking - os.clock() < 0 and Config.SMfarm.useAA then
+                    isattacking = os.clock() + animTime
+                    myHero:Attack(minion)
+                    break
+                elseif isattacking - os.clock() < 0 and Config.SMfarm.useMove then
+                    MoveToMouse()
+                end
             end
         end
+        break
     end
-end]]
-
-function AutoUlt()
-    knocked = 0
-    for i, v in ipairs(GetEnemyHeroes()) do
-        if not v.canMove and v.y > 130 and ValidTarget(v) then
-        knocked = knocked + 1
-        if knocked >= Config.SMult.Ult3 and Config.SMult.autoult and CanCast(_R) then
-            CastSpell(_R)
-            end
-        end
-    end
+    if isattacking - os.clock() < 0 and Config.SMfarm.useMove then MoveToMouse() end
 end
 
-    --[[if Target ~= nil then 
-    	if RREADY and ValidTarget(Target, rRange) then
-            CastSpell(_R)
-        end
-    end
-end]]
-
-function AutoIgnite()
-    if Config.SMother.ignite and ignite ~= nil and CanCast(ignite) then
-        local igniteDamage = 50 + 20 * myHero.level
-    for i = 1, heroManager.iCount, 1 do
-      local target = heroManager:getHero(i)
-      if ValidTarget(target, 600) and target.team ~= myHero.team then
-        if igniteDamage > (target.health - 25) then
-          CastSpell(ignite, target)
-        end
-      end
-    end
-  end
-end
-
-function CanCast(spell)
-return myHero:CanUseSpell(spell) == READY
-end
-
-function CountEnemyHeroInRange(range, object)
-    object = object or myHero
-    range = range and range * range or myHero.range * myHero.range
-    local enemyInRange = 0
-    for i = 1, heroManager.iCount, 1 do
-        local hero = heroManager:getHero(i)
-        if ValidTarget(hero) and not hero.dead and hero.visible and hero.team ~= myHero.team and GetDistanceSqr(object, hero) <= range then
-            enemyInRange = enemyInRange + 1
-        end
-    end
-    return enemyInRange
-end
-
-function CountAllysInRange(range, object)
-  local allyInRange = 0
-  local allies = GetAllyHeroes()
-  if object ~= nil and range then
-    for i, ally in pairs(allies) do
-      if not ally.dead and  ValidTarget(ally) and range > GetDistance(ally, object) then
-        allyInRange = allyInRange + 1
-      end
-    end
-  end
-  return allyInRange
-end
-
-function CountMinionInRange(range, object)
-    AllMinions:update()
-    local minionInRange = 0
-    if object ~= nil and range then
-        for index, minion in pairs(AllMinions.objects) do
-            if minion and not minion.dead and range > GetDistance(minion, object) then
-                minionInRange = minionInRange + 1
-            end
-        end
-    end
-    return minionInRange
-end
-
-function CountEnemyAutoQ(range, object)
-    object = object or myHero
-    range = range and range * range or myHero.range * myHero.range
-    enemyQ = nil
-	DisQ = 600
-    for i, enemy in ipairs(GetEnemyHeroes()) do
-        if ValidTarget(enemy) and not enemy.dead and enemy.visible and GetDistanceSqr(object, enemy) <= range and DisQ > GetDistance(enemy, mousePos) then
-		    DisQ = GetDistance(enemy, mousePos)
-            enemyQ = enemy
-        end
-    end
-    return enemyQ
-end
-
-function countEnemies(point, range)
-    local ChampCount = 0
-    for i, champ in ipairs(GetEnemyHeroes()) do
-        if champ and not champ.dead and range >= GetDistance(champ, point) then
-            ChampCount = ChampCount + 1
-        end
-    end
-    return ChampCount
-end
-
-function getNearestMinion(unit)
-
-	local closestMinion = nil
-	local nearestDistance = 0
-
-		Minions:update()
-		JungleMinions:update()
-		for index, minion in pairs(Minions.objects) do
-			if minion ~= nil and minion.valid and string.find(minion.name,"Minion_") == 1 and minion.team ~= player.team and minion.dead == false then
-				if GetDistance(minion) <= eRange then
-                    --PrintChat(GetDistance(eEndPos(minion), unit) .. "  -  ".. GetDistance(unit))
-					if GetDistance(eEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
-						nearestDistance = GetDistance(minion)
-						closestMinion = minion
-					end
-				end
-			end
-		end
-		for index, minion in pairs(JungleMinions.objects) do
-			if minion ~= nil and minion.valid and minion.dead == false then
-				if GetDistance(minion) <= eRange then
-					if GetDistance(eEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
-						nearestDistance = GetDistance(minion)
-						closestMinion = minion
-					end
-				end
-			end
-		end
-		for i = 1, heroManager.iCount, 1 do
-			local minion = heroManager:getHero(i)
-			if ValidTarget(minion, eRange) then
-				if GetDistance(minion) <= eRange then
-					if GetDistance(eEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
-						nearestDistance = GetDistance(minion)
-						closestMinion = minion
-					end
-				end
-			end
-		end
-	return closestMinion
+function MoveToMouse()
+        local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
+        local Position = myHero + (Vector(MousePos) - myHero):normalized()*300
+        myHero:MoveTo(mousePos.x, mousePos.z)
 end
 
 function eEndPos(unit)
@@ -1788,222 +1603,15 @@ function eEndPos(unit)
 end
 
 function flee()
-	mPos = getNearestMinion(mousePos)
-	if EREADY and mPos then
-		E(mPos) 
-	else 
-		myHero:MoveTo(mousePos.x, mousePos.z) 
-	end
-end
-
-function OnCreateObj(obj)
-    --if GetDistance(obj)<50 then PrintChat(""..obj.name) end
-    if GetDistance(obj)<100 and obj.name:lower():find("yasuo") and obj.name:lower():find("trail") then
-        --PrintChat("BLA")
-        attacked = true
-    end
-	if obj and obj.name==Champions["Ezreal"].skillshots["EzrealTrueshotBarrage"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Ezreal"].skillshots["EzrealTrueshotBarrage"]
-    end
-    if obj and obj.name==Champions["Ashe"].skillshots["EnchantedCrystalArrow"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Ashe"].skillshots["EnchantedCrystalArrow"]        
-    end
-    if obj and obj.name==Champions["Ziggs"].skillshots["ZiggsR"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Ziggs"].skillshots["ZiggsR"]
-    end
-    if obj and obj.name==Champions["Caitlyn"].skillshots["CaitlynHeadshotMissile"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Caitlyn"].skillshots["CaitlynHeadshotMissile"]
-    end
-
- 
-    if obj and GetDistance(obj)<=50 then
-        if obj.name == qBuffName then 
-		    SteelTempest = true
-        end
-    end
-
-    if obj.name=="Yasuo_base_R_indicator.beam.troy" then
-        knockedUp = knockedUp + 1
-    end
-end
- 
-function OnDeleteObj(obj)
-    if obj.name=="Yasuo_base_R_indicator.beam.troy" then
-        knockedUp = knockedUp - 1
-    end
-
-	if obj and GetDistance(obj)<=50 then
-        if obj.name == qBuffName then 
-        		SteelTempest = false
-     	end
-    end
-end
-
-function EtoMouse()
-    EnemyMinions:update()
-    local mPos = GetMinionNearUnit(mousePos)
-    if mPos then
-        E(mPos)
-    end
-end
-
-function BuffReset()
-    for i, obj in pairs(Knockups) do
-        if os.clock() >= obj then
-            Knockups[i] = nil
-        end
-    end
-    for i, obj in pairs(UnitWithE) do
-        if os.clock() >= obj then
-            UnitWithE[i] = nil
-            --unitknocked = unitknocked - 1
-        end
-    end
-    for i,obj in pairs(TargetKnockedup) do
-        if os.clock() >= obj then
-            TargetKnockedup[i] = nil
-            targetknocked = targetknocked - 1
-        end
-    end     
-end
-
-function HaveBuffE(buff,unit)
-    --return TargetHaveBuffE(buff,unit)
-    if UnitWithE[unit.networkID] ~= nil then
-        return true
-    end
-    return false
-end
-
-function OnUpdateBuff(unit, buff)
-    if unit.isMe and buff.name == "yasuodashscalar" then
-        --PrintChat("E:" .. eStack)
-        dashed = buff.endT - 4.5
-        eStack = buff.stack
-    end
-end
-
-function OnApplyBuff(source, unit, buff)
-    if not unit or not buff then return end
-    if unit and unit.isMe and buff.name == "yasuodashscalar" then 
-        EStacks = 1
-    end
-    if unit and unit.team ~= myHero.team and buff.name == "YasuoDashWrapper" then
-        UnitWithE[unit.networkID] = os.clock() + (buff.endTime - buff.startTime)
-    end
-    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and buff.type == 29 then
-        --unitknocked = unitknocked + 1
-        Knockups[unit.networkID] = os.clock() + (buff.endTime - buff.startTime)
-    end
-    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and  buff.name == "yasuoq3mis" then
-        currentknocked = os.clock() + (buff.endTime - buff.startTime) - 0.25
-        targetknocked = targetknocked + 1
-        TargetKnockedup[unit.networkID] = os.clock() + (buff.endTime - buff.startTime)
-    end
-    if unit and unit.isMe and buff.name == "RegenerationPotion" then
-        UsingPot = true
-    end
-end
-
-
-function OnRemoveBuff(unit, buff)
-    if not unit or not buff or unit.type ~= myHero.type then return end
-    if unit and unit.isMe and buff.name=="yasuodashscalar" then 
-        EStacks = 0
-    end
-    if unit and unit.isMe and buff.name == "RegenerationPotion" then
-        UsingPot = false
-    end
-    if unit and unit.team ~= myHero.team and buff.name == "YasuoDashWrapper" then
-        if UnitWithE[unit.networkID] ~= nil then
-            UnitWithE[unit.networkID] = nil
-        end
-    end
-    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and buff.type == 29 then
-        if Knockups[unit.networkID] ~= nil then
-            --unitknocked = unitknocked - 1
-            Knockups[unit.networkID] = nil
-        end
-    end
-    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and  buff.name == "yasuoq3mis" then
-        if TargetKnockedup[unit.networkID] ~= nil then
-            targetknocked = targetknocked - 1
-            TargetKnockedup[unit.networkID] = nil
-        end
-    end
-end
-
-local dashPosition = {
-    [0] = {x = 1229, z=8197, to=true },
-    [1] = {x = 3920, z=5969, to=true },
-    [2] = {x = 3200, z=6800, to=true },
-    [3] = {x = 3528, z=7171, to=true },
-    [4] = {x = 3423, z=7714, to=false },
-    [5] = {x = 1853, z=8244, to=false },
-    [6] = {x = 4060, z=7821, to=true },
-    [7] = {x = 6886, z=5661, to=true },
-    [8] = {x = 7822, z=2936, to=true },
-    [9] = {x = 7962, z=2360, to=false },
-    [10] = {x = 10795, z=7613, to=true },
-    [11] = {x = 10052, z=8377, to=true },
-    [12] = {x = 10495, z=7263, to=true },
-    [13] = {x = 12174, z=6236, to=false },
-    [14] = {x = 7145, z=8763, to=true },
-    [15] = {x = 6121, z=11015, to=true },
-    [16] = {x = 7958, z=9463, to=true },
-    [17] = {x = 6159, z=11476, to=true },
-    [18] = {x = 6095, z=12097, to=false },
-    [19] = {x = 7495, z=9185, to=false },
-    [20] = {x = 3897, z=7215, to=true },
-}
-function OnDraw()
-    if initDone == true then
-        if Config.SMdraw.drawDash then
-            for index, dp in pairs(dashPosition) do
-                if dp.to==true then
-                    DrawCircle(dp.x, 0, dp.z, 75, 0x0000ff)        
-                else
-                    DrawCircle(dp.x, 0, dp.z, 75, 0x00ff00)        
-                end
-            end
-        end
-    	if Target ~= nil and Config.SMdraw.drawTarget then
-    		for i=1,3, .5 do
-    			DrawCircle(Target.x, Target.y, Target.z, 125+i, 0xFF0000)
-    		end
-    	end
-    	if not myHero.dead then
-    		if Config.SMdraw.drawQ then
-                if SteelTempest then
-    		      DrawCircle(myHero.x, myHero.y, myHero.z, q[1].Range, qColor)
-                else
-                  DrawCircle(myHero.x, myHero.y, myHero.z, q[0].Range, qColor)                
-                end
-    		end
-            if Config.SMdraw.drawAutoQ then
-                DrawCircle(myHero.x, myHero.y, myHero.z, Config.SMharass.DistanceToQ, 0x33CC33)
-            end
-    	end
-        
-        if Config.SMdraw.drawText then
-            for i = 1, heroManager.iCount, 1 do
-                local eTarget = heroManager:getHero(i)
-                if ValidTarget(eTarget) and GetDistance(eTarget) < 20000 then
-                    local pos = WorldToScreen(D3DXVECTOR3(eTarget.x, eTarget.y, eTarget.z))
-                    local color, text = calcDmg(eTarget)
-                    DrawText(tostring(text),22,pos.x-35 ,pos.y +20,color)   
-                end
-            end
-        end
+    mPos = getNearestMinion(mousePos)
+    if EREADY and mPos then
+        E(mPos) 
+    else 
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     end
 end
 
 function SBTW()
-    ts:update()
     if Target ~= nil then
         if Config.sbtw and Config.SMsbtw.useR and RREADY then
             sbtwR()
@@ -2044,20 +1652,46 @@ function SBTW()
     end 
 end
 
-function Low(unit)
-	if Target.health <= (Config.SMult.autoRPercent/100*unit.maxHealth) then
-		return true
-	else
-		return false
-	end
-end
+function getNearestMinion(unit)
 
-function Rks(unit)
-    if Target.health <= (Config.SMult.autoRkillable/100*unit.maxHealth) then
-        return true
-    else
-        return false
-    end
+    local closestMinion = nil
+    local nearestDistance = 0
+
+        Minions:update()
+        JungleMinions:update()
+        for index, minion in pairs(Minions.objects) do
+            if minion ~= nil and minion.valid and string.find(minion.name,"Minion_") == 1 and minion.team ~= player.team and minion.dead == false then
+                if GetDistance(minion) <= eRange then
+                    --PrintChat(GetDistance(eEndPos(minion), unit) .. "  -  ".. GetDistance(unit))
+                    if GetDistance(eEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
+                        nearestDistance = GetDistance(minion)
+                        closestMinion = minion
+                    end
+                end
+            end
+        end
+        for index, minion in pairs(JungleMinions.objects) do
+            if minion ~= nil and minion.valid and minion.dead == false then
+                if GetDistance(minion) <= eRange then
+                    if GetDistance(eEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
+                        nearestDistance = GetDistance(minion)
+                        closestMinion = minion
+                    end
+                end
+            end
+        end
+        for i = 1, heroManager.iCount, 1 do
+            local minion = heroManager:getHero(i)
+            if ValidTarget(minion, eRange) then
+                if GetDistance(minion) <= eRange then
+                    if GetDistance(eEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
+                        nearestDistance = GetDistance(minion)
+                        closestMinion = minion
+                    end
+                end
+            end
+        end
+    return closestMinion
 end
 
 function OnRecall(hero, channelTimeInMs)
