@@ -947,7 +947,7 @@ function Init()
     EnemyMinions = minionManager(MINION_ENEMY, eRange, player, MINION_SORT_HEALTH_ASC)
 	JungleFarmMinions = minionManager(MINION_JUNGLE, eRange, player, MINION_SORT_HEALTH_ASC)
 	JungleMinions = minionManager(MINION_JUNGLE, 1300, player, MINION_SORT_HEALTH_ASC)
-        ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)   
+        ts = TargetSelector(TARGET_NEAR_MOUSE, 1300, DAMAGE_PHYSICAL, true)   
     ts.name = "Gosu"
     Config:addTS(ts)
 
