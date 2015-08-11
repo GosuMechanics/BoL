@@ -857,7 +857,7 @@ function OnProcessSpell(object,spellProc)
 						if GetDistance(spellProc.endPos) <= wRange then
 							if WREADY and Config.SMblocks[spellProc.name] then
                                 --PrintChat("W TEST")
-								WPacket(_W, object, object)
+								CastSpell(_W, object, object)
 							end
 						end
 					end
@@ -918,7 +918,7 @@ function fuckedUpSpells()
             if WREADY and Config.SMblocks[fuckedUpSpell.spellName] then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
-                WPacket(_W, object, object)
+                CastSpell(_W, object, object)
             end            
         end 
     elseif fuckedUpParticle ~= nil and GetDistance(fuckedUpParticle) < wRange and (fuckedUpSpell.spellName == "EzrealTrueshotBarrage" or fuckedUpSpell.spellName == "EnchantedCrystalArrow" or fuckedUpSpell.spellName == "ZiggsR" or fuckedUpSpell.spellName == "CaitlynHeadshotMissile" or fuckedUpSpell.spellName == "RocketGrabMissile" or fuckedUpSpell.spellName == "DarkBindingMissile" or fuckedUpSpell.spellName == "GravesClusterShot" or fuckedUpSpell.spellName == "LuxLightBinding" or fuckedUpSpell.spellName == "AatroxE" or fuckedUpSpell.spellName == "AatroxQ" or fuckedUpSpell.spellName == "AhriOrbofDeception" or fuckedUpSpell.spellName == "AhriSeduce" or fuckedUpSpell.spellName == "BandageToss" or fuckedUpSpell.spellName == "FlashFrostSpell" or fuckedUpSpell.spellName == "Frostbite" or fuckedUpSpell.spellName == "AkaliQ" or fuckedUpSpell.spellName == "Volley" or fuckedUpSpell.spellName == "Disintegrate" or fuckedUpSpell.spellName == "Incinerate" or fuckedUpSpell.spellName == "BrandBlaze" or fuckedUpSpell.spellName == "BrandWildfire" or fuckedUpSpell.spellName == "CaitlynPiltoverPeacemaker" or fuckedUpSpell.spellName == "CassiopeiaTwinFang" or fuckedUpSpell.spellName == "FeralScream" or fuckedUpSpell.spellName == "PhosphorusBomb" or fuckedUpSpell.spellName == "MissileBarrageBig" or fuckedUpSpell.spellName == "DariusAxeGrabCone" or fuckedUpSpell.spellName == "DianaArc" or fuckedUpSpell.spellName == "DravenDoubleShot" or fuckedUpSpell.spellName == "DravenRCast" or fuckedUpSpell.spellName == "EliseHumanE" or fuckedUpSpell.spellName == "EliseHumanQ" or fuckedUpSpell.spellName == "EliseHumanW" or fuckedUpSpell.spellName == "EzrealMysticShot" or fuckedUpSpell.spellName == "EzrealEssenceFlux" or fuckedUpSpell.spellName == "EzrealMysticShotPulse" or fuckedUpSpell.spellName == "HextechMicroRockets" or fuckedUpSpell.spellName == "CH-2ElectronStormGrenade" or fuckedUpSpell.spellName == "DarkWind" or fuckedUpSpell.spellName == "FizzMarinerDoom" or fuckedUpSpell.spellName == "GalioResoluteSmite" or fuckedUpSpell.spellName == "GragasBarrelRoll" or fuckedUpSpell.spellName == "GravesChargeShot" or fuckedUpSpell.spellName == "SmokeScreen" or fuckedUpSpell.spellName == "HowlingGale" or fuckedUpSpell.spellName == "JayceToTheSkies" or fuckedUpSpell.spellName == "jayceshockblast" or fuckedUpSpell.spellName == "JinxWMissile" or fuckedUpSpell.spellName == "JinxRWrapper" or fuckedUpSpell.spellName == "KarmaQ" or fuckedUpSpell.spellName == "NullSphere" or fuckedUpSpell.spellName == "KatarinaQ" or fuckedUpSpell.spellName == "Reckoning" or fuckedUpSpell.spellName == "KennenShurikenHurlMissile1" or fuckedUpSpell.spellName == "KhazixW" or fuckedUpSpell.spellName == "khazixwlong" or fuckedUpSpell.spellName == "CausticSpittle" or fuckedUpSpell.spellName == "KogMawVoidOozeMissile" or fuckedUpSpell.spellName == "" or fuckedUpSpell.spellName == "SigilQ" or fuckedUpSpell.spellName == "LeblancChaosOrbM" or fuckedUpSpell.spellName == "LeblancSoulShackle" or fuckedUpSpell.spellName == "LeblancSoulShackleM" or fuckedUpSpell.spellName == "BlindMonkQOne" or fuckedUpSpell.spellName == "LissandraQ" or fuckedUpSpell.spellName == "LissandraE" or fuckedUpSpell.spellName == "LucianQ" or fuckedUpSpell.spellName == "LucianW" or fuckedUpSpell.spellName == "LuluQ" or fuckedUpSpell.spellName == "LuxLightStrikeKugel" or fuckedUpSpell.spellName == "LuxMaliceCannon" or fuckedUpSpell.spellName == "SeismicShard" or fuckedUpSpell.spellName == "MaokaiTrunkLine" or fuckedUpSpell.spellName == "InfectedCleaverMissile" or fuckedUpSpell.spellName == "NamiQ" or fuckedUpSpell.spellName == "NautilusAnchorDrag" or fuckedUpSpell.spellName == "JavelinToss" or fuckedUpSpell.spellName == "NocturneDuskbringer" or fuckedUpSpell.spellName == "OlafAxeThrow" or fuckedUpSpell.spellName == "SpearShot" or fuckedUpSpell.spellName == "QuinnQ" or fuckedUpSpell.spellName == "RumbleGrenade" or fuckedUpSpell.spellName == "RengarE" or fuckedUpSpell.spellName == "RivenR" or fuckedUpSpell.spellName == "Overload" or fuckedUpSpell.spellName == "SpellFlux" or fuckedUpSpell.spellName == "TwoShivPoison" or fuckedUpSpell.spellName == "ShyvanaFireball" or fuckedUpSpell.spellName == "Fracture" or fuckedUpSpell.spellName == "SivirQ" or fuckedUpSpell.spellName == "HymnofValor" or fuckedUpSpell.spellName == "SonaCrescendo" or fuckedUpSpell.spellName == "Decrepify" or fuckedUpSpell.spellName == "Torment" or fuckedUpSpell.spellName == "SyndraQ" or fuckedUpSpell.spellName == "Cutthroat" or fuckedUpSpell.spellName == "ShadowAssault" or fuckedUpSpell.spellName == "Dazzle" or fuckedUpSpell.spellName == "BlindingDart" or fuckedUpSpell.spellName == "ThreshQ" or fuckedUpSpell.spellName == "BusterShot" or fuckedUpSpell.spellName == "WildCards" or fuckedUpSpell.spellName == "goldcardlock" or fuckedUpSpell.spellName == "TwitchVenomCask" or fuckedUpSpell.spellName == "Expunge" or fuckedUpSpell.spellName == "UdyrPhoenixStance" or fuckedUpSpell.spellName == "UrgotHeatseekingLineMissile" or fuckedUpSpell.spellName == "UrgotPlasmaGrenade" or fuckedUpSpell.spellName == "VayneCondemn" or fuckedUpSpell.spellName == "BalefulStrike" or fuckedUpSpell.spellName == "XerathArcanopulseChargeUp2" or fuckedUpSpell.spellName == "XerathArcaneBarrage2" or fuckedUpSpell.spellName == "XerathLocusOfPower2" or fuckedUpSpell.spellName == "yasuoq3w" or fuckedUpSpell.spellName == "ZedShuriken" or fuckedUpSpell.spellName == "ZiggsQ" or fuckedUpSpell.spellName == "ZiggsW" or fuckedUpSpell.spellName == "ZiggsE" or fuckedUpSpell.spellName == "TimeBomb" or fuckedUpSpell.spellName == "ZyraGraspingRoots" or fuckedUpSpell.spellName == "zyrapassivedeathmanager") then 
@@ -928,7 +928,7 @@ function fuckedUpSpells()
                 object = fuckedUpParticle
                 PrintChat("FUP: "..fuckedUpParticle.x .."/"..fuckedUpParticle.z.."   MH:"..myHero.x..""..myHero.z)
                 fuckedUpParticle = nil                
-                WPacket(_W, object, object)
+                CastSpell(_W, object, object)
             end 
     end
 end
@@ -1125,15 +1125,12 @@ function OnTick()
             flee()
         elseif Config.smartfarm then
             smartfarm()
-        elseif Config.qflee then
-            AutoQ12()
     	end
 
         if Config.SMother.autoR then
             AutoUltKillable()
         end
         --killSteal()
-        AutoQ3()
         
         AutoIgnite()
     end
@@ -1182,16 +1179,6 @@ function Q123(unit)
 end
 ]]
 
-function WPacket(id, param1, param2)
-    Packet("S_CAST", {
-    spellId = id,
-    toX = param1.x,
-    toY = param1.z,
-    fromX = param2.x,
-    fromY = param2.z
-    }):send()
-end
-
 function Q12(unit)
     local CastPacket = Config.SMother.usePackets
     if Q12READY and ValidTarget(unit,475) then
@@ -1210,40 +1197,6 @@ function Q12(unit)
 end
 
 function Q3(unit)
-    local CastPacket = Config.SMother.usePackets
-    if Q3READY and ValidTarget(unit,900) then
-
-            --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q3, Widths.Q3, Ranges.Q3, Speeds.Q3, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, Target)
-            if HitChance >= Config.hc then
-                if not CastPacket and not IsDashing() then
-                --if GetDistanceSqr(CastPosition) <= 900^2 then
-                    CastSpell(_Q3, CastPosition.x, CastPosition.z)
-                end
-            elseif CastPacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
-        end     
-    end
-end
-
-function q12(unit)
-    local CastPacket = Config.SMother.usePackets
-    if Q12READY and ValidTarget(unit,475) then
-            --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q12, Widths.Q12, Ranges.Q12, Speeds.Q12, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, Target)
-            if HitChance >= Config.hc then
-                if not CastPacket and not IsDashing() then
-                --if GetDistanceSqr(CastPosition) <= 475^2 then
-                    CastSpell(_Q, CastPosition.x, CastPosition.z)
-                end
-            elseif CastPacket and not IsDashing() then
-                --if GetDistanceSqr(CastPosition) <= 475^2 then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-        end
-    end
-end
-
-function q3(unit)
     local CastPacket = Config.SMother.usePackets
     if Q3READY and ValidTarget(unit,900) then
 
@@ -2089,39 +2042,6 @@ function SBTW()
     else 
         if Config.SMsbtw.useMove then myHero:MoveTo(mousePos.x, mousePos.z) end
     end 
-end
-
-function AutoQ12(Target)
-    if not IsRecalling then
-        local EnemyQ = CountEnemyAutoQ(475,myHero)
-        local Target = Target and GetDistance(Target) <= 475 or EnemyQ
-        if not Config.SMharass.underTower and UnderTurret(Target) or Target == nil then
-            return
-        end
-            if Target and not Target.dead and Target.visible then
-                if Target and Target.type == myHero.type then
-                    if Config.qflee and Q12READY then
-                        q12(Target)
-                end
-            end
-        end
-    end
-end
-
-function AutoQ3()
-    if not IsRecalling then
-        local EnemyQ = CountEnemyAutoQ(900,myHero)
-        local Target = Target and GetDistance(Target) <= 900 or EnemyQ
-        if Target == nil then
-            if Target and not Target.dead and Target.visible then
-                if Target and Target.type == myHero.type then
-                    if Config.qflee and Q3READY then
-                        q3(Target)
-                    end
-                end
-            end
-        end
-    end
 end
 
 function Low(unit)
