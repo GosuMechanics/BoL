@@ -719,14 +719,14 @@ Champions = {
     }},
 }
 
-local Ranges = {Q12 = 475,            Q3 = 900,       W = 400,     E = 475,       R = 1300}
+local Ranges = {Q12 = 475,            Q3 = 100,       W = 400,     E = 475,       R = 1300}
 local Widths = {Q12 = 55,             Q3 = 90,         W = 0,       E = 0,         R = 0}
-local Delays = {Q12 = 0.25,           Q3 = 0.4,        W = 0.5,     E = 0,         R = 0}
-local Speeds = {Q12 = math.huge,      Q3 = 1500,       W = 1500,    E = 0,         R = 0}
+local Delays = {Q12 = 0.75,           Q3 = 0.75,        W = 0.5,     E = 0,         R = 0}
+local Speeds = {Q12 = 1500,      Q3 = 1500,       W = math.huge,    E = 0,         R = 0}
 
 local q = {
-        [0] = {Range = 475, Speed = math.huge, Delay = 0.25, Width=55}, 
-        [1] = {Range = 900, Speed = 1500, Delay = 0.4, Width=90}
+        [0] = {Range = 475, Speed = 1500, Delay = 0.75, Width=55}, 
+        [1] = {Range = 1000, Speed = 1500, Delay = 0.75, Width=90}
     }
 
 local Config
@@ -790,11 +790,63 @@ function OnLoad()
     LoadOrbwalker()
 
 	--QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = true, Type = SPELL_TYPE.LINEAR}):AddDraw()
-    UPL:AddSpell(_Q, { speed = math.huge, delay = 0.25, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
-    UPL:AddSpell(-2, { speed = math.huge, delay = 0.5, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
+    UPL:AddSpell(_Q, { speed = 1500, delay = 0.75, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
+    UPL:AddSpell(-2, { speed = 1500, delay = 0.75, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
 
 	PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn</b></font>")
 
+end
+
+function CheckItem(ItemName)
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if item and item:lower() == ItemName then
+            return i
+        end
+    end
+end
+
+function GetSlotItemFromName(itemname)
+    local slot
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if ((#item > 0) and (item:lower() == itemname:lower())) then
+            slot = i
+        end
+    end
+    return slot
+end
+function GetSlotItem(id, unit)
+    unit = unit or myHero
+
+    if (not ItemNames[id]) then
+        return ___GetInventorySlotItem(id, unit)
+    end
+
+    local name  = ItemNames[id]
+    
+    for slot = ITEM_1, ITEM_7 do
+        local item = unit:GetSpellData(slot).name
+        if ((#item > 0) and (item:lower() == name:lower())) then
+            return slot
+        end
+    end
+end
+
+function findClosestEnemy(obj)
+    local closestEnemy = nil
+    local currentEnemy = nil
+    for i, currentEnemy in pairs(sEnemies) do
+        if ValidTarget(currentEnemy) then
+            if closestEnemy == nil then
+                closestEnemy = currentEnemy
+            end
+            if GetDistanceSqr(currentEnemy.pos, obj) < GetDistanceSqr(closestEnemy.pos, obj) then
+                closestEnemy = currentEnemy
+            end
+        end
+    end
+    return closestEnemy
 end
 
 function LoadOrbwalker()
@@ -869,13 +921,33 @@ function OnProcessSpell(object,spellProc)
             if Champions[object.charName] ~= nil then
                 skillshot = Champions[object.charName].skillshots[spellProc.name]
                 if skillshot ~= nil then
-                    if skillshot.type == "circular" and GetDistance(spellProc.endPos) <= skillshot.radius then
+                    if skillshot.type == "CIRCULAR" and GetDistance(spellProc.endPos) <= skillshot.radius then
+                        dodge(skillshot)
+                    end
+                    if skillshot.type == "LINE" and GetDistance(spellProc.endPos) <= skillshot.radius then
                         dodge(skillshot)
                     end
                 end
             end
         end
     end]]
+end
+
+function dodge(skillshot)
+    if canDodge(skillshot) then
+        PrintChat("1")
+        local Minion = nil
+        EnemyMinions:update()
+        for index, minion in pairs(EnemyMinions.objects) do
+            if ValidTarget(minion) and getNearestMinion(mousePos) then
+                if GetDistance(skillshot.endPos, minion)+(eRange/2) > skillshot.radius then
+                    PrintChat("2")  
+                    Minion = EnemyMinions
+                end
+            end
+        end 
+        E(_E, Minion)
+    end
 end
 
 function canDodge(skillshot)
@@ -887,21 +959,14 @@ function canDodge(skillshot)
     end
 end
 
-function dodge(skillshot)
-    if canDodge(skillshot) then
-        PrintChat("1")
-        local Minion = nil
-        EnemyMinions:update()
-        for index, minion in pairs(EnemyMinions.objects) do
-            if ValidTarget(minion) then
-                if GetDistance(skillshot.endPos, minion)+(eRange/2) > skillshot.radius then
-                    PrintChat("2")  
-                    Minion = minion 
-                end
-            end
-        end 
-        E(_E, Minion)
-    end
+function dodgeTowerMinion(position, distance)
+    EnemyMinions:update()
+    for index, minion in pairs(EnemyMinions.objects) do
+        if ValidTarget(minion) and getNearestMinion(myHero) and GetDistance(eEndPos(minion), position) > distance then
+                return minion
+        end
+    end 
+    return nil    
 end
 
 function fuckedUpSpells()
@@ -941,7 +1006,7 @@ function Init()
 	else 
 		ignite = nil
 	end
-	
+
 	SteelTempest = false
 	Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     EnemyMinions = minionManager(MINION_ENEMY, eRange, player, MINION_SORT_HEALTH_ASC)
@@ -981,7 +1046,7 @@ function Menu()
     Config:addSubMenu("Drawing Options", "SMdraw")
     Config:addSubMenu("Blocks", "SMblocks")
     --Config:addSubMenu("Prediction HitChance", "predhc")
-    Config:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 2, 0, 3, 1)
+    Config:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 3, 0, 3, 1)
 
     --Add prediction selector to the given scriptConfig-menu
 
@@ -997,7 +1062,7 @@ function Menu()
     Config.SMharass:addParam("DistanceToQ", "max Distance for 3rd Q",SCRIPT_PARAM_SLICE, 750, 475, 900, 0)
 
     --Config.SMfarm:addParam("useOldLC", "Use old Lane Clear", SCRIPT_PARAM_ONOFF, true)
-    --Config.SMfarm:addParam("towerFarm", "Smart Lane Clear", SCRIPT_PARAM_ONOFF, true)    
+    Config.SMfarm:addParam("towerFarm", "Smart Lane Clear", SCRIPT_PARAM_ONOFF, true)    
 	Config.SMfarm:addParam("useQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
 	Config.SMfarm:addParam("useEFarm", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("onlyLHE", "Use E only to last hit", SCRIPT_PARAM_ONOFF, true)
@@ -1011,6 +1076,7 @@ function Menu()
     Config.SMsbtw:addParam("DistanceToE", "min Distance for GC E",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
 	Config.SMsbtw:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
 	Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     --Config.SMsbtw:addParam("autoRPercent", "Ult when at % Health",SCRIPT_PARAM_SLICE, 1, 1, 100, 0)
     --Config.SMsbtw:addParam("useAA", "Autoattack",SCRIPT_PARAM_ONOFF, true)
    -- Config.SMsbtw:addParam("useMove", "Move to Mouse", SCRIPT_PARAM_ONOFF, true)
@@ -1026,7 +1092,7 @@ function Menu()
     Config.SMother:addParam("killsteal", "Killsteal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
 	Config.SMother:addParam("autoW", "Auto-Wall", SCRIPT_PARAM_ONOFF, true)
-    --Config:addParam("dodge", "Auto-Dodge", SCRIPT_PARAM_ONOFF, true)
+    --Config:addParam("dodge", "E-vade Test", SCRIPT_PARAM_ONOFF, true)
 
     --OrbwalkManager:LoadCommonKeys(Config.Keys)
 	
@@ -1072,6 +1138,8 @@ function OnTick()
         if fuckedUpSpell ~= nil then fuckedUpSpells() end
        --dmgCalc()
        	AutoUlt()
+
+        GetItemSlot()
 
         ts:update()
         Target = ts.target
@@ -1125,6 +1193,10 @@ function OnTick()
         if Config.qflee then
             AutoQenemy()
         end
+
+        if Config.qflee then
+            AutoQminion()
+        end
         
         AutoIgnite()
     end
@@ -1161,7 +1233,7 @@ function sbtwR()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 1 - GetLatency() / 1000)
+            end, 1 - GetLatency()/1000)
         end
     end
 end
@@ -1172,7 +1244,7 @@ function AutoUltKillable()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 1 - GetLatency() / 1000)
+            end, 1 - GetLatency()/1000)
         end
     end
 end
@@ -1193,7 +1265,9 @@ function AutoUlt()
         if not v.canMove and v.y > 130 and ValidTarget(v) then
         knocked = knocked + 1
         if knocked >= Config.SMult.Ult3 and Config.SMult.autoult and CanCast(_R) then
-            CastSpell(_R)
+            DelayAction(function()
+                CastSpell(_R)
+                end, 1 - GetLatency()/1000)
             end
         end
     end
@@ -1290,8 +1364,19 @@ function AutoQenemy(unit, minion)
         if Q12READY and ValidTarget(Target) and Ranges.Q12 then
             Qstrike12(Target)
         end
-        if Q3READY and ValidTarget(Target) and Ranges.Q3 then
+        if Q3READY and ValidTarget(Target) and Ranges.Q3 <= Config.SMharass.DistanceToQ then
             Qstrike3(Target)
+        end
+    end
+end
+
+function AutoQminion(unit, minion)
+    selectMinion()
+    for index, minion in pairs(JungleFarmMinions.objects) do
+        if ValidTarget(minion) then
+            if Q12READY and GetDistance(minion) <= q[i].Range then
+               Qstrike12(minion)
+            end
         end
     end
 end
@@ -1300,7 +1385,7 @@ function Qstrike12(unit, minion)
     local CastPacket = Config.SMother.usePackets
     if Q12READY and ValidTarget(unit,475) then
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q12, Widths.Q12, Ranges.Q12, Speeds.Q12, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, Target)
+            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
@@ -1318,7 +1403,7 @@ function Qstrike3(unit, minion)
     if Q3READY and ValidTarget(unit,900) then
 
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q3, Widths.Q3, Ranges.Q3, Speeds.Q3, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, Target)
+            local CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, unit)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 900^2 then
@@ -1341,6 +1426,12 @@ end
 function farm()
 
     EnemyMinions:update()
+    if Tower and Config.SMfarm.towerFarm then
+        getOut = dodgeTowerMinion(Tower, 775)
+        if getOut ~= nil then
+            E(getOut)
+        end
+    end
     for _, minion in pairs(EnemyMinions.objects) do
         if minion and minion.health < getEDmg(minion) then
             if not Config.SMfarm.towerFarm and UnderTurret(eEndPos(minion)) then
@@ -1383,7 +1474,7 @@ function farm()
                 else
                     if Config.SMfarm.useQFarm and QREADY then Q(EnemyMinion, true) end
                     if TiamatR and GetDistance(EnemyMinion) < 400 then CastSpell(Tiamat) end
-                    if HydraR and GetDistance(EnemyMinion) < 400 then CastSpell(Hydra) end
+                    if Hydra and GetDistance(EnemyMinion) < 400 then CastSpell(Hydra) end
                     if Config.SMfarm.useAA then myHero:Attack(EnemyMinion) end 
                 end
     else
@@ -1588,10 +1679,22 @@ function MoveToMouse()
 end
 
 function eEndPos(unit)
-    local endPos = Point(unit.x-myHero.x, unit.z-myHero.z)
+    --[[local endPos = Point(unit.x-myHero.x, unit.z-myHero.z)
     abs = math.sqrt(endPos.x*endPos.x + endPos.y*endPos.y)
     endPos2 = Point(myHero.x + (eRange*(endPos.x/abs)), myHero.z + (eRange*(endPos.y/abs)))
-    return endPos2
+    return endPos2]]
+    if unit ~= nil then
+        --local endPos = Point(unit.x - myHero.x, unit.z - myHero.z)
+        --abs = math.sqrt(endPos.x * endPos.x + endPos.y * endPos.y)
+        --endPos2 = Point(myHero.x + Ranges.E * (endPos.x / abs), myHero.z + Ranges.E * (endPos.y / abs))
+        --return endPos2
+        if GetDistance(myHero,unit) < 410 then
+           dashPointT = myHero + (Vector(unit) - myHero):normalized() * 485
+        else 
+           dashPointT = myHero + (Vector(unit) - myHero):normalized() * (GetDistance(myHero,unit) + 65)
+        end
+        return dashPointT
+    end
 end
 
 function flee()
@@ -1601,6 +1704,8 @@ function flee()
     else 
         myHero:MoveTo(mousePos.x, mousePos.z) 
     end
+    if BORK and CanCast(BORK) then CastSpell(BORK, Target) end
+    if RAMEN and CanCast(RAMEN) and GetDistance(Target) <= 400 then CastSpell(RAMEN) end
 end
 
 function SBTW()
@@ -1618,7 +1723,10 @@ function SBTW()
             if Config.SMsbtw.useQ then
                 Q3(Target)               
             end
-        
+            if Config.SMsbtw.useitems then
+                Items(Target)
+            end
+
         if EREADY and TargetDistance > eRange and Config.SMsbtw.useEGap then
             mPos = getNearestMinion(Target)
             if mPos then 
@@ -1731,19 +1839,6 @@ local priorityTable = {
             }
     }
 
-    Items = {
-        BRK = { id = 3153, range = 450, reqTarget = true, slot = nil },
-        BWC = { id = 3144, range = 400, reqTarget = true, slot = nil },
-        DFG = { id = 3128, range = 750, reqTarget = true, slot = nil },
-        HGB = { id = 3146, range = 400, reqTarget = true, slot = nil },
-        RSH = { id = 3074, range = 350, reqTarget = false, slot = nil },
-        STD = { id = 3131, range = 350, reqTarget = false, slot = nil },
-        TMT = { id = 3077, range = 350, reqTarget = false, slot = nil },
-        YGB = { id = 3142, range = 350, reqTarget = false, slot = nil },
-        BFT = { id = 3188, range = 750, reqTarget = true, slot = nil },
-        RND = { id = 3143, range = 275, reqTarget = false, slot = nil }
-    }
-
 function SetPriority(table, hero, priority)
     for i=1, #table, 1 do
         if hero.charName:find(table[i]) ~= nil then
@@ -1812,4 +1907,30 @@ function OnDraw()
             end
         end
     end
+end
+
+function GetItemSlot()
+        for slot = ITEM_1, ITEM_7 do
+                local currentItemName = myHero:GetSpellData(slot).name
+                if currentItemName == "ItemTiamatCleave" then
+                Hydra = slot
+                elseif currentItemName  == "YoumusBlade" then
+                Ghostblade = slot
+                elseif currentItemName == "ItemSwordOfFeastAndFamine" then
+                BORK = slot
+                elseif currentItemName == "BilgewaterCutlass" then
+                BORK = slot
+                elseif currentItemName == "RanduinsOmen" then
+                RAMEN = slot
+                end
+        end
+end
+
+function Items()
+    if Config.sbtw and Config.SMsbtw.useitems and ValidTarget(Target) then
+        if Hydra and CanCast(Hydra) and GetDistance(Target) <= 200 then CastSpell(Hydra) end
+        if BORK and CanCast(BORK) then CastSpell(BORK, Target) end
+        if Ghostblade and CanCast(Ghostblade) then CastSpell(Ghostblade) end
+        if RAMEN and CanCast(RAMEN) and GetDistance(Target) <= 400 then CastSpell(RAMEN) end
+    end 
 end
