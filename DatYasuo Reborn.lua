@@ -765,19 +765,6 @@ local version = 1.0
 
 function OnLoad()
 
-    local ToUpdate = {}
-    ToUpdate.Version = 1.0
-    ToUpdate.UseHttps = true
-    ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/DatYasuo%20Reborn.version"
-    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/DatYasuo%20Reborn.lua"
-    ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
-    ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found") end
-    ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
-    ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
-    SxScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
-    
     if not _G.UPLloaded then
         if FileExist(LIB_PATH .. "/UPL.lua") then
             require("UPL")
@@ -808,8 +795,20 @@ function OnLoad()
     UPL:AddSpell(_Q, { speed = 1500, delay = 0.75, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
     UPL:AddSpell(-2, { speed = 1500, delay = 0.75, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
 
-    PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn</b></font>")
+    PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn 1.0</b></font>")
 
+    local ToUpdate = {}
+    ToUpdate.Version = 1.0
+    ToUpdate.UseHttps = true
+    ToUpdate.Host = "raw.githubusercontent.com"
+    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/DatYasuo%20Reborn.version"
+    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/DatYasuo%20Reborn.lua"
+    ToUpdate.SavePath = SCRIPT_PATH.."/DatYasuo%20Reborn.lua"
+    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". </b></font>") end
+    ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
+    ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
+    ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>SxOrbWalk: </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
+    ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
 end
 
 function findClosestEnemy(obj)
@@ -894,13 +893,6 @@ function OnProcessSpell(object,spellProc)
                 end
             end
         end 
-    end
-    if spell.name:lower():find("zedult") and spell.target == myHero then
-        if Config.SMother.useqss and QSS and CanCast(QSS) then 
-                    DelayAction(function()
-                        CastSpell(QSS)
-                    end, 1.5)
-            end
     end
     --[[if Config.dodge then
         if object.team ~= player.team and not player.dead and string.find(spellProc.name, "Basic") == nil then
