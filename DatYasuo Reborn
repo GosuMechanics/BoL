@@ -758,7 +758,8 @@ local Tdashing2 = false
 local isSx
 local isSac
 local count = 0
-
+local UsingPot = false
+local lastremove = 0
 --local Ignite = { name = "summonerdot", range = 600, slot = nil }
 
 function OnLoad()
@@ -795,42 +796,6 @@ function OnLoad()
 
 	PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn</b></font>")
 
-end
-
-function CheckItem(ItemName)
-    for i = 6, 12 do
-        local item = myHero:GetSpellData(i).name
-        if item and item:lower() == ItemName then
-            return i
-        end
-    end
-end
-
-function GetSlotItemFromName(itemname)
-    local slot
-    for i = 6, 12 do
-        local item = myHero:GetSpellData(i).name
-        if ((#item > 0) and (item:lower() == itemname:lower())) then
-            slot = i
-        end
-    end
-    return slot
-end
-function GetSlotItem(id, unit)
-    unit = unit or myHero
-
-    if (not ItemNames[id]) then
-        return ___GetInventorySlotItem(id, unit)
-    end
-
-    local name  = ItemNames[id]
-    
-    for slot = ITEM_1, ITEM_7 do
-        local item = unit:GetSpellData(slot).name
-        if ((#item > 0) and (item:lower() == name:lower())) then
-            return slot
-        end
-    end
 end
 
 function findClosestEnemy(obj)
@@ -1082,7 +1047,7 @@ function Menu()
    -- Config.SMsbtw:addParam("useMove", "Move to Mouse", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMult:addParam("autoR", "Auto-R KS", SCRIPT_PARAM_ONOFF, false)
-    Config.SMult:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 1, 1, 100, 0)
+    Config.SMult:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
     --Config.SMult:addParam("autoRMin", "Auto-R Many Targets", SCRIPT_PARAM_ONOFF, false)
     --Config.SMult:addParam("minRTargets", "Auto-R when # knocked up",SCRIPT_PARAM_SLICE, 1, 1, 5, 0)
     Config.SMult:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
@@ -1092,6 +1057,9 @@ function Menu()
     Config.SMother:addParam("killsteal", "Killsteal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
 	Config.SMother:addParam("autoW", "Auto-Wall", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
     --Config:addParam("dodge", "E-vade Test", SCRIPT_PARAM_ONOFF, true)
 
     --OrbwalkManager:LoadCommonKeys(Config.Keys)
@@ -1187,6 +1155,10 @@ function OnTick()
         elseif Config.smartfarm then
             smartfarm()
     	end
+
+        if Config.SMother.usePots then
+            AutoPots()
+        end
 
             AutoUltKillable()
         --killSteal()
@@ -1362,7 +1334,7 @@ function Q3(unit, minion)
 end
 
 function AutoQenemy(unit, minion)
-    if Target ~= nil then
+    if Target ~= nil and not IsRecalling then
         if Q12READY and ValidTarget(Target) and Ranges.Q12 then
             Qstrike12(Target)
         end
@@ -1375,7 +1347,7 @@ end
 function AutoQminion(unit, minion)
     selectMinion()
     for index, minion in pairs(JungleFarmMinions.objects) do
-        if ValidTarget(minion) then
+        if ValidTarget(minion) and not IsRecalling then
             if Q12READY and GetDistance(minion) <= q[i].Range then
                Qstrike12(minion)
             end
@@ -1911,6 +1883,103 @@ function OnDraw()
     end
 end
 
+function OnApplyBuff(source, unit, buff)
+    if not unit or not buff then return end
+        if unit and unit.isMe and buff.name == "RegenerationPotion" then
+            UsingPot = true
+        end
+    if unit.isMe and Config.SMother.useqss then
+        if buff.name and buff.type == 5 or buff.type == 12 or buff.type == 11 or buff.type == 25 or buff.type == 23 or buff.type == 7 or buff.type == 22 or buff.type == 21 or buff.type == 8
+        or (buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))
+        or (buff.name:lower():find("summonerexhaust")) then
+            if buff.name and buff.name:lower():find("caitlynyor") and CountEnemiesNearUnitReg(myHero, 700) == 0   then
+                return false
+            elseif not buff.name:lower():find("rocketgrab2") then
+                if QSS and CanCast(QSS) then 
+                    DelayAction(function()
+                        CastSpell(QSS)
+                    end, 0.1 - GetLatency()/1000)
+                 end
+            end          
+        end                    
+    end 
+end
+
+
+function OnRemoveBuff(unit, buff)
+    if not unit or not buff or unit.type ~= myHero.type then return end
+        if unit and unit.isMe and buff.name == "RegenerationPotion" then
+            UsingPot = false
+    end
+end
+
+function OnCreateObj(obj)
+    --if GetDistance(obj)<50 then PrintChat(""..obj.name) end
+    if GetDistance(obj)<100 and obj.name:lower():find("yasuo") and obj.name:lower():find("trail") then
+        --PrintChat("BLA")
+        attacked = true
+    end
+    if obj and obj.name==Champions["Ezreal"].skillshots["EzrealTrueshotBarrage"].projectileName then 
+        fuckedUpParticle = obj 
+        fuckedUpSpell = Champions["Ezreal"].skillshots["EzrealTrueshotBarrage"]
+    end
+    if obj and obj.name==Champions["Ashe"].skillshots["EnchantedCrystalArrow"].projectileName then 
+        fuckedUpParticle = obj 
+        fuckedUpSpell = Champions["Ashe"].skillshots["EnchantedCrystalArrow"]        
+    end
+    if obj and obj.name==Champions["Ziggs"].skillshots["ZiggsR"].projectileName then 
+        fuckedUpParticle = obj 
+        fuckedUpSpell = Champions["Ziggs"].skillshots["ZiggsR"]
+    end
+    if obj and obj.name==Champions["Caitlyn"].skillshots["CaitlynHeadshotMissile"].projectileName then 
+        fuckedUpParticle = obj 
+        fuckedUpSpell = Champions["Caitlyn"].skillshots["CaitlynHeadshotMissile"]
+    end
+
+ 
+    if obj and GetDistance(obj)<=50 then
+        if obj.name == qBuffName then 
+            SteelTempest = true
+        end
+    end
+
+    if obj.name=="Yasuo_base_R_indicator.beam.troy" then
+        knockedUp = knockedUp + 1
+    end
+    if GetDistance(myHero, obj) < 50 and obj.name:lower():find("teleporthome") then
+        isRecalling = true
+    end
+end
+ 
+function OnDeleteObj(obj)
+    if obj.name=="Yasuo_base_R_indicator.beam.troy" then
+        knockedUp = knockedUp - 1
+    end
+
+    if obj and GetDistance(obj)<=50 then
+        if obj.name == qBuffName then 
+                SteelTempest = false
+        end
+    end
+    if GetDistance(myHero, obj) < 50 and obj.name:lower():find("teleporthome") then
+        DelayAction(function() isRecalling = false end, 0.5)
+    end
+end
+
+function lowHp(unit)
+    if unit.health <= (Config.SMother.usePots/100*myHero.maxHealth) then
+        return true
+    else
+        return false
+    end
+end
+
+function AutoPots()
+    if REGPOT and CanCast(REGPOT) and lowHp(myHero) and not UsingPot and not IsRecalling then 
+        CastSpell(REGPOT) 
+    end
+end
+
 function GetItemSlot()
         for slot = ITEM_1, ITEM_7 do
                 local currentItemName = myHero:GetSpellData(slot).name
@@ -1924,6 +1993,12 @@ function GetItemSlot()
                 BORK = slot
                 elseif currentItemName == "RanduinsOmen" then
                 RAMEN = slot
+                elseif currentItemName == "RegenerationPotion" then
+                REGPOT = slot
+                elseif currentItemName == "QuicksilverSash" then
+                QSS = slot
+                elseif currentItemName == "ItemMercurial" then
+                MERC = slot
                 end
         end
 end
@@ -1935,4 +2010,16 @@ function Items()
         if Ghostblade and CanCast(Ghostblade) then CastSpell(Ghostblade) end
         if RAMEN and CanCast(RAMEN) and GetDistance(Target) <= 400 then CastSpell(RAMEN) end
     end 
+end
+
+function CountEnemiesNearUnitReg(unit, range)
+    local count = 0
+    for i, enemy in pairs(sEnemies) do
+        if not enemy.dead and enemy.visible then
+            if  GetDistanceSqr(unit, enemy) < range * range  then 
+                count = count + 1 
+            end
+        end
+    end
+    return count
 end
