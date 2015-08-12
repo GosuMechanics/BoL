@@ -1895,7 +1895,7 @@ function OnApplyBuff(source, unit, buff)
             if buff.name and buff.name:lower():find("caitlynyor") and CountEnemiesNearUnitReg(myHero, 700) == 0   then
                 return false
             elseif not buff.name:lower():find("rocketgrab2") then
-                if QSS and CanCast(QSS) then 
+                if Config.SMother.useqss and QSS and CanCast(QSS) then 
                     DelayAction(function()
                         CastSpell(QSS)
                     end, 0.1 - GetLatency()/1000)
