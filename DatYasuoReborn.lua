@@ -1,6 +1,3 @@
-function Print(message) print("<font color=\"#7BF6B6\"><b>DatYasuo Reborn:</font> </b><font color=\"#FFFFFF\">" .. message) end
-
-
 if myHero.charName ~= "Yasuo" then return end
 
     --require 'SimpleLib'
@@ -762,7 +759,7 @@ local isSx
 local isSac
 local count = 0
 local UsingPot = false
-local lastremove = 0
+local lastRemove = 0
 local version = 1.0
 --local Ignite = { name = "summonerdot", range = 600, slot = nil }
 
@@ -794,9 +791,108 @@ function OnLoad()
 
     LoadOrbwalker()
 
+    print("<font color=\"#7BF6B6\"><b>DatYasuo Reborn : 1.0</font>")
+
+
     --QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = true, Type = SPELL_TYPE.LINEAR}):AddDraw()
     UPL:AddSpell(_Q, { speed = 1500, delay = 0.75, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
     UPL:AddSpell(-2, { speed = 1500, delay = 0.75, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
+
+        ItemNames               = {
+        [3303]              = "ArchAngelsDummySpell",
+        [3007]              = "ArchAngelsDummySpell",
+        [3144]              = "BilgewaterCutlass",
+        [3188]              = "ItemBlackfireTorch",
+        [3153]              = "ItemSwordOfFeastAndFamine",
+        [3405]              = "TrinketSweeperLvl1",
+        [3411]              = "TrinketOrbLvl1",
+        [3166]              = "TrinketTotemLvl1",
+        [3450]              = "OdinTrinketRevive",
+        --[2041]                = "ItemCrystalFlask",
+        [2054]              = "ItemKingPoroSnack",
+        [2138]              = "ElixirOfIron",
+        [2137]              = "ElixirOfRuin",
+        [2139]              = "ElixirOfSorcery",
+        [2140]              = "ElixirOfWrath",
+        [3184]              = "OdinEntropicClaymore",
+        [2050]              = "ItemMiniWard",
+        [3401]              = "HealthBomb",
+        [3363]              = "TrinketOrbLvl3",
+        [3092]              = "ItemGlacialSpikeCast",
+        [3460]              = "AscWarp",
+        [3361]              = "TrinketTotemLvl3",
+        [3362]              = "TrinketTotemLvl4",
+        [3159]              = "HextechSweeper",
+        [2051]              = "ItemHorn",
+        --[2003]            = "RegenerationPotion",
+        [3146]              = "HextechGunblade",
+        [3187]              = "HextechSweeper",
+        [3190]              = "IronStylus",
+        --[2004]                = "FlaskOfCrystalWater",
+        [3139]              = "ItemMercurial",
+        [3222]              = "ItemMorellosBane",
+        [3042]              = "Muramana",
+        [3043]              = "Muramana",
+        [3180]              = "OdynsVeil",
+        [3056]              = "ItemFaithShaker",
+        [2047]              = "OracleExtractSight",
+        [3364]              = "TrinketSweeperLvl3",
+        [2052]              = "ItemPoroSnack",
+        [3140]              = "QuicksilverSash",
+        [3143]              = "RanduinsOmen",
+        [3074]              = "ItemTiamatCleave",
+        [3800]              = "ItemRighteousGlory",
+        [2045]              = "ItemGhostWard",
+        [3342]              = "TrinketOrbLvl1",
+        [3040]              = "ItemSeraphsEmbrace",
+        [3048]              = "ItemSeraphsEmbrace",
+        [2049]              = "ItemGhostWard",
+        [3345]              = "OdinTrinketRevive",
+        [2044]              = "SightWard",
+        [3341]              = "TrinketSweeperLvl1",
+        [3069]              = "shurelyascrest",
+        [3599]              = "KalistaPSpellCast",
+        [3185]              = "HextechSweeper",
+        [3077]              = "ItemTiamatCleave",
+        [2009]              = "ItemMiniRegenPotion",
+        [2010]              = "ItemMiniRegenPotion",
+        [3023]              = "ItemWraithCollar",
+        [3290]              = "ItemWraithCollar",
+        [2043]              = "VisionWard",
+        [3340]              = "TrinketTotemLvl1",
+        [3090]              = "ZhonyasHourglass",
+        [3154]              = "wrigglelantern",
+        [3142]              = "YoumusBlade",
+        [3157]              = "ZhonyasHourglass",
+        [3512]              = "ItemVoidGate",
+        [3131]              = "ItemSoTD",
+        [3137]              = "ItemDervishBlade",
+        [3352]              = "RelicSpotter",
+        [3350]              = "TrinketTotemLvl2",
+        [3085]              = "AtmasImpalerDummySpell",
+    }
+    --[[Items = {
+        ["QSS"]         = { id = 3140, range = 2500 },
+        ["MercScim"]    = { id = 3139, range = 2500 },
+    }]]
+    Items = {
+        ["ELIXIR"]      = { id = 2140, range = 2140, target = false},
+        ["QSS"]         = { id = 3140, range = 2500, target = false},
+        ["MercScim"]    = { id = 3139, range = 2500, target = false},
+        ["BRK"]         = { id = 3153, range = 450, target = true},
+        ["BWC"]         = { id = 3144, range = 450, target = true},
+        --["DFG"]           = { id = 3128, range = 750, target = false},
+        ["HXG"]         = { id = 3146, range = 700, target = false},
+        ["ODYNVEIL"]    = { id = 3180, range = 525, target = false},
+        ["DVN"]         = { id = 3131, range = 200, target = false},
+        ["ENT"]         = { id = 3184, range = 350, target = false},
+        ["HYDRA"]       = { id = 3074, range = 350, target = false},
+        ["TIAMAT"]      = { id = 3077, range = 350, target = false},
+        ["RanduinsOmen"]    = { id = 3143, range = 500, target = false},
+        ["YGB"]         = { id = 3142, range = 600, target = false},
+    }
+    ___GetInventorySlotItem = rawget(_G, "GetInventorySlotItem")
+    _G.GetInventorySlotItem = GetSlotItem
 
 end
 
@@ -1034,6 +1130,7 @@ function Menu()
     Config.SMfarm:addParam("useEFarm", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("onlyLHE", "Use E only to last hit", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("saveQ", "Save 3rd Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMfarm:addParam("useitemsfarm", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
     --Config.SMfarm:addParam("useAA", "Autoattack",SCRIPT_PARAM_ONOFF, true)
     --Config.SMfarm:addParam("useMove", "Move to Mouse", SCRIPT_PARAM_ONOFF, true)
 
@@ -1062,6 +1159,7 @@ function Menu()
     Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
     Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
     --Config:addParam("dodge", "E-vade Test", SCRIPT_PARAM_ONOFF, true)
 
     --OrbwalkManager:LoadCommonKeys(Config.Keys)
@@ -1450,9 +1548,10 @@ function farm()
                         end
                 else
                     if Config.SMfarm.useQFarm and QREADY then Q(EnemyMinion, true) end
-                    if TiamatR and GetDistance(EnemyMinion) < 400 then CastSpell(Tiamat) end
-                    if Hydra and GetDistance(EnemyMinion) < 400 then CastSpell(Hydra) end
-                    if Config.SMfarm.useAA then myHero:Attack(EnemyMinion) end 
+                    --if TiamatR and GetDistance(EnemyMinion) < 400 then CastSpell(Tiamat) end
+                    --if Hydra and GetDistance(EnemyMinion) < 400 then CastSpell(Hydra) end
+                    --if Config.SMfarm.useAA then myHero:Attack(EnemyMinion) end
+                    if Config.SMfarm.useitemsfarm then CastItem(3074, EnemyMinion) end
                 end
     else
         EnemyMinion = selectMinion()
@@ -1699,7 +1798,7 @@ function SBTW()
                 Q3(Target)               
             end
             if Config.SMsbtw.useitems then
-                Items(Target)
+                UseItems(Target)
             end
 
         if EREADY and TargetDistance > eRange and Config.SMsbtw.useEGap then
@@ -1896,11 +1995,7 @@ function OnApplyBuff(source, unit, buff)
             if buff.name and buff.name:lower():find("caitlynyor") and CountEnemiesNearUnitReg(myHero, 700) == 0   then
                 return false
             elseif not buff.name:lower():find("rocketgrab2") then
-                if Config.SMother.useqss and QSS and CanCast(QSS) then 
-                    DelayAction(function()
-                        CastSpell(QSS)
-                    end, 0.5)
-                 end
+                UseQSS(myHero, true)
             end          
         end                    
     end 
@@ -1982,35 +2077,55 @@ function AutoPots()
 end
 
 function GetItemSlot()
-        for slot = ITEM_1, ITEM_7 do
-                local currentItemName = myHero:GetSpellData(slot).name
-                if currentItemName == "ItemTiamatCleave" then
-                Hydra = slot
-                elseif currentItemName  == "YoumusBlade" then
-                Ghostblade = slot
-                elseif currentItemName == "ItemSwordOfFeastAndFamine" then
-                BORK = slot
-                elseif currentItemName == "BilgewaterCutlass" then
-                BORK = slot
-                elseif currentItemName == "RanduinsOmen" then
-                RAMEN = slot
-                elseif currentItemName == "RegenerationPotion" then
-                REGPOT = slot
-                elseif currentItemName == "QuicksilverSash" then
-                QSS = slot
-                elseif currentItemName == "ItemMercurial" then
-                MERC = slot
-                end
+    for slot = ITEM_1, ITEM_7 do
+        local currentItemName = myHero:GetSpellData(slot).name
+        if currentItemName == "RegenerationPotion" then
+            REGPOT = slot
         end
+    end
 end
 
-function Items()
+--[[function Items()
     if Config.sbtw and Config.SMsbtw.useitems and ValidTarget(Target) then
         if Hydra and CanCast(Hydra) and GetDistance(Target) <= 200 then CastSpell(Hydra) end
         if BORK and CanCast(BORK) then CastSpell(BORK, Target) end
         if Ghostblade and CanCast(Ghostblade) then CastSpell(Ghostblade) end
         if RAMEN and CanCast(RAMEN) and GetDistance(Target) <= 400 then CastSpell(RAMEN) end
     end 
+end]]
+
+function UseQSS(unit, scary)
+    if lastRemove > os.clock() - 1 then return end
+    for i, Item in pairs(Items) do
+        local Item = Items[i]
+        if GetInventoryItemIsCastable(Item.id) and GetDistanceSqr(unit) <= Item.range * Item.range then
+            if Item.id == 3139 or Item.id ==  3140 then
+                if scary then
+                    DelayAction(function()
+                        CastItem(Item.id)
+                    end, Config.SMother.delay/1000)    
+                    lastRemove = os.clock()
+                    return true
+                end
+            end
+        end
+    end
+end
+
+function UseItems(unit, scary)
+    if not ValidTarget(unit) and unit ~= myHero then return end
+    for i, Item in pairs(Items) do
+        local Item = Items[i]
+        if Item.id ~= 3140 and Item.id ~= 3139 then
+            if GetInventoryItemIsCastable(Item.id) and GetDistanceSqr(unit) <= Item.range * Item.range then
+                if Item.id == 3143 or Item.id == 3077 or Item.id == 3074 or Item.id == 3131 or Item.id == 3142 or Item.id == 2140 then
+                    CastItem(Item.id)
+                else
+                    CastItem(Item.id, unit) return true
+                end
+            end
+        end
+    end
 end
 
 function CountEnemiesNearUnitReg(unit, range)
@@ -2023,4 +2138,32 @@ function CountEnemiesNearUnitReg(unit, range)
         end
     end
     return count
+end
+
+function GetSlotItemFromName(itemname)
+    local slot
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if ((#item > 0) and (item:lower() == itemname:lower())) then
+            slot = i
+        end
+    end
+    return slot
+end
+
+function GetSlotItem(id, unit)
+    unit = unit or myHero
+
+    if (not ItemNames[id]) then
+        return ___GetInventorySlotItem(id, unit)
+    end
+
+    local name  = ItemNames[id]
+    
+    for slot = ITEM_1, ITEM_7 do
+        local item = unit:GetSpellData(slot).name
+        if ((#item > 0) and (item:lower() == name:lower())) then
+            return slot
+        end
+    end
 end
