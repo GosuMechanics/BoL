@@ -900,7 +900,8 @@ function OnProcessSpell(object,spellProc)
                     DelayAction(function()
                         CastSpell(QSS)
                     end, 1.5)
-                end
+            end
+    end
     --[[if Config.dodge then
         if object.team ~= player.team and not player.dead and string.find(spellProc.name, "Basic") == nil then
             if Champions[object.charName] ~= nil then
