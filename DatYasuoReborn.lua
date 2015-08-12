@@ -1100,7 +1100,7 @@ end
 
 function Menu()
     Config = scriptConfig("Gosu Mechanics", "yasuo")
-    Config:addSubMenu("Harass Options", "SMharass")
+    Config:addSubMenu("Auto-Q/Harass Options", "SMharass")
     Config:addSubMenu("Farm Options", "SMfarm")
     Config:addSubMenu("Last Hit Options", "SMsmart")
     Config:addSubMenu("Combo Options", "SMsbtw")
@@ -1111,8 +1111,8 @@ function Menu()
     Config:addSubMenu("Drawing Options", "SMdraw")
     Config:addSubMenu("Blocks", "SMblocks")
     --Config:addSubMenu("Prediction HitChance", "predhc")
-    Config:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 3, 0, 3, 1)
-    UPL:AddToMenu2(Config)
+    Config:addParam("hc", "Prediction HitChance", SCRIPT_PARAM_SLICE, 3, 0, 3, 1)
+    UPL:AddToMenu(Config)
 
     --Add prediction selector to the given scriptConfig-menu
 
@@ -1120,11 +1120,15 @@ function Menu()
     Config.SMsmart:addDynamicParam("smartfarm", "Smart Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
     Config.SMsbtw:addDynamicParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
     Config.SMflee:addDynamicParam("flee", "Flee", SCRIPT_PARAM_ONKEYDOWN, false, 88)
-    Config.SMharass:addDynamicParam("qflee", "Harrass/Harras Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("C"))
+    Config.SMharass:addDynamicParam("qflee", "Auto-Q/Harras Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("C"))
     --Config:addParam("isPressed", "debug", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
     --Config.SMharass:addParam("autoQ", "Auto-Q", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
     --Config.SMharass:addParam("underTower", "Auto-Q under Tower", SCRIPT_PARAM_ONOFF, true)
+    Config.SMharass:addParam("useQ12", "Use Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMharass:addParam("useQ3", "Use Q3", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("DistanceToQ", "max Distance for 3rd Q",SCRIPT_PARAM_SLICE, 750, 475, 900, 0)
+    Config.SMharass:addParam("useQminion", "AutoQ EnemyMinion", SCRIPT_PARAM_ONOFF, true)
+    Config.SMharass:addParam("useQjungle", "AutoQ JungleMob", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMsmart:addParam("useQsmart", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useEsmart", "Use E", SCRIPT_PARAM_ONOFF, true)
@@ -1274,6 +1278,10 @@ function OnTick()
 
         if Config.SMharass.qflee then
             AutoQminion()
+        end
+
+        if Config.SMharass.qflee then
+            AutoQenemyminion()
         end
         
         AutoIgnite()
@@ -1441,10 +1449,10 @@ end
 
 function AutoQenemy(unit, minion)
     if Target ~= nil and not IsRecalling then
-        if Q12READY and ValidTarget(Target) and Ranges.Q12 then
+        if Q12READY and ValidTarget(Target) and Config.SMharass.useQ12 and Ranges.Q12 then
             Qstrike12(Target)
         end
-        if Q3READY and ValidTarget(Target) and Ranges.Q3 <= Config.SMharass.DistanceToQ then
+        if Q3READY and ValidTarget(Target) and Config.SMharass.useQ3 and Ranges.Q3 <= Config.SMharass.DistanceToQ then
             Qstrike3(Target)
         end
     end
@@ -1454,12 +1462,24 @@ function AutoQminion(unit, minion)
     selectMinion()
     for index, minion in pairs(JungleFarmMinions.objects) do
         if ValidTarget(minion) and not IsRecalling then
-            if Q12READY and GetDistance(minion) <= q[i].Range then
+            if Q12READY and Config.SMharass.useQjungle and GetDistance(minion) <= q[i].Range then
                Qstrike12(minion)
             end
         end
     end
 end
+
+function AutoQenemyminion(unit, minion)
+    selectMinion()
+    for index, minion in pairs(EnemyMinions.objects) do
+        if ValidTarget(minion) and not IsRecalling then
+            if Q12READY and Config.SMharass.useQminion and GetDistance(minion) <= q[i].Range then
+               Qstrike12(minion)
+            end
+        end
+    end
+end
+
 
 function Qstrike12(unit, minion)
     local CastPacket = Config.SMother.usePackets
