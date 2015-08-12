@@ -762,7 +762,7 @@ local count = 0
 --local Ignite = { name = "summonerdot", range = 600, slot = nil }
 
 function OnLoad()
- 
+    
     if not _G.UPLloaded then
         if FileExist(LIB_PATH .. "/UPL.lua") then
             require("UPL")
@@ -1233,7 +1233,7 @@ function sbtwR()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 1 - GetLatency()/1000)
+            end, 0.5 - GetLatency()/1000)
         end
     end
 end
@@ -1241,10 +1241,10 @@ end
 function AutoUltKillable()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if ValidTarget(Target, rRange) and Rks(Target) then
+        if Config.SMult.autoult and ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 1 - GetLatency()/1000)
+            end, 0.5 - GetLatency()/1000)
         end
     end
 end
@@ -1263,11 +1263,13 @@ function AutoUlt()
     knocked = 0
     for i, v in ipairs(GetEnemyHeroes()) do
         if not v.canMove and v.y > 130 and ValidTarget(v) then
-        knocked = knocked + 1
-        if knocked >= Config.SMult.Ult3 and Config.SMult.autoult and CanCast(_R) then
-            DelayAction(function()
-                CastSpell(_R)
-                end, 1 - GetLatency()/1000)
+            knocked = knocked + 1
+            if Config.SMult.autoult and RREADY and CanCast(_R) then
+                if knocked >= Config.SMult.Ult3 then
+                    DelayAction(function()
+                        CastSpell(_R)
+                    end, 0.1 - GetLatency()/1000)
+                end
             end
         end
     end
@@ -1329,14 +1331,14 @@ function Q12(unit, minion)
     local CastPacket = Config.SMother.usePackets
     if Q12READY and ValidTarget(unit,475) then
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q12, Widths.Q12, Ranges.Q12, Speeds.Q12, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, Target)
+            CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, Target)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
                     CastSpell(_Q, CastPosition.x, CastPosition.z)
                 elseif CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+                    Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
             end
         end
     end
@@ -1347,13 +1349,13 @@ function Q3(unit, minion)
     if Q3READY and ValidTarget(unit,900) then
 
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q3, Widths.Q3, Ranges.Q3, Speeds.Q3, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, Target)
+            CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, Target)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 900^2 then
                     CastSpell(_Q, CastPosition.x, CastPosition.z)
                 elseif CastPacket and not IsDashing() then
-                Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+                    Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
             end
         end     
     end
@@ -1385,14 +1387,14 @@ function Qstrike12(unit, minion)
     local CastPacket = Config.SMother.usePackets
     if Q12READY and ValidTarget(unit,475) then
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q12, Widths.Q12, Ranges.Q12, Speeds.Q12, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
+            CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
                     CastSpell(_Q, CastPosition.x, CastPosition.z)
                 elseif CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 475^2 then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+                    Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
             end
         end
     end
@@ -1403,13 +1405,13 @@ function Qstrike3(unit, minion)
     if Q3READY and ValidTarget(unit,900) then
 
             --local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, Delays.Q3, Widths.Q3, Ranges.Q3, Speeds.Q3, myHero, false)
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, unit)
+            CastPosition, HitChance, HeroPosition = UPL:Predict(-2, myHero, unit)
             if HitChance >= Config.hc then
                 if not CastPacket and not IsDashing() then
                 --if GetDistanceSqr(CastPosition) <= 900^2 then
                     CastSpell(_Q, CastPosition.x, CastPosition.z)
                 elseif CastPacket and not IsDashing() then
-                Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+                    Packet("S_CAST", {spellId = _Q3, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
             end
         end     
     end
@@ -1595,43 +1597,43 @@ end)
 
 function Q(unit, minion)
     if minion == nil then minion = false end
-    local bias = 0
-    if QREADY and unit ~= nil and dashed == nil then
-        if SteelTempest then
-            bias = 900 - Config.SMharass.DistanceToQ
-        else
-            bias = 75
-        end
-        if GetDistance(unit) <= (q[i].Range-bias) then
+        local bias = 0
+        if QREADY and unit ~= nil and dashed == nil then
+            if SteelTempest then
+                bias = 900 - Config.SMharass.DistanceToQ
+            else
+                bias = 75
+            end
+            if GetDistance(unit) <= (q[i].Range-bias) then
+                if not minion then
+                    CastPosition = pPos[i]
+                else 
+                    CastPosition = unit
+                end
+                CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
+                if HitChance >= Config.hc then
+                    if VIP_USER and Config.SMother.usePackets then
+                        Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+                    else
+                        CastSpell(_Q, CastPosition.x, CastPosition.z)
+                    end
+                end
+            end
+        end 
+        if QREADY and dashed~=nil and unit~= nil then        
             if not minion then
                 CastPosition = pPos[i]
             else 
                 CastPosition = unit
             end
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
+            if GetDistance(pPos[i])<(q[0].Width) then
+                dashed = nil
+            CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
             if HitChance >= Config.hc then
-            if VIP_USER and Config.SMother.usePackets then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
-            else
-                CastSpell(_Q, CastPosition.x, CastPosition.z)
-                end
-            end
-        end
-    end 
-    if QREADY and dashed~=nil and unit~= nil then        
-        if not minion then
-            CastPosition = pPos[i]
-        else 
-            CastPosition = unit
-        end
-        if GetDistance(pPos[i])<(q[0].Width) then
-            dashed = nil
-            local CastPosition, HitChance, HeroPosition = UPL:Predict(_Q, myHero, unit)
-            if HitChance >= Config.hc then
-            if VIP_USER and Config.SMother.usePackets then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
-            else
-                CastSpell(_Q, CastPosition.x, CastPosition.z) 
+                if VIP_USER and Config.SMother.usePackets then
+                    Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+                else
+                    CastSpell(_Q, CastPosition.x, CastPosition.z) 
                 end
             end
         end
