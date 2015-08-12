@@ -1102,7 +1102,9 @@ function Menu()
     Config = scriptConfig("Gosu Mechanics", "yasuo")
     Config:addSubMenu("Harass Options", "SMharass")
     Config:addSubMenu("Farm Options", "SMfarm")
+    Config:addSubMenu("Last Hit Options", "SMsmart")
     Config:addSubMenu("Combo Options", "SMsbtw")
+    Config:addSubMenu("Flee Options", "SMflee")
     Config:addSubMenu("Auto Ult Options", "SMult")
     Config:addSubMenu("Other Options", "SMother")
     --Config:addSubMenu("E-vade", "SMevade")
@@ -1110,19 +1112,22 @@ function Menu()
     Config:addSubMenu("Blocks", "SMblocks")
     --Config:addSubMenu("Prediction HitChance", "predhc")
     Config:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 3, 0, 3, 1)
+    UPL:AddToMenu2(Config)
 
     --Add prediction selector to the given scriptConfig-menu
 
-    Config:addParam("farm", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
-    Config:addParam("smartfarm", "Smart Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
-    Config:addParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-    Config:addParam("flee", "Flee", SCRIPT_PARAM_ONKEYDOWN, false, 88)
-    Config:addParam("qflee", "AutoQ", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("C"))
+    Config.SMfarm:addDynamicParam("farm", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
+    Config.SMsmart:addDynamicParam("smartfarm", "Smart Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
+    Config.SMsbtw:addDynamicParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+    Config.SMflee:addDynamicParam("flee", "Flee", SCRIPT_PARAM_ONKEYDOWN, false, 88)
+    Config.SMharass:addDynamicParam("qflee", "Harrass/Harras Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("C"))
     --Config:addParam("isPressed", "debug", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
-    UPL:AddToMenu2(Config)
     --Config.SMharass:addParam("autoQ", "Auto-Q", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
     --Config.SMharass:addParam("underTower", "Auto-Q under Tower", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("DistanceToQ", "max Distance for 3rd Q",SCRIPT_PARAM_SLICE, 750, 475, 900, 0)
+
+    Config.SMsmart:addParam("useQsmart", "Use Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsmart:addParam("useEsmart", "Use E", SCRIPT_PARAM_ONOFF, true)
 
     --Config.SMfarm:addParam("useOldLC", "Use old Lane Clear", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("towerFarm", "Smart Lane Clear", SCRIPT_PARAM_ONOFF, true)    
@@ -1192,8 +1197,8 @@ function Menu()
     --Config:permaShow("sbtw")
     --Config:permaShow("smartfarm")
     --Config:permaShow("farm")
-    Config:permaShow("flee")
-    Config:permaShow("qflee")
+    Config.SMflee:permaShow("flee")
+    Config.SMharass:permaShow("qflee")
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
     Config.SMother:permaShow("useqss")
@@ -1247,13 +1252,13 @@ function OnTick()
 
         if Config.SMother.killsteal then killSteal() end
 
-        if Config.sbtw then 
+        if Config.SMsbtw.sbtw then 
             SBTW() 
-        elseif Config.farm then
+        elseif Config.SMfarm.farm then
             farm()
-        elseif Config.flee then
+        elseif Config.SMflee.flee then
             flee()
-        elseif Config.smartfarm then
+        elseif Config.SMsmart.smartfarm then
             smartfarm()
         end
 
@@ -1263,11 +1268,11 @@ function OnTick()
 
             AutoUltKillable()
         --killSteal()
-        if Config.qflee then
+        if Config.SMharass.qflee then
             AutoQenemy()
         end
 
-        if Config.qflee then
+        if Config.SMharass.qflee then
             AutoQminion()
         end
         
@@ -1512,7 +1517,7 @@ function farm()
             if not Config.SMfarm.towerFarm and UnderTurret(eEndPos(minion)) then
                 return
             end
-            if (Config.SMfarm.useEFarm and Config.farm) then
+            if (Config.SMfarm.useEFarm and Config.SMfarm.farm) then
                 CastSpell(_E,minion)
             end
         end
@@ -1719,7 +1724,7 @@ function smartfarm() -- BY LittleRedEye
     for index, minion in pairs(EnemyMinions.objects) do
         if ValidTarget(minion) then
             local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
-            if QREADY and GetDistance(minion) <= q[i].Range and Config.SMfarm.useQFarm then
+            if QREADY and GetDistance(minion) <= q[i].Range and Config.SMsmart.useQsmart then
                 if qDmg >= minion.health then 
                     if not (Config.SMfarm.saveQ and SteelTempest) then
                         Q(minion, true)
@@ -1727,7 +1732,7 @@ function smartfarm() -- BY LittleRedEye
                 end
             end
             local eDmg = getEDmg(minion)
-            if EREADY and GetDistance(minion) <= eRange and Config.SMfarm.useEFarm then
+            if EREADY and GetDistance(minion) <= eRange and Config.SMsmart.useEsmart then
                 if eDmg >= minion.health and not UnderTurret(eEndPos(minion), true) then 
                     E(minion)
                 end
@@ -1784,7 +1789,7 @@ end
 
 function SBTW()
     if Target ~= nil then
-        if Config.sbtw and Config.SMsbtw.useR and RREADY then
+        if Config.SMsbtw.sbtw and Config.SMsbtw.useR and RREADY then
             sbtwR()
         end
     --if Target ~= nil then
