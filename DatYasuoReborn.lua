@@ -801,9 +801,9 @@ function OnLoad()
     ToUpdate.Version = 1.0
     ToUpdate.UseHttps = true
     ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/DatYasuo%20Reborn.version"
-    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/DatYasuo%20Reborn.lua"
-    ToUpdate.SavePath = SCRIPT_PATH.."/DatYasuo Reborn.lua"
+    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/DatYasuoReborn.version"
+    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/DatYasuoReborn.lua"
+    ToUpdate.SavePath = SCRIPT_PATH.."/DatYasuoReborn.lua"
     ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
     ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found") end
     ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
