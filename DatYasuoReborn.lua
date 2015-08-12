@@ -1,3 +1,6 @@
+function Print(message) print("<font color=\"#7BF6B6\"><b>DatYasuo Reborn:</font> </b><font color=\"#FFFFFF\">" .. message) end
+
+
 if myHero.charName ~= "Yasuo" then return end
 
     --require 'SimpleLib'
@@ -795,20 +798,6 @@ function OnLoad()
     UPL:AddSpell(_Q, { speed = 1500, delay = 0.75, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
     UPL:AddSpell(-2, { speed = 1500, delay = 0.75, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
 
-    PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn 1.0</b></font>")
-
-    local ToUpdate = {}
-    ToUpdate.Version = 1.0
-    ToUpdate.UseHttps = true
-    ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/DatYasuoReborn.version"
-    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/DatYasuoReborn.lua"
-    ToUpdate.SavePath = SCRIPT_PATH.."/DatYasuoReborn.lua"
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
-    ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found") end
-    ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
-    ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
-    SxScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
 end
 
 function findClosestEnemy(obj)
@@ -1109,6 +1098,7 @@ function Menu()
     Config:permaShow("qflee")
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
+    Config.SMother:permaShow("useqss")
     Config.SMult:permaShow("autoult")
     Config.SMult:permaShow("autoR")
 end
@@ -1196,7 +1186,7 @@ end
 end]]
 
 function Rks(unit)
-    if unit.health <= (Config.SMult.autoRkillable/100*unit.maxHealth) then
+    if unit.health <= (Config.SMult.autoRkillable/100*unit.maxHealth)*1.5 then
         return true
     else
         return false
@@ -1218,7 +1208,7 @@ function sbtwR()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 0.5 - GetLatency()/1000)
+            end, 0.5)
         end
     end
 end
@@ -1229,7 +1219,7 @@ function AutoUltKillable()
         if Config.SMult.autoult and ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 0.5 - GetLatency()/1000)
+            end, 0.5)
         end
     end
 end
@@ -1253,7 +1243,7 @@ function AutoUlt()
                 if knocked >= Config.SMult.Ult3 then
                     DelayAction(function()
                         CastSpell(_R)
-                    end, 0.1 - GetLatency()/1000)
+                    end, 0.5)
                 end
             end
         end
@@ -1691,8 +1681,6 @@ function flee()
     else 
         myHero:MoveTo(mousePos.x, mousePos.z) 
     end
-    if BORK and CanCast(BORK) then CastSpell(BORK, Target) end
-    if RAMEN and CanCast(RAMEN) and GetDistance(Target) <= 400 then CastSpell(RAMEN) end
 end
 
 function SBTW()
@@ -1911,7 +1899,7 @@ function OnApplyBuff(source, unit, buff)
                 if Config.SMother.useqss and QSS and CanCast(QSS) then 
                     DelayAction(function()
                         CastSpell(QSS)
-                    end, 0.1 - GetLatency()/1000)
+                    end, 0.5)
                  end
             end          
         end                    
