@@ -1,7 +1,7 @@
 if myHero.charName ~= "Yasuo" then return end
 
-	--require 'SimpleLib'
-	--require 'VPrediction'
+    --require 'SimpleLib'
+    --require 'VPrediction'
     --require ("UPL")
    --UPL = UPL()
 
@@ -35,58 +35,58 @@ _G.BUFF_KNOCKUP = 29
 _G.BUFF_KNOCKBACK = 30
 _G.BUFF_DISARM = 31
     class 'BuffManager'
-	
-	AdvancedCallback:register('OnApplyBuff', 'OnRemoveBuff')
-	
-	function BuffManager:__init()
-		self.heroes = {}
-		self.buffs  = {}
-		for i = 1, heroManager.iCount do
-        	local hero = heroManager:GetHero(i)
-       		table.insert(self.heroes, hero)
-        	self.buffs[hero.networkID] = {}
-    	end
-    	AddTickCallback(function () self:Tick() end)
-	end
+    
+    AdvancedCallback:register('OnApplyBuff', 'OnRemoveBuff')
+    
+    function BuffManager:__init()
+        self.heroes = {}
+        self.buffs  = {}
+        for i = 1, heroManager.iCount do
+            local hero = heroManager:GetHero(i)
+            table.insert(self.heroes, hero)
+            self.buffs[hero.networkID] = {}
+        end
+        AddTickCallback(function () self:Tick() end)
+    end
 
-	function BuffManager:Tick()
-		for i, hero in ipairs(self.heroes) do
-			for i = 1, hero.buffCount do
-				local buff = hero:getBuff(i)
-				if self:Valid(buff) then
-					local info = {unit = hero, buff = buff, slot = i, sent = false, sent2 = false}
-					if not self.buffs[hero.networkID][info.buff.name] then
-						self.buffs[hero.networkID][info.buff.name] = info
-					end
-				end
-			end
-		end
-		for nid, table in pairs(self.buffs) do
-			for i, buffs in pairs(table) do
-				local buff = buffs.buff
-				if self:Valid(buff) and not buffs.sent then
-					local buffinfo = {name = buff.name:lower(), slot = buff.slot, duration = (buff.endT - buff.startT), startTime = buff.startT, endTime  = buff.endT, stacks = 1, type = buff.type}
-					AdvancedCallback:OnApplyBuff(buffs.source, buffs.unit, buffinfo)
-					buffs.sent = true
-				elseif not self:Valid(buff) and not buffs.sent2 then
-					local buffinfo = {name = buff.name:lower(), slot = buff.slot, duration = (buff.endT - buff.startT), startTime = buff.startT, endTime = buff.endT, stacks = 0, type = buff.type}
-					AdvancedCallback:OnRemoveBuff(buffs.unit, buffinfo)
-					self.buffs[buffs.unit.networkID][buff.name] = nil
-					buffs.sent2 = true
-				end
-			end
-		end
-	end
+    function BuffManager:Tick()
+        for i, hero in ipairs(self.heroes) do
+            for i = 1, hero.buffCount do
+                local buff = hero:getBuff(i)
+                if self:Valid(buff) then
+                    local info = {unit = hero, buff = buff, slot = i, sent = false, sent2 = false}
+                    if not self.buffs[hero.networkID][info.buff.name] then
+                        self.buffs[hero.networkID][info.buff.name] = info
+                    end
+                end
+            end
+        end
+        for nid, table in pairs(self.buffs) do
+            for i, buffs in pairs(table) do
+                local buff = buffs.buff
+                if self:Valid(buff) and not buffs.sent then
+                    local buffinfo = {name = buff.name:lower(), slot = buff.slot, duration = (buff.endT - buff.startT), startTime = buff.startT, endTime  = buff.endT, stacks = 1, type = buff.type}
+                    AdvancedCallback:OnApplyBuff(buffs.source, buffs.unit, buffinfo)
+                    buffs.sent = true
+                elseif not self:Valid(buff) and not buffs.sent2 then
+                    local buffinfo = {name = buff.name:lower(), slot = buff.slot, duration = (buff.endT - buff.startT), startTime = buff.startT, endTime = buff.endT, stacks = 0, type = buff.type}
+                    AdvancedCallback:OnRemoveBuff(buffs.unit, buffinfo)
+                    self.buffs[buffs.unit.networkID][buff.name] = nil
+                    buffs.sent2 = true
+                end
+            end
+        end
+    end
 
-	function BuffManager:Valid(buff)
-		return buff and buff.name and buff.startT <= GetGameTimer() and buff.endT >= GetGameTimer()
-	end
+    function BuffManager:Valid(buff)
+        return buff and buff.name and buff.startT <= GetGameTimer() and buff.endT >= GetGameTimer()
+    end
 
-	function BuffManager:HasBuff(unit, buffname)
-		return self.buffs[unit.networkID][buffname]:lower() ~= nil
-	end
-	----------------------------
-	Buffs = BuffManager()
+    function BuffManager:HasBuff(unit, buffname)
+        return self.buffs[unit.networkID][buffname]:lower() ~= nil
+    end
+    ----------------------------
+    Buffs = BuffManager()
 end
 -----------------------------------
 Champions = {
@@ -760,9 +760,23 @@ local isSac
 local count = 0
 local UsingPot = false
 local lastremove = 0
+local version = 1.0
 --local Ignite = { name = "summonerdot", range = 600, slot = nil }
 
 function OnLoad()
+
+    local ToUpdate = {}
+    ToUpdate.Version = 1.0
+    ToUpdate.UseHttps = true
+    ToUpdate.Host = "raw.githubusercontent.com"
+    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/DatYasuo%20Reborn.version"
+    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/DatYasuo%20Reborn.lua"
+    ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
+    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
+    ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found") end
+    ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
+    ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
+    SxScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
     
     if not _G.UPLloaded then
         if FileExist(LIB_PATH .. "/UPL.lua") then
@@ -783,18 +797,18 @@ function OnLoad()
         AdvancedCallback:bind('OnRemoveBuff', function(unit, buff) OnLoseBuff(unit, buff) end)
     end
 
-	Menu()
-	Init()
+    Menu()
+    Init()
 
-	VP = VPrediction()
+    VP = VPrediction()
 
     LoadOrbwalker()
 
-	--QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = true, Type = SPELL_TYPE.LINEAR}):AddDraw()
+    --QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = true, Type = SPELL_TYPE.LINEAR}):AddDraw()
     UPL:AddSpell(_Q, { speed = 1500, delay = 0.75, range = 475, width = 50, collision = false, aoe = true, type = "linear" })
     UPL:AddSpell(-2, { speed = 1500, delay = 0.75, range = 900, width = 90, collision = false, aoe = true, type = "linear" })
 
-	PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn</b></font>")
+    PrintChat("<font color=\"#FF794C\"><b>DatYasuo Reborn</b></font>")
 
 end
 
@@ -843,7 +857,7 @@ if _G.Reborn_Initialised then
 end
 
 function OnProcessSpell(object,spellProc)
-	--if(object.charName=="Yasuo") then PrintChat(spellProc.name .. " " .. object.charName) end
+    --if(object.charName=="Yasuo") then PrintChat(spellProc.name .. " " .. object.charName) end
     if object.isMe and spellProc.name:lower():find("recall") then
         --PrintChat(spellProc.name)
     end    
@@ -853,24 +867,24 @@ function OnProcessSpell(object,spellProc)
         animTime = spellProc.animationTime*0.1
     end 
 
-	if Config.SMother.autoW then 
-		if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
-			if Champions[object.charName] ~= nil then
+    if Config.SMother.autoW then 
+        if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
+            if Champions[object.charName] ~= nil then
                 skillshot = Champions[object.charName].skillshots[spellProc.name]
                 if  skillshot ~= nil and skillshot.blockable == true and not skillshot.fuckedUp then
-					range = skillshot.range
-					if not spellProc.startPos then
+                    range = skillshot.range
+                    if not spellProc.startPos then
                         spellProc.startPos.x = object.x
                         spellProc.startPos.z = object.z                        
                     end                    
                     if GetDistance(spellProc.startPos) <= range then
-						if GetDistance(spellProc.endPos) <= wRange then
-							if WREADY and Config.SMblocks[spellProc.name] then
+                        if GetDistance(spellProc.endPos) <= wRange then
+                            if WREADY and Config.SMblocks[spellProc.name] then
                                 --PrintChat("W TEST")
-								CastSpell(_W, object.x, object.z)
-							end
-						end
-					end
+                                CastSpell(_W, object.x, object.z)
+                            end
+                        end
+                    end
                 end
                 if skillshot ~= nil and skillshot.fuckedUp then 
                     if fuckedUpObject == nil then
@@ -878,9 +892,15 @@ function OnProcessSpell(object,spellProc)
                         fuckedUpObject = object
                     end
                 end
-			end
-		end	
-	end
+            end
+        end 
+    end
+    if spell.name:lower():find("zedult") and spell.target == myHero then
+        if Config.SMother.useqss and QSS and CanCast(QSS) then 
+                    DelayAction(function()
+                        CastSpell(QSS)
+                    end, 1.5)
+                end
     --[[if Config.dodge then
         if object.team ~= player.team and not player.dead and string.find(spellProc.name, "Basic") == nil then
             if Champions[object.charName] ~= nil then
@@ -957,26 +977,26 @@ function fuckedUpSpells()
 end
 
 function Init()
-	
-	qBuffName = "Yasuo_Q_wind_ready_buff.troy"
-	dashed = nil
-	qColor = 0xAA2244
-	wRange = 400
-	eRange = 475
-	rRange = 1200		
-	if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then 
-		ignite = SUMMONER_1
-	elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then 
-		ignite = SUMMONER_2
-	else 
-		ignite = nil
-	end
+    
+    qBuffName = "Yasuo_Q_wind_ready_buff.troy"
+    dashed = nil
+    qColor = 0xAA2244
+    wRange = 400
+    eRange = 475
+    rRange = 1200       
+    if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then 
+        ignite = SUMMONER_1
+    elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then 
+        ignite = SUMMONER_2
+    else 
+        ignite = nil
+    end
 
-	SteelTempest = false
-	Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
+    SteelTempest = false
+    Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     EnemyMinions = minionManager(MINION_ENEMY, eRange, player, MINION_SORT_HEALTH_ASC)
-	JungleFarmMinions = minionManager(MINION_JUNGLE, eRange, player, MINION_SORT_HEALTH_ASC)
-	JungleMinions = minionManager(MINION_JUNGLE, 1300, player, MINION_SORT_HEALTH_ASC)
+    JungleFarmMinions = minionManager(MINION_JUNGLE, eRange, player, MINION_SORT_HEALTH_ASC)
+    JungleMinions = minionManager(MINION_JUNGLE, 1300, player, MINION_SORT_HEALTH_ASC)
         ts = TargetSelector(TARGET_NEAR_MOUSE, 1300, DAMAGE_PHYSICAL, true)   
     ts.name = "Gosu"
     Config:addTS(ts)
@@ -1001,7 +1021,7 @@ end
 ]]
 
 function Menu()
-	Config = scriptConfig("Gosu Mechanics", "yasuo")
+    Config = scriptConfig("Gosu Mechanics", "yasuo")
     Config:addSubMenu("Harass Options", "SMharass")
     Config:addSubMenu("Farm Options", "SMfarm")
     Config:addSubMenu("Combo Options", "SMsbtw")
@@ -1015,32 +1035,32 @@ function Menu()
 
     --Add prediction selector to the given scriptConfig-menu
 
-	Config:addParam("farm", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
+    Config:addParam("farm", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
     Config:addParam("smartfarm", "Smart Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
-	Config:addParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-	Config:addParam("flee", "Flee", SCRIPT_PARAM_ONKEYDOWN, false, 88)
+    Config:addParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+    Config:addParam("flee", "Flee", SCRIPT_PARAM_ONKEYDOWN, false, 88)
     Config:addParam("qflee", "AutoQ", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("C"))
     --Config:addParam("isPressed", "debug", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
     UPL:AddToMenu2(Config)
-	--Config.SMharass:addParam("autoQ", "Auto-Q", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
+    --Config.SMharass:addParam("autoQ", "Auto-Q", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
     --Config.SMharass:addParam("underTower", "Auto-Q under Tower", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("DistanceToQ", "max Distance for 3rd Q",SCRIPT_PARAM_SLICE, 750, 475, 900, 0)
 
     --Config.SMfarm:addParam("useOldLC", "Use old Lane Clear", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("towerFarm", "Smart Lane Clear", SCRIPT_PARAM_ONOFF, true)    
-	Config.SMfarm:addParam("useQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
-	Config.SMfarm:addParam("useEFarm", "Use E", SCRIPT_PARAM_ONOFF, true)
+    Config.SMfarm:addParam("useQFarm", "Use Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMfarm:addParam("useEFarm", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("onlyLHE", "Use E only to last hit", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("saveQ", "Save 3rd Q", SCRIPT_PARAM_ONOFF, true)
     --Config.SMfarm:addParam("useAA", "Autoattack",SCRIPT_PARAM_ONOFF, true)
     --Config.SMfarm:addParam("useMove", "Move to Mouse", SCRIPT_PARAM_ONOFF, true)
 
     --Config.SMsbtw:addParam("useOrb", "Use Orbwalking", SCRIPT_PARAM_ONOFF, true)
-	Config.SMsbtw:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
-	Config.SMsbtw:addParam("useE", "Use E to Damage", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useE", "Use E to Damage", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("DistanceToE", "min Distance for GC E",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
-	Config.SMsbtw:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
-	Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     --Config.SMsbtw:addParam("autoRPercent", "Ult when at % Health",SCRIPT_PARAM_SLICE, 1, 1, 100, 0)
     --Config.SMsbtw:addParam("useAA", "Autoattack",SCRIPT_PARAM_ONOFF, true)
@@ -1051,19 +1071,19 @@ function Menu()
     --Config.SMult:addParam("autoRMin", "Auto-R Many Targets", SCRIPT_PARAM_ONOFF, false)
     --Config.SMult:addParam("minRTargets", "Auto-R when # knocked up",SCRIPT_PARAM_SLICE, 1, 1, 5, 0)
     Config.SMult:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
-	Config.SMult:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
+    Config.SMult:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
 
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Killsteal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-	Config.SMother:addParam("autoW", "Auto-Wall", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("autoW", "Auto-Wall", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
     Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
     --Config:addParam("dodge", "E-vade Test", SCRIPT_PARAM_ONOFF, true)
 
     --OrbwalkManager:LoadCommonKeys(Config.Keys)
-	
+    
     for i = 1, heroManager.iCount,1 do
         local hero = heroManager:getHero(i)
         if hero.team ~= player.team then
@@ -1083,8 +1103,8 @@ function Menu()
     end
 
     --Config.SMdraw:addParam("drawAutoQ","Draw AutoQ Range",SCRIPT_PARAM_ONOFF, true)
-	Config.SMdraw:addParam("drawQ","Draw Q-Range",SCRIPT_PARAM_ONOFF, true)
-	Config.SMdraw:addParam("drawTarget","Draw Target",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawQ","Draw Q-Range",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawTarget","Draw Target",SCRIPT_PARAM_ONOFF, true)
     --Config.SMdraw:addParam("drawText","Draw Text",SCRIPT_PARAM_ONOFF, true)
     --Config.SMdraw:addParam("drawDash","Draw Dashpositions",SCRIPT_PARAM_ONOFF, true)
 
@@ -1105,7 +1125,7 @@ function OnTick()
            
         if fuckedUpSpell ~= nil then fuckedUpSpells() end
        --dmgCalc()
-       	AutoUlt()
+        AutoUlt()
 
         GetItemSlot()
 
@@ -1154,7 +1174,7 @@ function OnTick()
             flee()
         elseif Config.smartfarm then
             smartfarm()
-    	end
+        end
 
         if Config.SMother.usePots then
             AutoPots()
