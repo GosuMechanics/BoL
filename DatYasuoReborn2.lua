@@ -1124,7 +1124,7 @@ function Menu()
     Config.SMharass:addDynamicParam("qflee", "Auto-Q/Harras Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, string.byte("C"))
     --Config:addParam("isPressed", "debug", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
     --Config.SMharass:addParam("autoQ", "Auto-Q", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
-    --Config.SMharass:addParam("underTower", "Auto-Q under Tower", SCRIPT_PARAM_ONOFF, true)
+    Config.SMharass:addParam("underTower", "Auto-Q under Tower", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useQ12", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useQ3", "Use Q3", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("DistanceToQ", "max Distance for 3rd Q",SCRIPT_PARAM_SLICE, 750, 475, 900, 0)
@@ -1192,10 +1192,10 @@ function Menu()
         end
     end
 
-    --Config.SMdraw:addParam("drawAutoQ","Draw AutoQ Range",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawAutoQ","Draw Q3-Range",SCRIPT_PARAM_ONOFF, true)
     Config.SMdraw:addParam("drawQ","Draw Q-Range",SCRIPT_PARAM_ONOFF, true)
     Config.SMdraw:addParam("drawTarget","Draw Target",SCRIPT_PARAM_ONOFF, true)
-    --Config.SMdraw:addParam("drawText","Draw Text",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawR","Draw R-Range",SCRIPT_PARAM_ONOFF, true)
     --Config.SMdraw:addParam("drawDash","Draw Dashpositions",SCRIPT_PARAM_ONOFF, true)
 
     --Config.SMharass:permaShow("autoQ")
@@ -1286,6 +1286,7 @@ function OnTick()
         end
         
         AutoIgnite()
+
     end
 end
 
@@ -1320,7 +1321,7 @@ function sbtwR()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 0.5)
+            end, 2 - GetLatency() / 1000)
         end
     end
 end
@@ -1331,7 +1332,7 @@ function AutoUltKillable()
         if Config.SMult.autoult and ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 0.5)
+            end, 2 - GetLatency() / 1000)
         end
     end
 end
@@ -1355,7 +1356,7 @@ function AutoUlt()
                 if knocked >= Config.SMult.Ult3 then
                     DelayAction(function()
                         CastSpell(_R)
-                    end, 0.5)
+                    end, 0.5 - GetLatency() / 1000)
                 end
             end
         end
@@ -1415,9 +1416,13 @@ function killSteal()
 end
 
 function AutoQenemy()
-    if Target ~= nil then
-        Q12(Target)
-        Q3(Target)
+    if Target then
+        if not Config.SMharass.underTower and UnderTurret(eEndPos(Target)) then
+            return
+        else
+            Q12(Target)
+            Q3(Target)
+        end
     end
 end     
 
@@ -1477,17 +1482,12 @@ end
 function farm()
 
     EnemyMinions:update()
-    if Tower and Config.SMfarm.towerFarm then
-        getOut = dodgeTowerMinion(Tower, 775)
-        if getOut ~= nil then
-            E(getOut)
-        end
-    end
     for _, minion in pairs(EnemyMinions.objects) do
         if minion and minion.health < getEDmg(minion) then
-            if not Config.SMfarm.towerFarm and UnderTurret(eEndPos(minion)) then
+            if not Config.SMfarm.towerFarm and UnderTurret(eEndPos(EnemyMinion),true) then
                 return
             end
+        else
             if (Config.SMfarm.useEFarm and Config.SMfarm.farm) then
                 CastSpell(_E,minion)
             end
@@ -1509,7 +1509,7 @@ function farm()
                     end
                 end
                 if Config.SMfarm.useEFarm and not Config.SMfarm.onlyLHE and EREADY then --and GetDistance(farmMinion) >= (eRange-q[0].Width)
-                    if VIP_USER and Config.SMfarm.towerFarm then
+                    if Config.SMfarm.towerFarm then
                         if (not UnderTurret(eEndPos(EnemyMinion), true)) or towerUnit~=nil then
                             E(EnemyMinion)
                         end
@@ -1606,7 +1606,10 @@ function minionCount(distance, pos)
 end
 
 function getEDmg(minion)      
-        return myHero:CalcMagicDamage(minion,((GetSpellData(_E).level*20)+50)*(1+0.25*eStack)+(myHero.ap*0.6))
+    if spell == "e" then
+        local dmg = ((30+25*myHero:GetSpellData(_E).level)+myHero.ap*(0.35+myHero:GetSpellData(_E).level*0.05))*(100/(100+(object.magicArmor*myHero.magicPenPercent-myHero.magicPen)))
+        return dmg
+    end
 end
 
 function calcDmg(unit)
@@ -1912,16 +1915,9 @@ function arrangePrioritysTT()
 end
 
 function OnDraw()
+
     if initDone == true then
-        if Config.SMdraw.drawDash then
-            for index, dp in pairs(dashPosition) do
-                if dp.to==true then
-                    DrawCircle(dp.x, 0, dp.z, 75, 0x0000ff)        
-                else
-                    DrawCircle(dp.x, 0, dp.z, 75, 0x00ff00)        
-                end
-            end
-        end
+        
         if Target ~= nil and Config.SMdraw.drawTarget then
             for i=1,3, .5 do
                 DrawCircle(Target.x, Target.y, Target.z, 125+i, 0xFF0000)
@@ -1936,18 +1932,10 @@ function OnDraw()
                 end
             end
             if Config.SMdraw.drawAutoQ then
-                DrawCircle(myHero.x, myHero.y, myHero.z, Config.SMharass.DistanceToQ, 0x33CC33)
+                DrawCircle(myHero.x, myHero.y, myHero.z, Config.SMharass.DistanceToQ, 0xAA2244)
             end
-        end
-        
-        if Config.SMdraw.drawText then
-            for i = 1, heroManager.iCount, 1 do
-                local eTarget = heroManager:getHero(i)
-                if ValidTarget(eTarget) and GetDistance(eTarget) < 20000 then
-                    local pos = WorldToScreen(D3DXVECTOR3(eTarget.x, eTarget.y, eTarget.z))
-                    local color, text = calcDmg(eTarget)
-                    DrawText(tostring(text),22,pos.x-35 ,pos.y +20,color)   
-                end
+            if Config.SMdraw.drawR then
+                DrawCircle(myHero.x, myHero.y, myHero.z, rRange, 0xAA2244)
             end
         end
     end
@@ -1970,7 +1958,6 @@ function OnApplyBuff(source, unit, buff)
         end                    
     end 
 end
-
 
 function OnRemoveBuff(unit, buff)
     if not unit or not buff or unit.type ~= myHero.type then return end
