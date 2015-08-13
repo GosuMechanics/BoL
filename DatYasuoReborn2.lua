@@ -728,11 +728,51 @@ local q = {
         [1] = {Range = 1000, Speed = 1500, Delay = 0.75, Width=90}
     }
 
+local GapCloserList = {
+    {charName = "Aatrox", spellName = "AatroxQ", name = "Q"},
+    {charName = "Akali", spellName = "AkaliShadowDance", name = "R"},
+    {charName = "Alistar", spellName = "Headbutt", name = "W"},
+    {charName = "Amumu", spellName = "BandageToss", name = "Q"},
+    {charName = "Fiora", spellName = "FioraQ", name = "Q"},
+    {charName = "Diana", spellName = "DianaTeleport", name = "W"},
+    {charName = "Elise", spellName = "EliseSpiderQCast", name = "W"},
+    {charName = "FiddleSticks", spellName = "Crowstorm", name = "R"},
+    {charName = "Fizz", spellName = "FizzPiercingStrike", name = "Q"},
+    {charName = "Gragas", spellName = "GragasE", name = "E"},
+    {charName = "Hecarim", spellName = "HecarimUlt", name = "R"},
+    {charName = "JarvanIV", spellName = "JarvanIVDragonStrike", name = "E"},
+    {charName = "Irelia", spellName = "IreliaGatotsu", name = "Q"},
+    {charName = "Jax", spellName = "JaxLeapStrike", name = "Q"},
+    {charName = "Katarina", spellName = "ShadowStep", name = "E"},
+    {charName = "Kassadin", spellName = "RiftWalk", name = "R"},
+    {charName = "Khazix", spellName = "KhazixE", name = "E"},
+    {charName = "Khazix", spellName = "khazixelong", name = "Evolved E"},
+    {charName = "LeBlanc", spellName = "LeblancSlide", name = "W"},
+    {charName = "LeBlanc", spellName = "LeblancSlideM", name = "UltW"},
+    {charName = "LeeSin", spellName = "BlindMonkQTwo", name = "Q"},
+    {charName = "Leona", spellName = "LeonaZenithBlade", name = "E"},
+    {charName = "Malphite", spellName = "UFSlash", name = "R"},
+    {charName = "Nautilus", spellName = "NautilusAnchorDrag", name = "Q"},
+    {charName = "Pantheon", spellName = "Pantheon_LeapBash", name = "R"},
+    {charName = "Poppy", spellName = "PoppyHeroicCharge", name = "W"},
+    {charName = "Renekton", spellName = "RenektonSliceAndDice", name = "E"},
+    {charName = "Riven", spellName = "RivenTriCleave", name = "E"},
+    {charName = "Sejuani", spellName = "SejuaniArcticAssault", name = "E"},
+    {charName = "Shen", spellName = "ShenShadowDash", name = "E"},
+    {charName = "Tristana", spellName = "RocketJump", name = "W"},
+    {charName = "Tryndamere", spellName = "slashCast", name = "E"},
+    {charName = "Vi", spellName = "ViQ", name = "Q"},
+    {charName = "MonkeyKing", spellName = "MonkeyKingNimbus", name = "Q"},
+    {charName = "XinZhao", spellName = "XenZhaoSweep", name = "Q"},
+    {charName = "Yasuo", spellName = "YasuoDashWrapper", name = "E"},
+}
+
 local Config
 local Minions
 local AllMinion
 local qBuffName
 local qColor
+local q3Range
 local eRange
 local wRange
 local rRange
@@ -941,7 +981,7 @@ if _G.Reborn_Initialised then
    end
 end]]
 
-function OnProcessSpell(object,spellProc)
+function OnProcessSpell(object, spellProc, spell, unit)
     --if(object.charName=="Yasuo") then PrintChat(spellProc.name .. " " .. object.charName) end
     if object.isMe and spellProc.name:lower():find("recall") then
         --PrintChat(spellProc.name)
@@ -979,6 +1019,23 @@ function OnProcessSpell(object,spellProc)
                 end
             end
         end 
+    end
+    if Config.SMother.autoq3 and Q3READY then
+        for _, x in pairs(GapCloserList) do
+            if unit and unit.team ~= myHero.team and unit.type == myHero.type and spell then
+                if spell.name == x.spellName and Config.SMother.ES2[x.spellName] and ValidTarget(unit, q3Range) then
+                    if spell.target and spell.target.isMe then
+                        Q3(unit)
+                    elseif not spell.target then
+                        local endPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                        local endPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                        if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
+                            Q3(unit)
+                        end
+                    end
+                end
+            end
+        end
     end
     --[[if Config.dodge then
         if object.team ~= player.team and not player.dead and string.find(spellProc.name, "Basic") == nil then
@@ -1060,6 +1117,7 @@ function Init()
     qBuffName = "Yasuo_Q_wind_ready_buff.troy"
     dashed = nil
     qColor = 0xAA2244
+    q3Range = 900
     wRange = 400
     eRange = 475
     rRange = 1200       
@@ -1162,10 +1220,20 @@ function Menu()
     Config.SMult:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
     Config.SMult:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
 
+    Config.SMother:addSubMenu("GapCloser Spells", "ES2")
+            for i, enemy in ipairs(GetEnemyHeroes()) do
+                for _, champ in pairs(GapCloserList) do
+                    if enemy.charName == champ.charName then
+                        Config.SMother.ES2:addParam(champ.spellName, "GapCloser "..champ.charName.." "..champ.name, SCRIPT_PARAM_ONOFF, true)
+                    end
+                end
+            end
+
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Killsteal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoW", "Auto-Wall", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("autoq3", "Auto-Q3", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
     Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
@@ -1321,7 +1389,7 @@ function sbtwR()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 2 - GetLatency() / 1000)
+            end, 5 - GetLatency() / 1000)
         end
     end
 end
@@ -1329,10 +1397,10 @@ end
 function AutoUltKillable()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if Config.SMult.autoult and ValidTarget(Target, rRange) and Rks(Target) then
+        if Config.SMult.autoult and ValidTarget(Target, rRange) and Rks(Target) and not isRecalling then
             DelayAction(function()
                 CastSpell(_R)
-            end, 2 - GetLatency() / 1000)
+            end, 5 - GetLatency() / 1000)
         end
     end
 end
@@ -1352,7 +1420,7 @@ function AutoUlt()
     for i, v in ipairs(GetEnemyHeroes()) do
         if not v.canMove and v.y > 130 and ValidTarget(v) then
             knocked = knocked + 1
-            if Config.SMult.autoult and RREADY and CanCast(_R) then
+            if Config.SMult.autoult and RREADY and CanCast(_R) and not isRecalling then
                 if knocked >= Config.SMult.Ult3 then
                     DelayAction(function()
                         CastSpell(_R)
@@ -1606,10 +1674,7 @@ function minionCount(distance, pos)
 end
 
 function getEDmg(minion)      
-    if spell == "e" then
-        local dmg = ((30+25*myHero:GetSpellData(_E).level)+myHero.ap*(0.35+myHero:GetSpellData(_E).level*0.05))*(100/(100+(object.magicArmor*myHero.magicPenPercent-myHero.magicPen)))
-        return dmg
-    end
+        return myHero:CalcMagicDamage(minion,((GetSpellData(_E).level*20)+50)*(1+0.25*eStack)+(myHero.ap*0.6))
 end
 
 function calcDmg(unit)
@@ -1942,6 +2007,9 @@ function OnDraw()
 end
 
 function OnApplyBuff(source, unit, buff)
+
+    if buff and unit == myHero then print(buff.name) end
+
     if not unit or not buff then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
             UsingPot = true
