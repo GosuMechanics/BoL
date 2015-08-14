@@ -815,7 +815,7 @@ function OnLoad()
         end
     end]]
 
-    if VIP_USER then
+    if not VIP_USER then
         AdvancedCallback:bind('OnTowerFocus', function(tower, unit) OnTowerFocus(tower,unit) end)
         AdvancedCallback:bind('OnTowerIdle', function(tower) OnTowerIdle(tower) end)
         AdvancedCallback:bind('OnApplyBuff', function(source, unit, buff) OnApplyBuff(source, unit, buff) end)
@@ -1183,7 +1183,7 @@ function Menu()
     --Config:addParam("isPressed", "debug", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
     --Config.SMharass:addParam("autoQ", "Auto-Q", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("S"))
     Config.SMharass:addParam("underTower", "Auto-Q under Tower", SCRIPT_PARAM_ONOFF, true)
-    Config.SMharass:addParam("useQ12", "Use Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMharass:addParam("useQ12", "Use Q12", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useQ3", "Use Q3", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("DistanceToQ", "max Distance for 3rd Q",SCRIPT_PARAM_SLICE, 750, 475, 900, 0)
     Config.SMharass:addParam("useQminion", "AutoQ EnemyMinion", SCRIPT_PARAM_ONOFF, true)
@@ -1389,7 +1389,7 @@ function sbtwR()
         if ValidTarget(Target, rRange) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
-            end, 5 - GetLatency() / 1000)
+            end, 0.5 - GetLatency() / 1000)
         end
     end
 end
@@ -1400,7 +1400,7 @@ function AutoUltKillable()
         if Config.SMult.autoult and ValidTarget(Target, rRange) and Rks(Target) and not isRecalling then
             DelayAction(function()
                 CastSpell(_R)
-            end, 5 - GetLatency() / 1000)
+            end, 0.5 - GetLatency() / 1000)
         end
     end
 end
@@ -1488,8 +1488,12 @@ function AutoQenemy()
         if not Config.SMharass.underTower and UnderTurret(eEndPos(Target)) then
             return
         else
-            Q12(Target)
-            Q3(Target)
+            if Config.SMharass.useQ12 and Q12READY then
+                Q12(Target)
+            end
+            if Config.SMharass.useQ3 and Q3READY and GetDistance(Target) <= Config.SMharass.DistanceToQ then
+                Q3(Target)
+            end
         end
     end
 end     
@@ -1549,10 +1553,16 @@ end
 
 function farm()
 
-    EnemyMinions:update()
+       EnemyMinions:update()
+    if Tower and Config.SMfarm.towerFarm then
+        getOut = dodgeTowerMinion(Tower, 775)
+        if getOut ~= nil then
+            E(getOut)
+        end
+    end
     for _, minion in pairs(EnemyMinions.objects) do
         if minion and minion.health < getEDmg(minion) then
-            if not Config.SMfarm.towerFarm and UnderTurret(eEndPos(EnemyMinion),true) then
+            if not Config.SMfarm.towerFarm and UnderTurret(eEndPos(EnemyMinion)) then
                 return
             end
         else
@@ -1576,9 +1586,9 @@ function farm()
                         end
                     end
                 end
-                if Config.SMfarm.useEFarm and not Config.SMfarm.onlyLHE and EREADY then --and GetDistance(farmMinion) >= (eRange-q[0].Width)
+                if VIP_USER and Config.SMfarm.useEFarm and not Config.SMfarm.onlyLHE and EREADY then --and GetDistance(farmMinion) >= (eRange-q[0].Width)
                     if Config.SMfarm.towerFarm then
-                        if (not UnderTurret(eEndPos(EnemyMinion), true)) or towerUnit~=nil then
+                        if (not UnderTurret(eEndPos(EnemyMinion),true)) or towerUnit~=nil then
                             E(EnemyMinion)
                         end
                     else
@@ -1587,7 +1597,7 @@ function farm()
                         end
                     end
                 elseif not QREADY and EREADY and Config.SMfarm.useEFarm and not Config.SMfarm.onlyLHE then
-                        if (not UnderTurret(eEndPos(EnemyMinion), true)) or towerUnit~=nil then
+                        if (not UnderTurret(eEndPos(EnemyMinion),true)) or towerUnit~=nil then
                             E(EnemyMinion)
                         end
                 else
