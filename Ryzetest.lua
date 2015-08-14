@@ -1,18 +1,24 @@
 if myHero.charName ~= "Ryze" then return end
 
-    require 'SimpleLib'
+    --require 'SimpleLib'
+    require "VPrediction"
 
 local qRange
 local eRange
 local wRange
 local rRange
 local JungleMinions
-local EnemyMinions
+local enemyMinions
 local JungleFarmMinions
 local UsingPot = false
+local UsungMpot = false
 local lastRemove = 0
 local Stacks5 = false
 local Stack = false
+local isSx
+local isSac
+local count = 0
+local i
 
 local GapCloserList = {
     {charName = "Aatrox", spellName = "AatroxQ", name = "Q"},
@@ -57,15 +63,17 @@ function OnLoad()
 
     print("<b><font color=\"#6699FF\">Ryze:</font></b> <font color=\"#FFFFFF\">Sucessfully loaded!</font>")
 
-    QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 900, Width = 55, Delay = 0.5, Speed = math.huge, Collision = false, Aoe = false, Type = SPELL_TYPE.LINEAR}):AddDraw()
-    WSpell = _Spell({Slot = _W, DamageName = "W", Range = 600, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = false, Type = SPELL_TYPE.TARGETTED}):AddDraw()
-    ESpell = _Spell({Slot = _E, DamageName = "E", Range = 600, Delay = 0.25, Speed = math.huge, Collision = false, Aoe = true, Type = SPELL_TYPE.TARGETTED}):AddDraw()
-
+    --QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 900, Width = 55, Delay = 0.5, Speed = 1200, Collision = false, Aoe = false, Type = SPELL_TYPE.LINEAR}):AddDraw()
+    
     Menu()
     Init()
 
-    enemyMinions = minionManager(MINION_ENEMY, qRange, myHero, MINION_SORT_HEALTH_ASC)
+    LoadOrbwalker()
 
+
+    enemyMinions = minionManager(MINION_ENEMY, qRange, myHero, MINION_SORT_HEALTH_ASC)
+    JungleMinions = minionManager(MINION_JUNGLE, qRange, player, MINION_SORT_HEALTH_ASC)
+    
     VP = VPrediction()
 
 ItemNames               = {
@@ -166,6 +174,34 @@ ItemNames               = {
 
 end
 
+function LoadOrbwalker()
+if _G.Reborn_Initialised then
+      print("DatYasuo: Reborn loaded and authed")
+            isSac = true
+            loaded = true
+            Config:addSubMenu("DatYasuo Reborn: Orbwalker", "Orbwalker")
+            Config.Orbwalker:addParam("info", "SAC:R detected", SCRIPT_PARAM_INFO, "")
+   elseif _G.Reborn_Loaded and not _G.Reborn_Initialised and count < 30 then
+            if printedWaiting == false then
+      print("DatYasuo Reborn: Waiting for Reborn auth")
+            printedWaiting = true
+            end
+      DelayAction(LoadOrbwalker, 1)
+            count = count + 1
+   else
+            if count >= 30 then
+            print("DatYasuo Reborn: SAC failed to auth")
+            end
+            require 'SxOrbWalk'
+      print("SxOrbWalk: Loading...")
+                Config:addSubMenu("DatYasuo: Orbwalker", "Orbwalker")
+                SxOrb:LoadToMenu(Config.Orbwalker)
+                isSx = true
+            print("SxOrbWalk: Loaded")
+            loaded = true
+   end
+end
+
 function OnProcessSpell(unit, spell)
     if Config.SMother.autoW and WREADY then
         for _, x in pairs(GapCloserList) do
@@ -201,7 +237,7 @@ function Init()
         ignite = nil
     end
 
-    ts = TargetSelector(TARGET_NEAR_MOUSE, qRange, DAMAGE_PHYSICAL, true)   
+    ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, qRange, DAMAGE_MAGICAL, true)   
     ts.name = "Gosu"
     Config:addTS(ts)
 
@@ -216,6 +252,10 @@ function Menu()
     Config:addSubMenu("Last Hit Options", "SMsmart")
     Config:addSubMenu("Farm Options", "SMfarm")
     Config:addSubMenu("Other Options", "SMother")
+    Config:addSubMenu("Prediction Options", "pred")
+
+    Config.pred:addParam("hc", "HitChance", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+
     --Config:addSubMenu("Drawing Options", "SMdraw")
 
     Config.SMsbtw:addDynamicParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("S"))
@@ -229,35 +269,38 @@ function Menu()
     Config.SMsmart:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsmart:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
+
 
     Config.SMharass:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
-    Config.SMharass:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
+
     --Config.SMfarm:addParam("useOldLC", "Use old Lane Clear", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
-    Config.SMfarm:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
+
 
     --Config.SMsbtw:addParam("useOrb", "Use Orbwalking", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsbtw:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsbtw:addParam("combomode", "Combo Mode", SCRIPT_PARAM_LIST, 3, {"QWER", "WQER", "QWER"})
-    --Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("count", "Ult when x enemy in range", SCRIPT_PARAM_SLICE, 2, 1, 5, 0)
+    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("combomode", "Combo Mode", SCRIPT_PARAM_LIST, 3, {"QWER", "WQER", "QWQR"})
+
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
-    Config.SMother:addParam("killsteal", "Killsteal", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoW", "Auto-W", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("autoMPot", "Auto-ManaPots", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("useMPots", "use when at % mana", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
     Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
     --Config:addParam("dodge", "E-vade Test", SCRIPT_PARAM_ONOFF, true)
@@ -297,7 +340,7 @@ function OnTick()
         if OrbwalkManager:IsLastHit() and Config.SMsmart.aa then
         OrbwalkManager:DisableAttacks()
         end]]
-
+        Seraph()
 
         GetItemSlot()
 
@@ -305,6 +348,7 @@ function OnTick()
         Target = ts.target
 
         enemyMinions:update()
+        JungleMinions:update()
 
         QREADY = (myHero:CanUseSpell(_Q) == READY)
         EREADY = (myHero:CanUseSpell(_E) == READY)
@@ -315,17 +359,23 @@ function OnTick()
         if Config.SMother.killsteal then KillSteal() end
 
         if Config.SMsbtw.sbtw then 
-            Combo(Target) 
+            Combo(Target)
         elseif Config.SMfarm.farm then
             LaneClear()
+        elseif Config.SMfarm.farm then
+            JungleClear()
         elseif Config.SMsmart.smartfarm then
-            smartfarm()
+            LastHit()
+        elseif Config.SMharass.qflee then
+            Harass(Target)
         end
 
-        if Config.SMother.usePots then
+        if Config.SMother.autoPot then
+            AutoPots()
+        elseif Config.SMother.autoMPot then
             AutoPots()
         end
-        
+
         AutoIgnite()
 
     end
@@ -338,7 +388,7 @@ function Combo(unit)
             if Config.SMsbtw.useQ and QREADY then
                 CastQ(unit)
             end
-            if Config.SMsbtw.useR and RREADY and Stacks5 then
+            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(900) >= Config.SMsbtw.count then
                CastSpell(_R)
             end
             if Config.SMsbtw.useW and WREADY then
@@ -355,7 +405,7 @@ function Combo(unit)
             if Config.SMsbtw.useQ and QREADY then
                 CastQ(unit)
             end
-            if Config.SMsbtw.useR and RREADY and Stacks5 then
+            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(900) >= Config.SMsbtw.count then
                CastSpell(_R)
             else
                 CastSpell(_R)
@@ -380,8 +430,8 @@ function Combo(unit)
             if Config.SMsbtw.useQ and QREADY then
                 CastQ(unit)
             end
-            if Config.SMsbtw.useR and RREADY and Stacks5 then
-               CastSpell(_R)
+            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(900) >= Config.SMsbtw.count then
+                CastSpell(_R)
             end
             if Config.SMsbtw.useQ and QREADY then
                 CastQ(unit)
@@ -390,6 +440,18 @@ function Combo(unit)
     end
 end
 
+function CountEnemyHeroInRange(range)
+    local enemyinRrange = 0
+        for i = 1, heroManager.iCount, 1 do
+            local hero = heroManager:getHero(i)
+                if ValidTarget(hero,range) then
+            enemyinRrange = enemyinRrange + 1
+            end
+        end
+    return enemyinRrange
+end
+
+
 function LaneClear()
 
     enemyMinions:update()  
@@ -397,30 +459,106 @@ function LaneClear()
     for i, minion in pairs(enemyMinions.objects) do
         if minion ~= nil and ValidTarget(minion, qRange) and Config.SMfarm.useQ and QREADY and getDmg("AD", minion, myHero) < minion.health then
             if getDmg("Q", minion, myHero) >= minion.health then
-                CastSpell(_Q, minion)
+                CastQfarm(minion)
             else
-                CastSpell(_Q, minion)
+                CastQfarm(minion)
             end 
         end
         if minion ~= nil and ValidTarget(minion, wRange) and Config.SMfarm.useR and RREADY and Stacks5 then
                 CastSpell(_R)
             end
-            if minion ~= nil and ValidTarget(minion, eRange) and Config.SMfarm.useE and ERADY and not Qready then
+            if minion ~= nil and ValidTarget(minion, eRange) and Config.SMfarm.useE and EREADY then
                 if getDmg("E", minion, myHero) >= minion.health then
-                    CastSpell(_E, minion)
+                    CastE(minion)
                 else
-                    CastSpell(_E, minion)
+                    CastE(minion)
             end
         end
-            if minion ~= nil and ValidTarget(minion, wRange) and Config.SMfarm.useW and WREADY and not Qready and getDmg("AD", minion, myHero) < minion.health then
-                if not Config.SMfarm.useW then
-                    if getDmg("W", minion, myHero) >= minion.health then
-                        CastSpell(_W, minion)
-                    else
-                        CastSpell(_W, minion)
-                    end
+            if minion ~= nil and ValidTarget(minion, wRange) and Config.SMfarm.useW and WREADY and getDmg("AD", minion, myHero) < minion.health then
+                if getDmg("W", minion, myHero) >= minion.health then
+                    CastW(minion)
+                else
+                    CastW(minion)
                 end
             end
+    end
+end
+
+function JungleClear()
+
+    JungleMinions:update()  
+
+    for i, minion in pairs(JungleMinions.objects) do
+        if minion ~= nil and ValidTarget(minion, qRange) and Config.SMfarm.useQ and QREADY and getDmg("AD", minion, myHero) < minion.health then
+            if getDmg("Q", minion, myHero) >= minion.health then
+                CastQ(minion)
+            else
+                CastQ(minion)
+            end 
+        end
+        if minion ~= nil and ValidTarget(minion, wRange) and Config.SMfarm.useR and RREADY and Stacks5 then
+                CastSpell(_R)
+            end
+            if minion ~= nil and ValidTarget(minion, eRange) and Config.SMfarm.useE and EREADY then
+                if getDmg("E", minion, myHero) >= minion.health then
+                    CastE(minion)
+                else
+                    CastE(minion)
+            end
+        end
+            if minion ~= nil and ValidTarget(minion, wRange) and Config.SMfarm.useW and WREADY and getDmg("AD", minion, myHero) < minion.health then
+                if getDmg("W", minion, myHero) >= minion.health then
+                    CastW(minion)
+                else
+                    CastW(minion)
+                end
+            end
+    end
+end
+
+function LastHit()
+     enemyMinions:update()  
+
+    for i, minion in pairs(enemyMinions.objects) do
+        if minion ~= nil and ValidTarget(minion, qRange) and Config.SMsmart.useQ and QREADY and getDmg("AD", minion, myHero) < minion.health then
+            if getDmg("Q", minion, myHero) >= minion.health then
+                CastQfarm(minion)
+            end 
+        end
+            if minion ~= nil and ValidTarget(minion, eRange) and Config.SMsmart.useE and EREADY and not QREADY then
+                if getDmg("E", minion, myHero) >= minion.health then
+                    CastE(minion)
+            end
+        end
+            if minion ~= nil and ValidTarget(minion, wRange) and Config.SMsmart.useW and WREADY and not QREADY and getDmg("AD", minion, myHero) < minion.health then
+                if getDmg("W", minion, myHero) >= minion.health then
+                    CastW(minion)
+                end
+            end
+    end
+end
+
+function Harass()
+    if ValidTarget(unit, qRange) and unit ~= nil and unit.type == myHero.type then
+        if Config.SMharass.useQ then CastSPell(_Q, unit) end
+        if Config.SMharass.useW then CastSpell(_W, unit) end
+        if Config.SMharass.useE then CastSpell(_E, unit) end
+    end
+end
+
+function CastQfarm(unit)
+    if unit ~= nil and GetDistance(unit) <= qRange then
+        if VIP_USER and Config.SMother.usePackets then
+             Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+        else
+            local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, 0.4, 55, 900, 1500, myHero, true)
+            local QHitChance = Config.pred.hc
+            if HitChance >= QHitChance then
+                if GetDistanceSqr(unit) <= 900^2 then
+                    CastSpell(_Q, CastPosition.x, CastPosition.z)
+                end
+            end
+        end
     end
 end
 
@@ -429,7 +567,13 @@ function CastQ(unit)
         if VIP_USER and Config.SMother.usePackets then
              Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
         else
-            QSpell:Cast(unit)
+            local CastPosition, HitChance, Position = VP:GetLineCastPosition(unit, 0.4, 55, 900, 1500, myHero, false)
+            local QHitChance = Config.pred.hc
+            if HitChance >= QHitChance then
+                if GetDistanceSqr(unit) <= 900^2 then
+                    CastSpell(_Q, CastPosition.x, CastPosition.z)
+                end
+            end
         end
     end
 end
@@ -439,7 +583,7 @@ function CastW(unit)
         if VIP_USER and Config.SMother.usePackets then
             Packet("S_CAST", {spellId = _W, targetNetworkId = unit.networkID}):send()
         else
-            WSpell:Cast(unit)
+            CastSpell(_W, unit)
         end
     end
 end
@@ -449,12 +593,12 @@ function CastE(unit)
         if VIP_USER and Config.SMother.usePackets then
             Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
         else
-            ESpell:Cast(unit)
+            CastSpell(_E, unit)
         end
     end
 end
 
-function KillSteal()
+--[[function KillSteal()
     for _, enemy in ipairs(GetEnemyHeroes()) do 
         local iDmg = (50 + (20 * myHero.level))
         local qDmg = getDmg("Q", enemy, myHero)
@@ -481,13 +625,13 @@ function KillSteal()
                 CastW(enemy)
                 CastQ(enemy)
                 CastE(enemy)
-            elseif enemy.health <= (qDmg + iDmg) and ValidTarget(enemy, Qrange) and Qready and IREADY then
+            elseif enemy.health <= (qDmg + iDmg) and ValidTarget(enemy, qRange) and QREADY and IREADY then
                 CastQ(enemy)
                 CastSpell(Ignite, enemy)
-            elseif enemy.health <= (wDmg + iDmg) and ValidTarget(enemy, Wrange) and Wready and IREADY then
+            elseif enemy.health <= (wDmg + iDmg) and ValidTarget(enemy, wRange) and WREADY and IREADY then
                 CastW(enemy)
                 CastSpell(Ignite, enemy)
-            elseif enemy.health <= (eDmg + iDmg) and ValidTarget(enemy, Erange) and Eready and IREADY then
+            elseif enemy.health <= (eDmg + iDmg) and ValidTarget(enemy, Erange) and EREADY and IREADY then
                 CastE(enemy)
                 CastSpell(Ignite, enemy)
             elseif enemy.health <= (qDmg + wDmg + iDmg) and ValidTarget(enemy, wRange) and QREADY and WREADY and IREADY then
@@ -498,7 +642,7 @@ function KillSteal()
                 CastQ(enemy)
                 CastE(enemy)
                 CastSpell(Ignite, enemy)
-            elseif enemy.health <= (wDmg + eDmg + iDmg) and ValidTarget(enemy, wRange) and Wready and EREADY and IREADY then
+            elseif enemy.health <= (wDmg + eDmg + iDmg) and ValidTarget(enemy, wRange) and WREADY and EREADY and IREADY then
                 CastW(enemy)
                 CastE(enemy)
                 CastSpell(Ignite, enemy)
@@ -508,6 +652,38 @@ function KillSteal()
                 CastE(enemy)
                 CastSpell(Ignite, enemy)
             end
+        end
+    end
+end]]
+
+function KillSteal()
+    for _, enemy in ipairs(GetEnemyHeroes()) do 
+        local iDmg = (50 + (20 * myHero.level))
+        local qDmg = getDmg("Q", enemy, myHero)
+        local wDmg = getDmg("W", enemy, myHero)
+        local eDmg = getDmg("E", enemy, myHero)
+        
+        if enemy ~= nil and ValidTarget(enemy, 1000) then
+            if enemy.health <= qDmg and ValidTarget(enemy, qRange) and QREADY then
+                CastQ(enemy)
+            elseif enemy.health <= wDmg and ValidTarget(enemy, wRange) and WREADY then
+                CastW(enemy)
+            elseif enemy.health <= eDmg and ValidTarget(enemy, eRange) and EREADY then
+                CastE(enemy)
+            end
+        end
+    end
+end
+
+function DmgCalc()
+    for i=1, heroManager.iCount do
+        local enemy = heroManager:GetHero(i)
+            if enemy ~= nil and ValidTarget(enemy) then
+                aaDmg       = ((getDmg("AD", enemy, myHero)) or 0)
+                qDmg        = ((getDmg("Q", enemy, myHero)) or 0)   
+                wDmg        = ((getDmg("W", enemy, myHero)) or 0)   
+                eDmg        = ((getDmg("E", enemy, myHero)) or 0)   
+                iDmg        = ((Ignite.slot ~= nil and getDmg("IGNITE", enemy, myHero)) or 0)
         end
     end
 end
@@ -564,6 +740,10 @@ function OnApplyBuff(source, unit, buff)
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
             UsingPot = true
         end
+        if not unit or not buff then return end
+        if unit and unit.isMe and buff.name == "FlaskOfCrystalWater" then
+            UsingMpot = true
+        end
     if unit.isMe and Config.SMother.useqss then
         if buff.name and buff.type == 5 or buff.type == 12 or buff.type == 11 or buff.type == 25 or buff.type == 7 or buff.type == 22 or buff.type == 21 or buff.type == 8
         or (buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))
@@ -582,6 +762,10 @@ function OnRemoveBuff(unit, buff)
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
             UsingPot = false
         end
+        if not unit or not buff or unit.type ~= myHero.type then return end
+        if unit and unit.isMe and buff.name == "FlaskOfCrystalWater" then
+            UsingMpot = false
+        end
         if unit and unit.isMe and buff.name == "ryzepassivecharged" then
             Stacks5 = false
         end
@@ -598,9 +782,23 @@ function lowHp(unit)
     end
 end
 
+function lowMana(unit)
+    if myHero.maxMana < Config.SMother.useMPots then
+        return true
+    else
+        return false
+    end
+end
+
 function AutoPots()
     if REGPOT and CanCast(REGPOT) and lowHp(myHero) and not UsingPot and not IsRecalling then 
         CastSpell(REGPOT) 
+    end
+end
+
+function AutoMPots()
+    if MANPOT and CanCast(MANPOT) and lowMana(myHero) and not UsingMpot and not IsRecalling then 
+        CastSpell(MANPOT) 
     end
 end
 
@@ -609,6 +807,9 @@ function GetItemSlot()
         local currentItemName = myHero:GetSpellData(slot).name
         if currentItemName == "RegenerationPotion" then
             REGPOT = slot
+        end
+        if currentItemName == "itemcrystalflask" then
+            MANPOT = slot
         end
     end
 end
@@ -636,6 +837,35 @@ function UseQSS(unit, scary)
                     return true
                 end
             end
+        end
+    end
+end
+
+function Seraph()   
+    local h = myHero.health/myHero.maxHealth
+    if myHero.level > 5 and h < .15 then
+        CastSeraph()
+    elseif  myHero.level < 6 and h < .10 then
+        CastSeraph()
+    end
+end
+
+function CastSeraph()
+    local item = CheckItem("ItemSeraphsEmbrace")
+    if item and myHero:CanUseSpell(item) == 0 then
+        CastSpell(item) 
+        return true
+    end
+    if GetInventoryItemIsCastable(3048) then
+        CastItem(3048)
+    end
+end
+
+function CheckItem(ItemName)
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if item and item:lower() == ItemName then
+            return i
         end
     end
 end
