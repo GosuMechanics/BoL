@@ -142,6 +142,26 @@ function OnLoad()
 	PriorityOnLoad()
 end
 
+function OnProcessSpell(unit, spell)
+    if Config.SMother.autoR and RREADY then
+        for _, x in pairs(GapCloserList) do
+            if unit and unit.team ~= myHero.team and unit.type == myHero.type and spell then
+                if spell.name == x.spellName and Config.SMother.ES2[x.spellName] and ValidTarget(unit) <= SkillR.range then
+                    if spell.target and spell.target.isMe then
+                        CastSpell(_R, unit)
+                    elseif not spell.target then
+                        local endPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                        local endPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                        if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
+                            CastSpell(_R, unit)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function OnTick()
 
         if Config.SMother.killsteal then KillSteal() end
@@ -227,7 +247,7 @@ function LaneClear()
 					end
 				end
         		if Config.SMfarm.useE and EREADY and getDmg("AD", minion, myHero) < minion.health then
-            		if getDmg("E", minion, myHero) >= minion.health and isPoisoned(unit) then
+            		if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
                 		CastE(minion)
             		else
                 		CastE(minion)
@@ -245,9 +265,23 @@ function LastHit()
 	if Config.SMsmart.smartfarm then
     	for i, minion in pairs(enemyMinions.objects) do
         	if minion ~= nil and ValidTarget(minion, SkillE.range) and Config.SMsmart.useE and EREADY and getDmg("AD", minion, myHero) < minion.health then
-            	if getDmg("E", minion, myHero) >= minion.health then
+            	if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
                 	CastE(minion)
                 end
+                if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY then
+        			local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)
+					
+					if BestPos ~= nil then
+						CastSpell(_Q, BestPos.x, BestPos.z)
+					end
+				end
+        		if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY then
+           			local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)
+					
+					if BestPos ~= nil then
+						CastSpell(_W, BestPos.x, BestPos.z)
+					end
+				end
             end
         end
     end
@@ -291,7 +325,7 @@ function CastQ(unit, minion)
         if VIP_USER and Config.SMother.usePackets then
             Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send() 
         else
-            AOECastPosition, MainTargetHitChance, nTargets = VP:GetCircularAOECastPosition(unit, 0.25, 100, 850, math.huge, myHero, false)
+            AOECastPosition, MainTargetHitChance, nTargets = VP:GetCircularAOECastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
             if AOECastPosition and nTargets and  MainTargetHitChance >= 2 then
                 CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
             end
@@ -304,7 +338,7 @@ function CastW(unit, minion)
         if VIP_USER and Config.SMother.usePackets then
             Packet("S_CAST", {spellId = _W, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send() 
         else
-            AOECastPosition, MainTargetHitChance, nTargets = VP:GetCircularAOECastPosition(unit, 0.5, 100, 925, math.huge, myHero, false)
+            AOECastPosition, MainTargetHitChance, nTargets = VP:GetCircularAOECastPosition(unit, SkillW.delay, SkillW.width, SkillW.range, SkillW.speed, myHero, false)
             if AOECastPosition and nTargets and  MainTargetHitChance >= 2 then
                 CastSpell(_W, AOECastPosition.x, AOECastPosition.z)
             end
@@ -366,26 +400,6 @@ end
 
 function CanCast(spell)
 return myHero:CanUseSpell(spell) == READY
-end
-
-function OnProcessSpell(unit, spell)
-    if Config.SMother.autoR and RREADY then
-        for _, x in pairs(GapCloserList) do
-            if unit and unit.team ~= myHero.team and unit.type == myHero.type and spell then
-                if spell.name == x.spellName and Config.SMother.ES2[x.spellName] and ValidTarget(unit, SkillR.range) then
-                    if spell.target and spell.target.isMe then
-                        CastSpell(_R, unit)
-                    elseif not spell.target then
-                        local endPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
-                        local endPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
-                        if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
-                            CastSpell(_R, unit)
-                        end
-                    end
-                end
-            end
-        end
-    end
 end
 
 function OnApplyBuff(source, unit, buff)
@@ -525,6 +539,8 @@ function Menu()
 
     --Config:addSubMenu("Drawing Options", "SMdraw")
     Config.SMsmart:addParam("smartfarm", "LastHit", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("A"))
+    Config.SMsmart:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsmart:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMharass:addParam("qflee", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("C"))
