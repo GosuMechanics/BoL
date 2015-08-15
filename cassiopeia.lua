@@ -347,7 +347,7 @@ function CastW(unit, minion)
         else
             local CastPosition, HitChance, Position = VP:GetCircularAOECastPosition(unit, 0.5, 90, 925, 2500, myHero)
             if HitChance >= 2 then
-                CastSpell(_W, AOECastPosition.x, AOECastPosition.z)
+                CastSpell(_W, CastPosition.x, CastPosition.z)
             end
         end
     end
