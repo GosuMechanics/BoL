@@ -459,7 +459,7 @@ end
 function CastSQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QPosition, QHitbox = SP:Predict(unit, 1800, 0.5)
+        local QPosition, QHitbox = SP:Predict(unit, 1800, 0.5, SkillQ.range)
         if Hitbox >= 2 then
             CastSpell(_Q, QPosition.x, Position.z)
         end
@@ -469,7 +469,7 @@ end
 function CastSW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WPosition, WHitbox = SP:Predict(unit, 2500, 0.5)
+        local WPosition, WHitbox = SP:Predict(unit, 2500, 0.5, SkillW.range)
         if Hitbox >= 2 then
             CastSpell(_W, WPosition.x, WPosition.z)
         end
