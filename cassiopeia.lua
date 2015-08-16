@@ -288,7 +288,7 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-	if Config.SMsbtw.sbtw then
+	if Config.SMsbtw.sbtw and Config.pred.prediction == 1 then
     	if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
         	if Config.SMsbtw.useQ and QREADY then
             	CastQ(unit)
