@@ -193,11 +193,11 @@ end
 function Combo(unit)
 	if Config.SMsbtw.sbtw then
         if myHero:GetSpellData(_E).level >= 1 then
-            if myHero:GetSpellData(_E).currentCd > 0.6 then SxOrb:EnableAttacks()
-        else SxOrb:DisableAttacks()
-            end
-        else SxOrb:EnableAttacks()
-        end
+                if myHero:GetSpellData(_E).currentCd > 0.6 then SxOrb:EnableAttacks()
+            else SxOrb:DisableAttacks()
+                end
+            else SxOrb:EnableAttacks()
+                end
     	if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
         	if Config.SMsbtw.useQ and QREADY then
             	CastQ(unit)
@@ -205,13 +205,13 @@ function Combo(unit)
         	if Config.SMsbtw.useW and WREADY then
             	CastW(unit)
         	end
-        	if Config.SMsbtw.useE and EREADY and isPoisoned(unit) then
+        	if Config.SMsbtw.useE and EREADY then
             	CastE(unit)
         	end
             if Config.SMsbtw.useR and RREADY and isBothFacing(myHero, unit, 160) then
                 CastR(unit)
         elseif Config.pred.prediction == 2 then
-            if myHero:GetSpellData(_E).level >= 1 then
+                if myHero:GetSpellData(_E).level >= 1 then
                 if myHero:GetSpellData(_E).currentCd > 0.6 then SxOrb:EnableAttacks()
             else SxOrb:DisableAttacks()
                 end
@@ -223,7 +223,7 @@ function Combo(unit)
                 if Config.SMsbtw.useW and WREADY then
                     CastHPREDW(unit)
                 end
-                if Config.SMsbtw.useE and EREADY and isPoisoned(unit) then
+                if Config.SMsbtw.useE and EREADY then
                     CastE(unit)
                 end
                 if Config.SMsbtw.useR and RREADY and isBothFacing(myHero, unit, 160) then
@@ -257,9 +257,9 @@ function LaneClear()
 				end
         		if Config.SMfarm.useE and EREADY and getDmg("AD", minion, myHero) < minion.health then
             		if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
-                		CastE(minion)
-            		else
-                		if isPoisoned(minion) then CastE(minion) end
+                		CastSpell(_E, minion)
+            		elseif isPoisoned(minion) then
+                        CastSpell(_E, minion)
                 	end
                 end
             end
@@ -273,17 +273,22 @@ function LastHit()
 
 	if Config.SMsmart.smartfarm then
     	for i, minion in pairs(enemyMinions.objects) do
-        	if minion ~= nil and ValidTarget(minion, SkillE.range) and Config.SMsmart.useE and EREADY and getDmg("AD", minion, myHero) < minion.health then
-            	if getDmg("E", minion, myHero) >= minion.health then
-                	CastE(minion)
+        	if minion ~= nil and ValidTarget(minion, SkillE.range) and Config.SMsmart.useE and EREADY then
+            	if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
+                	CastSpell(_E, minion)
                 end
-                if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY and not WREADY then
+                if Config.SMsmart.useEnplh then 
+                    if getDmg("E", minion, myHero) >= minion.health then
+                        CastSpell(_E, minion)
+                    end
+                end
+                if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY and not WREADY and not isPoisoned(minion) then
         			local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)					
 					if BestPos ~= nil then
 						CastSpell(_Q, BestPos.x, BestPos.z)
 					end
 				end
-        		if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY and QREADY then
+        		if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY and not isPoisoned(minion) then
            			local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)					
 					if BestPos ~= nil then
 						CastSpell(_W, BestPos.x, BestPos.z)
@@ -302,7 +307,7 @@ function rassHa(unit)
         if Config.SMsbtw.useQ and QREADY then
                 CastQ(unit)
         end
-        if Config.SMsbtw.useE and EREADY and isPoisoned(unit) then
+        if Config.SMsbtw.useE and EREADY then
                 CastE(unit)
         end
     end
@@ -329,82 +334,61 @@ end
 
 function CastQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
-        if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send() 
-        else
-            local CastPosition, HitChance, Position = VP:GetCircularCastPosition(unit, 0.5, 90, 925, 1800, myHero)
-            if HitChance >= 2 then
-                CastSpell(_Q, CastPosition.x, CastPosition.z)
-            end
+
+        local QPosition, QHitChance = VPrediction:GetPredictedPos(unit, 1, 1800, myHero, false)
+        if QHitChance >= 2 then
+            CastSpell(_Q, QPosition.x,  QPosition.z)
         end
     end
 end
 
 function CastW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
-        if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _W, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send() 
-        else
-            local CastPosition, HitChance, Position = VP:GetCircularAOECastPosition(unit, 0.5, 90, 925, 2500, myHero)
-            if HitChance >= 2 then
-                CastSpell(_W, CastPosition.x, CastPosition.z)
-            end
+
+        local WPosition, WHitChance  = VPrediction:GetPredictedPos(unit, 1.5, 2500, myHero, false)
+        if WHitChance >= 2 then
+            CastSpell(_W, WPosition.x, WPosition.z)
         end
     end
 end
 
 function CastHPREDQ(unit)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
-        if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send() 
-        else
-            local QPos, QHitChance = HPred:GetPredict(HPred.Presets["Cassiopeia"]["Q"], unit, myHero)
-            if QHitChance >= 2 then
-                CastSpell(_Q, QPos.x, QPos.z)
-            end
+
+        local QPos, QHitChance = HPred:GetPredict(HPred.Presets["Cassiopeia"]["Q"], unit, myHero)
+        if QHitChance >= 2 then
+            CastSpell(_Q, QPos.x, QPos.z)
         end
     end
 end
 
 function CastHPREDW(unit)
     if unit ~= nil and GetDistance(unit) <= SkillW.range then
-        if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _W, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send() 
-        else
-            local WPos, WHitChance = HPred:GetPredict(HPred.Presets["Cassiopeia"]["W"], unit, myHero)
-            if WHitChance >= 2 then
-                CastSpell(_W, WPos.x, WPos.z)
-            end
+
+        local WPos, WHitChance = HPred:GetPredict(HPred.Presets["Cassiopeia"]["W"], unit, myHero)
+        if WHitChance >= 2 then
+            CastSpell(_W, WPos.x, WPos.z)
         end
     end
 end
 
 function CastE(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillE.range then
-        if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
-        else
-            CastSpell(_E, unit)
+        if isPoisoned(unit) then
+            if VIP_USER and Config.SMother.usePackets then
+                Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+            else
+                CastSpell(_E, unit)
+            end
         end
     end
 end
 
 function CastR(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillR.range then
-        if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _R, targetNetworkId = unit.networkID}):send()
-        else
-            local mainCastPosition, mainHitChance, maxHit = VP:GetLineAOECastPosition(unit, SkillR.delay, SkillR.angle, SkillR.range, SkillR.speed, myHero)
-            if mainHitChance >= 2 then
-                if Config.SMsbtw.useR == 2 and maxHit >= 1 then
-                    CastSpell(_R, mainCastPosition.x, mainCastPosition.z) 
-                elseif Config.SMsbtw.useR == 3 and maxHit >= 2 then
-                    CastSpell(_R, mainCastPosition.x, mainCastPosition.z) 
-                elseif Config.SMsbtw.useR == 4 and maxHit >= 3 then
-                    CastSpell(_R, mainCastPosition.x, mainCastPosition.z) 
-                elseif Config.SMsbtw.useR == 5 and maxHit >= 4 then
-                    CastSpell(_R, mainCastPosition.x, mainCastPosition.z)
-                end 
+        local mainCastPosition, mainHitChance, maxHit = VPrediction:GetLineAOECastPosition(unit, SkillR.delay, SkillR.angle, SkillR.range, SkillR.speed, myHero)
+        if mainHitChance >= 2 then
+            if Config.SMsbtw.useR and CountEnemyHeroInRange(SKillR.range) >= Config.SMsbtw.useUlt and maxHit >= 1 then
             end
         end
     end
@@ -583,11 +567,11 @@ function Menu()
     Config:addSubMenu("Misc Options", "SMother")
     Config:addSubMenu("Prediction Options", "pred")
 
-    --Config:addSubMenu("Drawing Options", "SMdraw")
     Config.SMsmart:addParam("smartfarm", "LastHit", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("A"))
     Config.SMsmart:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsmart:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsmart:addParam("useE", "Use E-LastHit poisoned", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsmart:addParam("useEnplh", "E-LastHit non-poisoned", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMharass:addParam("qflee", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("C"))
     Config.SMharass:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -613,16 +597,16 @@ function Menu()
     Config.SMsbtw:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsbtw:addParam("useR", "Use R",  SCRIPT_PARAM_LIST, 1, {"1", "2", "3", "4", "5"})
-    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useUlt", "Use Ult x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
 
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoR", "Auto-R AntiGapCloser", SCRIPT_PARAM_ONOFF, true)
-    Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
-    Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
+    --Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
+    --Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
 
     Config.pred:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction" })
     
@@ -641,7 +625,7 @@ function Menu()
 
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
-    Config.SMother:permaShow("useqss")
+    --Config.SMother:permaShow("useqss")
     Config.SMother:permaShow("killsteal")
 		
 	Config:addSubMenu("Orbwalking Settings", "Orbwalking")
@@ -663,7 +647,7 @@ function Variables()
 
 	enemyMinions = minionManager(MINION_ENEMY, SkillE.range, myHero, MINION_SORT_HEALTH_ASC)
 	
-	VP = VPrediction()
+	VPrediction = VPrediction()
     HPred = HPrediction()
 	
 	JungleMobs = {}
@@ -1021,7 +1005,9 @@ function OnProcessSpell(unit, spell)
             if unit and unit.team ~= myHero.team and unit.type == myHero.type and spell then
                 if spell.name == x.spellName and Config.SMother.ES2[x.spellName] and ValidTarget(unit) then
                     if spell.target and spell.target.isMe then
-                        CastR(unit)
+                        CastSpell(_R, unit)
+                    elseif spell.target and not spell.target.isMe and GetDistance(unit) <= 400 then
+                        CastSpell(_R, unit)
                     end
                 end
             end
