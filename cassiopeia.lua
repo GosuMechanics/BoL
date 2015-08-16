@@ -162,11 +162,7 @@ function OnTick()
         if Config.SMharass.qflee and not IsMyManaLow("Harass") then
             rassHa(Target)
         end
-
-        if Config.SMother.autoPot then
-            AutoPots()
-        end
-
+        
         AutoIgnite()
 
 	Checks()
