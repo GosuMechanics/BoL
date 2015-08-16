@@ -532,7 +532,7 @@ end
 function CastSQ(unit)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local Position, Hitbox = SP:Predict(unit, SkillQ.speed, SkillQ.delay)
+        local Position, Hitbox = SP:Predict(unit, SkillQ.speed, SkillQ.delay, SkillQ.range)
         if Hitbox >= 2 then
             CastSpell(_Q, Position.x,  Position.z)
         end
