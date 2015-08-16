@@ -295,7 +295,7 @@ function Combo(unit)
                 if Config.SMsbtw.useQ and QREADY then
                     CastQ(unit)
                 end
-                if Config.SMsbtw.useR and RREADY and StackShield or Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                 CastSpell(_R)
                 end
                 if Config.SMsbtw.useW and WREADY then
@@ -312,7 +312,7 @@ function Combo(unit)
                 if Config.SMsbtw.useQ and QREADY then
                     CastQ(unit)
                 end
-                if Config.SMsbtw.useR and RREADY and StackShield or Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                     CastSpell(_R)
                 end
                 if Config.SMsbtw.useQ and EREADY and not QREADY then
@@ -329,7 +329,7 @@ function Combo(unit)
             if Config.SMsbtw.useE and EREADY and not QREADY then
                 CastE(unit)
             end
-            if Config.SMsbtw.useR and RREADY and StackShield or Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                 CastSpell(_R)
             end
 
@@ -337,7 +337,7 @@ function Combo(unit)
                 if Config.SMsbtw.useQ and QREADY then
                     CastQ(unit)
                 end
-                if Config.SMsbtw.useR and RREADY and StackShield or Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                 CastSpell(_R)
                 end
                 if Config.SMsbtw.useW and WREADY then
@@ -354,7 +354,7 @@ function Combo(unit)
                 if Config.SMsbtw.useQ and QREADY then
                     CastQ(unit)
                 end
-                if Config.SMsbtw.useR and RREADY and StackShield or Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                     CastSpell(_R)
                 end
                 if Config.SMsbtw.useQ and EREADY and not QREADY then
@@ -371,7 +371,7 @@ function Combo(unit)
             if Config.SMsbtw.useE and EREADY and not QREADY then
                 CastE(unit)
             end
-            if Config.SMsbtw.useR and RREADY and StackShield or Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                 CastSpell(_R)
             end
         end
@@ -924,6 +924,17 @@ function arrangePrioritysTT()
         end
 end
 
+function CountEnemyHeroInRange(range)
+    local enemyinRrange = 0
+        for i = 1, heroManager.iCount, 1 do
+            local hero = heroManager:getHero(i)
+                if ValidTarget(hero,range) then
+            enemyinRrange = enemyinRrange + 1
+            end
+        end
+    return enemyinRrange
+end
+
 function UseItems(unit)
     if unit ~= nil then
         for _, item in pairs(Items) do
@@ -989,17 +1000,6 @@ end
 
 function TrueRange()
     return myHero.range + GetDistance(myHero, myHero.minBBox)
-end
-
-function CountEnemyHeroInRange(range)
-    local enemyinRrange = 0
-        for i = 1, heroManager.iCount, 1 do
-            local hero = heroManager:getHero(i)
-                if ValidTarget(hero,range) then
-            enemyinRrange = enemyinRrange + 1
-            end
-        end
-    return enemyinRrange
 end
 
 function GetBestLineFarmPosition(range, width, objects)
