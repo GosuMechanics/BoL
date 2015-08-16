@@ -461,9 +461,9 @@ end
 function CastSQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QPosition, QHitbox = SP:PredictPos(unit, 1800, 0.5)
-        if QHitbox >= 2 then
-            CastSpell(_Q, QPosition.x,  QPosition.z)
+        local QCastPosition, QHitChance, QPredictedPosition = SP:Predict(unit, SkillQ.range, SkillQ.speed, SkillQ.delay, SkillQ.width, false, myHero)
+        if QHitChance >= 2 then
+            CastSpell(_Q, QCastPosition.x,  QCastPosition.z)
         end
     end
 end
@@ -471,9 +471,9 @@ end
 function CastSW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WPosition, WHitbox = SP:PredictPos(unit, 2500, 0.5)
-        if WHitbox >= 2 then
-            CastSpell(_W, WPosition.x, WPosition.z)
+         local WCastPosition, WHitChance, WPredictedPosition = SP:Predict(unit, SkillQ.range, SkillQ.speed, SkillQ.delay, SkillQ.width, false, myHero)
+        if WHitChance >= 2 then
+            CastSpell(_Q, WCastPosition.x,  WCastPosition.z)
         end
     end
 end
