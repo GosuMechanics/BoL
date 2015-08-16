@@ -288,8 +288,8 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-	if Config.SMsbtw.sbtw and Config.pred.prediction == 1 then
-    	if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
+    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
+        if Config.SMsbtw.sbtw and Config.pred.prediction == 1 then
         	if Config.SMsbtw.useQ and QREADY then
             	CastQ(unit)
         	end
@@ -301,7 +301,9 @@ function Combo(unit)
         	end
             if Config.SMsbtw.useR and RREADY then
                 CastR(unit)
-        elseif Config.pred.prediction == 2 then
+            end
+        end
+        if Config.SMsbtw.sbtw and Config.pred.prediction == 2 then
                 if Config.SMsbtw.useQ and QREADY then
                     CastHPREDQ(unit)
                 end
@@ -313,20 +315,20 @@ function Combo(unit)
                 end
                 if Config.SMsbtw.useR and RREADY then
                     CastR(unit)
-            elseif Config.pred.prediction == 3 then
-                    if Config.SMsbtw.useQ and QREADY then
-                        CastSQ(unit)
-                    end
-                    if Config.SMsbtw.useW and WREADY then
-                        CastSW(unit)
-                    end
-                    if Config.SMsbtw.useE and EREADY then
-                        CastE(unit)
-                    end
-                    if Config.SMsbtw.useR and RREADY then
-                        CastR(unit)
-                    end
                 end
+            end
+            if Config.SMsbtw.sbtw and Config.pred.prediction == 3 then
+                if Config.SMsbtw.useQ and QREADY then
+                    CastSQ(unit)
+                end
+                if Config.SMsbtw.useW and WREADY then
+                    CastSW(unit)
+                end
+                if Config.SMsbtw.useE and EREADY then
+                    CastE(unit)
+                end
+                if Config.SMsbtw.useR and RREADY then
+                    CastR(unit)
             end
         end
     end
@@ -459,9 +461,9 @@ end
 function CastSQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QPosition, QHitbox = SP:Predict(unit, 1800, 0.5, SkillQ.range)
-        if Hitbox >= 2 then
-            CastSpell(_Q, QPosition.x, Position.z)
+        local QPosition, QHitbox = SP:PredictPos(unit, 1800, 0.5)
+        if QHitbox >= 2 then
+            CastSpell(_Q, QPosition.x,  QPosition.z)
         end
     end
 end
@@ -469,8 +471,8 @@ end
 function CastSW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WPosition, WHitbox = SP:Predict(unit, 2500, 0.5, SkillW.range)
-        if Hitbox >= 2 then
+        local WPosition, WHitbox = SP:PredictPos(unit, 2500, 0.5)
+        if WHitbox >= 2 then
             CastSpell(_W, WPosition.x, WPosition.z)
         end
     end
@@ -722,6 +724,8 @@ function Menu()
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useUlt", "Use Ult x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
+
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
@@ -771,6 +775,7 @@ function Variables()
 	
 	VPrediction = VPrediction()
     HPred = HPrediction()
+    SP = SPrediction()
 	
 	JungleMobs = {}
 	JungleFocusMobs = {}
