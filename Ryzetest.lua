@@ -2,6 +2,7 @@ if myHero.charName ~= "Ryze" then return end
 
 require 'SxOrbwalk'
 require 'VPrediction'
+require 'SPrediction'
 
 if _G.BuffFix then
 _G.BUFF_NONE = 0
@@ -139,7 +140,7 @@ local GapCloserList = {
 }
 
 function OnLoad()
-    print("<b><font color=\"#6699FF\">GosuMechanics:</font></b> <font color=\"#FFFFFF\">Cassiopeia</font>")
+    print("<b><font color=\"#6699FF\">GosuMechanics:</font></b> <font color=\"#FFFFFF\">Ryze</font>")
     Variables()
     Menu()
     PriorityOnLoad()
@@ -249,6 +250,9 @@ function OnTick()
         if Config.SMsbtw.sbtw then 
             Combo(Target)
         end
+        if Config.SMsbtw.sb then 
+            SBTW(Target)
+        end
         if Config.SMfarm.farm and not IsMyManaLow("LaneClear") then
             LaneClear()
         end
@@ -270,13 +274,13 @@ end
 function OnDraw()
     if not myHero.dead then
         if Config.SMdraw.drawQ and QREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 255, 255, 2255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 38, 38, 255))
         end
         if Config.SMdraw.drawW and WREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 2255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawE and EREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 2255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
         end
     end
 end
@@ -289,14 +293,12 @@ function Combo(unit)
 
     if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillW.range then
 
-        if Config.SMsbtw.useitems and GetDistance(unit) <= SkillW.range then UseItems() end
-
             if Config.SMsbtw.combomode == 1 and Config.pred.prediction == 1 then
                 if Config.SMsbtw.useQ and QREADY then
                     CastQ(unit)
                 end
-                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
-                CastSpell(_R)
+                if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                    CastSpell(_R)
                 end
                 if Config.SMsbtw.useW and WREADY then
                     CastW(unit)
@@ -329,53 +331,99 @@ function Combo(unit)
             if Config.SMsbtw.useE and EREADY and not QREADY then
                 CastE(unit)
             end
-            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
-                CastSpell(_R)
-            end
-
-            elseif Config.SMsbtw.combomode == 1 and Config.pred.prediction == 2 then
-                if Config.SMsbtw.useQ and QREADY then
-                    CastQ(unit)
-                end
-                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
-                CastSpell(_R)
-                end
-                if Config.SMsbtw.useW and WREADY then
-                    CastW(unit)
-                end
-                if Config.SMsbtw.useE and EREADY and not QREADY then
-                    CastE(unit)
-                end
-            end
-            if Config.SMsbtw.combomode == 2 then
-                if Config.SMsbtw.useW and WREADY then
-                    CastW(unit)
-                end
-                if Config.SMsbtw.useQ and QREADY then
-                    CastQ(unit)
-                end
-                if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
-                    CastSpell(_R)
-                end
-                if Config.SMsbtw.useQ and EREADY and not QREADY then
-                    CastE(unit)
-                end
-            end
-        if Config.SMsbtw.combomode == 3 then
-            if Config.SMsbtw.useQ and QREADY then
-                CastQ(unit)
-            end
-            if Config.SMsbtw.useW and WREADY then
-                CastW(unit)
-            end
-            if Config.SMsbtw.useE and EREADY and not QREADY then
-                CastE(unit)
-            end
-            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+            if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
                 CastSpell(_R)
             end
         end
+        if Config.SMsbtw.combomode == 4 then
+            if Config.SMsbtw.useW and WREADY then
+                CastW(unit)
+            end
+            if Config.SMsbtw.useQ and QREADY then
+                CastQ(unit)
+            end
+            if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                CastSpell(_R)
+            end
+            if Config.SMsbtw.useQ and EREADY then
+                CastE(unit)
+            end
+        end
+
+            elseif Config.SMsbtw.combomode == 1 and Config.pred.prediction == 2 then
+                if Config.SMsbtw.useQ and QREADY then
+                    CastSQ(unit)
+                end
+                if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                    CastSpell(_R)
+                end
+                if Config.SMsbtw.useW and WREADY then
+                    CastW(unit)
+                end
+                if Config.SMsbtw.useE and EREADY and not QREADY then
+                    CastE(unit)
+                end
+            end
+        if Config.SMsbtw.combomode == 2 then
+            if Config.SMsbtw.useW and WREADY then
+                CastW(unit)
+            end
+            if Config.SMsbtw.useQ and QREADY then
+                CastSQ(unit)
+            end
+            if Config.SMsbtw.useR and RREADY and Stacks5 and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+                CastSpell(_R)
+            end
+            if Config.SMsbtw.useQ and EREADY and not QREADY then
+                CastE(unit)
+            end
+        end
+    if Config.SMsbtw.combomode == 3 then
+        if Config.SMsbtw.useQ and QREADY then
+            CastSQ(unit)
+        end
+        if Config.SMsbtw.useW and WREADY then
+            CastW(unit)
+        end
+        if Config.SMsbtw.useE and EREADY and not QREADY then
+            CastE(unit)
+        end
+        if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+            CastSpell(_R)
+        end
     end
+    if Config.SMsbtw.combomode == 4 then
+        if Config.SMsbtw.useW and WREADY then
+            CastW(unit)
+        end
+        if Config.SMsbtw.useQ and QREADY then
+            CastSQ(unit)
+        end
+        if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+            CastSpell(_R)
+        end
+        if Config.SMsbtw.useQ and EREADY then
+            CastE(unit)
+        end
+    end
+end
+
+function SBTW(unit)
+
+    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillW.range then
+        if Config.SMsbtw.useW and WREADY then
+                    CastW(unit)
+                end
+                if Config.SMsbtw.useQ and QREADY then
+                            CastQ(unit)
+                        end
+                        if Config.SMsbtw.useR and RREADY then
+                                    CastSpell(_R)
+                                end
+                                if Config.SMsbtw.useQ and EREADY and not QREADY then
+                                            CastE(unit)
+                                end
+                end
 end
 
 function LaneClear()
@@ -484,9 +532,9 @@ end
 function CastSQ(unit)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QCastPosition, QChance, QPredPos = SP:PredictPos(unit, SkillQ.speed, SkillQ.delay)
-        if QChance >= 2 then
-            CastSpell(_Q, QCastPosition.x,  QCastPosition.z)
+        local CastPosition, Chance, PredPos = SP:Predict(unit, SkillQ.range, SkillQ.speed, SkillQ.delay, SkillQ.width, false, myHero)
+        if Chance >= 2 then
+            CastSpell(_Q, CastPosition.x,  CastPosition.z)
         end
     end
 end
@@ -709,13 +757,14 @@ function Menu()
     Config.SMjfarm:addParam("jungleMana", "Min. Mana", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
 
     Config.SMsbtw:addParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("S"))
+    Config.SMsbtw:addParam("sb", "SBTW in 1v1", SCRIPT_PARAM_ONKEYDOWN, false, 32)
     Config.SMsbtw:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("count", "Ult when x enemy in range", SCRIPT_PARAM_SLICE, 2, 1, 5, 0)
     Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
-    Config.SMsbtw:addParam("combomode", "Combo Mode", SCRIPT_PARAM_LIST, 3, {"QWER", "WQER", "QWQR"})
+    Config.SMsbtw:addParam("combomode", "Combo Mode", SCRIPT_PARAM_LIST, 3, {"QWER", "WQER", "QWQR", "justBURST"})
 
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
@@ -736,9 +785,9 @@ function Menu()
                 end
             end
 
-    Config.SMdraw:addParam("drawQ","Draw Q-Range",SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawW","Draw W-Range",SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawE","Draw R-Range",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawQ","Draw Q-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawW","Draw W-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawE","Draw R-Range", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
@@ -765,6 +814,7 @@ function Variables()
     enemyMinions = minionManager(MINION_ENEMY, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
     
     VPrediction = VPrediction()
+    SP = SPrediction()
     
     JungleMobs = {}
     JungleFocusMobs = {}
