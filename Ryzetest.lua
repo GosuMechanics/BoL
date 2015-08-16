@@ -770,7 +770,7 @@ function Menu()
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-    Config.SMother:addParam("autoW", "Auto-W", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("autoW", "Auto-W AntiGapcloser", SCRIPT_PARAM_ONOFF, true)
     --Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
     --Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
 
