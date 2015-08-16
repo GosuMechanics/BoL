@@ -393,17 +393,17 @@ function Combo(unit)
         end
     end
     if Config.SMsbtw.combomode == 4 then
-        if Config.SMsbtw.useW and WREADY then
-            CastW(unit)
-        end
         if Config.SMsbtw.useQ and QREADY then
             CastSQ(unit)
         end
-        if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
-            CastSpell(_R)
+        if Config.SMsbtw.useW and WREADY then
+            CastW(unit)
         end
         if Config.SMsbtw.useQ and EREADY then
             CastE(unit)
+        if Config.SMsbtw.useR and RREADY and CountEnemyHeroInRange(SkillW.range) >= Config.SMsbtw.count then
+            CastSpell(_R)
+            end
         end
     end
 end
