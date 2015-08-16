@@ -291,7 +291,7 @@ end
 
 function Combo(unit)
 
-    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillW.range then
+    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillQ.range then
 
             if Config.SMsbtw.combomode == 1 and Config.pred.prediction == 1 then
                 if Config.SMsbtw.useQ and QREADY then
@@ -410,12 +410,12 @@ end
 
 function SBTW(unit)
 
-    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillW.range then
-        if Config.SMsbtw.useW and WREADY then
-                    CastW(unit)
+    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillQ.range then
+        if Config.SMsbtw.useQ and QREADY then
+                    CastQ(unit)
                 end
-                if Config.SMsbtw.useQ and QREADY then
-                            CastQ(unit)
+                if Config.SMsbtw.useQ and WREADY then
+                            CastW(unit)
                         end
                         if Config.SMsbtw.useR and RREADY then
                                     CastSpell(_R)
