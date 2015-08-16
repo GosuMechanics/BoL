@@ -464,7 +464,7 @@ function LastHit()
 
     if Config.SMsmart.smartfarm then
         for i, minion in pairs(enemyMinions.objects) do
-            if minion ~= nil and ValidTarget(minion) and Config.SMsmart.useQ and QREADY and getDmg("AD", minion, myHero) < minion.health then
+            if minion ~= nil and ValidTarget(minion) and Config.SMsmart.useQ and QREADY then
                 if getDmg("Q", minion, myHero) >= minion.health then
                     CastQQ(minion)
                 end 
@@ -474,7 +474,7 @@ function LastHit()
                     CastE(minion)
                 end
             end
-            if Config.SMsmart.useW and WREADY and not QREADY and getDmg("AD", minion, myHero) < minion.health then
+            if Config.SMsmart.useW and WREADY and not QREADY then
                 if getDmg("W", minion, myHero) >= minion.health then
                     CastW(minion)
                 end
@@ -532,9 +532,9 @@ end
 function CastSQ(unit)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local CastPosition, Chance, PredPos = SP:Predict(unit, SkillQ.range, SkillQ.speed, SkillQ.delay, SkillQ.width, false, myHero)
-        if Chance >= 2 then
-            CastSpell(_Q, CastPosition.x,  CastPosition.z)
+        local Position, Hitbox = SP:Predict(unit, SkillQ.speed, SkillQ.delay)
+        if Hitbox >= 2 then
+            CastSpell(_Q, Position.x,  Position.z)
         end
     end
 end
