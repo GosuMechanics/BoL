@@ -423,11 +423,11 @@ function Jungle()
         local JungleMob = GetJungleMob() 
 
         if JungleMob ~= nil then
-            if Config.SMjfarm.useQ and GetDistance(JungleMob) <= SkillQ.range and QREADY then
-				CastSpell(_Q, JungleMob.x, JungleMob.z)
-            end
             if Config.SMfarm.useW and GetDistance(JungleMob) <= SkillW.range and WREADY then
                 CastSpell(_W, JungleMob.x, JungleMob.z)
+            end
+            if Config.SMjfarm.useQ and GetDistance(JungleMob) <= SkillQ.range and QREADY then
+				CastSpell(_Q, JungleMob.x, JungleMob.z)
             end
             if Config.SMfarm.useE and GetDistance(JungleMob) <= SkillE.range and EREADY and isPoisoned(JungleMob) then
                 CastSpell(_E, JungleMob)
@@ -459,9 +459,9 @@ end
 function CastSQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QCastPosition, QChance, QPredPos = SP:PredictPos(unit, 1800, 0.5)
-        if QChance >= 2 then
-            CastSpell(_Q, QCastPosition.x,  QCastPosition.z)
+        local QPosition, QHitbox = SP:Predict(unit, 1800, 0.5)
+        if Hitbox >= 2 then
+            CastSpell(_Q, QPosition.x, Position.z)
         end
     end
 end
@@ -469,9 +469,9 @@ end
 function CastSW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WCastPosition, WChance, WPredPos = SP:PredictPos(unit, 1800, 0.5)
-        if WChance >= 2 then
-            CastSpell(_W, WCastPosition.x, WCastPosition.z)
+        local WPosition, WHitbox = SP:Predict(unit, 2500, 0.5)
+        if Hitbox >= 2 then
+            CastSpell(_W, WPosition.x, WPosition.z)
         end
     end
 end
@@ -722,8 +722,6 @@ function Menu()
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useUlt", "Use Ult x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
-    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
-
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
