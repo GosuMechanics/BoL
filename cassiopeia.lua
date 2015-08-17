@@ -481,7 +481,7 @@ function CastW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
         local AOECastPosition, MainTargetHitChance, nTargets = VPrediction:GetCircularAOECastPosition(unit, SkillW.delay, SkillW.radius, SkillW.range, SkillW.speed, myHero)
-        if WHitChance >= 2 then
+        if MainTargetHitChance >= 2 then
             CastSpell(_W, AOECastPosition.x, AOECastPosition.z)
         end
     end
