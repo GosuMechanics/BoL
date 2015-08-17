@@ -264,8 +264,6 @@ function OnTick()
             rassHa(Target)
         end
 
-        if GetInventoryItemIsCastable(3340) and IsWallOfGrass(bush) then CastItem(3340) end
-
         AutoIgnite()
 
         if Config.SMother.autoPot and lowHp(myHero) then AutoPots() end
