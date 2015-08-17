@@ -341,18 +341,20 @@ local GapCloserList = {
 function OnLoad()
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.1
-    ToUpdate.UseHttps = true
-    ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/Ryze.version"
-    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/Ryzetest.lua"
-    ToUpdate.SavePath = LIB_PATH.."/Ryzetest.lua"
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) print("<font color=\"#FF794C\"><b>GosuMechanics: </b></font> <font color=\"#FFDFBF\">Updated to "..NewVersion..". </b></font>") end
-    ToUpdate.CallbackNoUpdate = function(OldVersion) print("<font color=\"#FF794C\"><b>GosuMechanics: </b></font> <font color=\"#FFDFBF\">No Updates Found</b></font>") end
-    ToUpdate.CallbackNewVersion = function(NewVersion) print("<font color=\"#FF794C\"><b>GosuMechanics: </b></font> <font color=\"#FFDFBF\">New Version found ("..NewVersion.."). Please wait until its downloaded</b></font>") end
-    ToUpdate.CallbackError = function(NewVersion) print("<font color=\"#FF794C\"><b>GosuMechanics: </b></font> <font color=\"#FFDFBF\">Error while Downloading. Please try again.</b></font>") end
-    ScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
-
+	ToUpdate.Version = 1.1
+	DelayAction(function()
+		ToUpdate.UseHttps = true
+		ToUpdate.Host = "raw.githubusercontent.com"
+		ToUpdate.VersionPath = "/GosuMechanics/BoL/master/Ryze.version"
+		ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/Ryzetest.lua"
+		ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
+		ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
+		ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found.") end
+		ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
+		ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
+		SxScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
+	end, 0.5)
+	Print("Version "..ToUpdate.Version.." loaded.")
 
     --print("<b><font color=\"#6699FF\">GosuMechanics:</font></b> <font color=\"#FFFFFF\">Ryze</font>")
     Variables()
