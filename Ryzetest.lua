@@ -417,7 +417,7 @@ function SBTW(unit)
                 if Config.SMsbtw.useQ and WREADY then
                             CastW(unit)
                         end
-                        if Config.SMsbtw.useR and RREADY then
+                        if Config.SMsbtw.useR and RREADY and GetDistance(unit) <= SkillW.range then
                                     CastSpell(_R)
                                 end
                                 if Config.SMsbtw.useQ and EREADY and not QREADY then
