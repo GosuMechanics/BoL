@@ -303,20 +303,7 @@ function Combo(unit)
                 CastR(unit)
             end
         end
-        if Config.SMsbtw.sbtw and Config.pred.prediction == 2 then
-                if Config.SMsbtw.useQ and QREADY then
-                    CastHPREDQ(unit)
-                end
-                if Config.SMsbtw.useW and WREADY then
-                    CastHPREDW(unit)
-                end
-                if Config.SMsbtw.useE and EREADY then
-                    CastE(unit)
-                end
-                if Config.SMsbtw.useR and RREADY then
-                    CastR(unit)
-                end
-            end
+    
             if Config.SMsbtw.sbtw and Config.pred.prediction == 3 then
                 if Config.SMsbtw.useQ and QREADY then
                     CastSQ(unit)
@@ -329,7 +316,21 @@ function Combo(unit)
                 end
                 if Config.SMsbtw.useR and RREADY then
                     CastR(unit)
+                end
             end
+            if Config.SMsbtw.sbtw and Config.pred.prediction == 2 then
+                if Config.SMsbtw.useQ and QREADY then
+                    CastHPREDQ(unit)
+                end
+                if Config.SMsbtw.useW and WREADY then
+                    CastHPREDW(unit)
+                end
+                if Config.SMsbtw.useE and EREADY then
+                    CastE(unit)
+                end
+                if Config.SMsbtw.useR and RREADY then
+                    CastR(unit)
+                end
         end
     end
 end
@@ -471,9 +472,9 @@ end
 function CastSW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-         local WCastPosition, WHitChance, WPredictedPosition = SP:Predict(unit, SkillQ.range, SkillQ.speed, SkillQ.delay, SkillQ.width, false, myHero)
+        local WCastPosition, WHitChance, WPredictedPosition = SP:Predict(unit, SkillW.range, SkillW.speed, SkillW.delay, SkillW.width, false, myHero)
         if WHitChance >= 2 then
-            CastSpell(_Q, WCastPosition.x,  WCastPosition.z)
+            CastSpell(_W, WCastPosition.x,  WCastPosition.z)
         end
     end
 end
@@ -481,7 +482,7 @@ end
 function CastHPREDQ(unit)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QPos, QHitChance = HPred:GetPredict(HP_Q, unit, myHero)
+        local QPos, QHitChance = HPred:GetPredict(HPred.Presets['Cassiopeia']["Q"], unit, myHero)
         if QHitChance >= 2 then
             CastSpell(_Q, QPos.x, QPos.z)
         end
@@ -491,7 +492,7 @@ end
 function CastHPREDW(unit)
     if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WPos, WHitChance = HPred:GetPredict(HP_W, unit, myHero)
+        local WPos, WHitChance = HPred:GetPredict(HPred.Presets['Cassiopeia']["W"], unit, myHero)
         if WHitChance >= 2 then
             CastSpell(_W, WPos.x, WPos.z)
         end
@@ -724,7 +725,6 @@ function Menu()
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useUlt", "Use Ult x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
-    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
 
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
@@ -766,8 +766,8 @@ end
 
 function Variables()
 
-    SkillQ = { name = "CassiopeiaNoxiousBlast", speed = 1000, delay = 0.25, range = 850, width = 100, collision = false, aoe = true, type = "circular"}
-    SkillW = { name = "CassiopeiaMiasma", speed = 1000, delay = 0.5, range = 925, width = 90, collision = false, aoe = true, type = "circular"}
+    SkillQ = { name = "CassiopeiaNoxiousBlast", speed = 1000, delay = 0.25, range = 850, width = 50, collision = false, aoe = true, type = "circular"}
+    SkillW = { name = "CassiopeiaMiasma", speed = 1000, delay = 0.5, range = 925, width = 50, collision = false, aoe = true, type = "circular"}
     SkillE = { name = "CassiopeiaTwinFang", range = 750 }
     SkillR = { name = "CassiopeiaPetrifyingGaze", speed = math.huge, delay = 0.5, range = 825, angle = 80, width = 410, collision = false, aoe = true, type = "cone"}
 
