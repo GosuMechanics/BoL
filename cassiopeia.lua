@@ -172,11 +172,11 @@ function OnLoad()
         [3362]              = "TrinketTotemLvl4",
         [3159]              = "HextechSweeper",
         [2051]              = "ItemHorn",
-        --[2003]            = "RegenerationPotion",
+        [2003]              = "RegenerationPotion",
         [3146]              = "HextechGunblade",
         [3187]              = "HextechSweeper",
         [3190]              = "IronStylus",
-        --[2004]                = "FlaskOfCrystalWater",
+        [2004]              = "FlaskOfCrystalWater",
         [3139]              = "ItemMercurial",
         [3222]              = "ItemMorellosBane",
         [3042]              = "Muramana",
@@ -263,8 +263,13 @@ function OnTick()
         if Config.SMharass.qflee and not IsMyManaLow("Harass") then
             rassHa(Target)
         end
-        
+
+        if GetInventoryItemIsCastable(3340) and IsWallOfGrass(bush) then CastItem(3340) end
+
         AutoIgnite()
+
+        if Config.SMother.autoPot and lowHp(myHero) then AutoPots() end
+        if Config.SMother.autoMPot and lowMana(myHero) then AutoMpots() end
 
 	Checks()
 end
@@ -288,13 +293,23 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
+    if lowHp(myHero) and CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3157)then
+        CastItem(3157)
+    end
+    if CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3048) then
+        CastItem(3048)
+    end
+
     if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
+            if Config.SMsbtw.aa then SxOrb:EnableAttacks() end
         if Config.SMsbtw.sbtw and Config.pred.prediction == 1 then
         	if Config.SMsbtw.useQ and QREADY then
             	CastQ(unit)
         	end
         	if Config.SMsbtw.useW and WREADY then
-            	CastW(unit)
+                DelayAction(function()
+                    CastW(unit)
+                end, 1 - GetLatency() / 1000)
         	end
         	if Config.SMsbtw.useE and EREADY then
             	CastE(unit)
@@ -309,7 +324,9 @@ function Combo(unit)
                     CastSQ(unit)
                 end
                 if Config.SMsbtw.useW and WREADY then
-                    CastSW(unit)
+                    DelayAction(function()
+                        CastSW(unit)
+                    end, 1 - GetLatency() / 1000)
                 end
                 if Config.SMsbtw.useE and EREADY then
                     CastE(unit)
@@ -318,19 +335,21 @@ function Combo(unit)
                     CastR(unit)
                 end
             end
-            if Config.SMsbtw.sbtw and Config.pred.prediction == 2 then
-                if Config.SMsbtw.useQ and QREADY then
-                    CastHPREDQ(unit)
-                end
-                if Config.SMsbtw.useW and WREADY then
+        if Config.SMsbtw.sbtw and Config.pred.prediction == 2 then
+            if Config.SMsbtw.useQ and QREADY then
+                CastHPREDQ(unit)
+            end
+            if Config.SMsbtw.useW and WREADY then
+                DelayAction(function()
                     CastHPREDW(unit)
-                end
-                if Config.SMsbtw.useE and EREADY then
-                    CastE(unit)
-                end
-                if Config.SMsbtw.useR and RREADY then
-                    CastR(unit)
-                end
+                end, 1 - GetLatency() / 1000)
+            end
+            if Config.SMsbtw.useE and EREADY then
+                CastE(unit)
+            end
+            if Config.SMsbtw.useR and RREADY then
+                CastR(unit)
+            end
         end
     end
 end
@@ -338,6 +357,8 @@ end
 function LaneClear()
 
     enemyMinions:update()  
+
+    if Config.SMfarm.aa then SxOrb:EnableAttacks() end
 
 	if Config.SMfarm.farm then
     	for i, minion in pairs(enemyMinions.objects) do
@@ -353,7 +374,9 @@ function LaneClear()
            			local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)
 					
 					if BestPos ~= nil then
-                        CastSpell(_W, BestPos.x, BestPos.z)
+                        DelayAction(function()
+                            CastSpell(_W, BestPos.x, BestPos.z)
+                        end, 0.7 - GetLatency() / 1000)
 					end
 				end
         		if Config.SMfarm.useE and EREADY --[[getDmg("AD", minion, myHero) < minion.health]] then
@@ -372,19 +395,10 @@ function LastHit()
 
     enemyMinions:update() 
 
+    if Config.SMsmart.aa then SxOrb:EnableAttacks() end
+
 	if Config.SMsmart.smartfarm then
     	for i, minion in pairs(enemyMinions.objects) do
-            if myHero:GetSpellData(_E).level >= 1 then
-                if myHero:GetSpellData(_E).currentCd > 0.6 then SxOrb:EnableAttacks()
-            else SxOrb:DisableAttacks()
-                end
-            else SxOrb:EnableAttacks()
-                end
-        	if minion ~= nil and ValidTarget(minion, SkillE.range) and Config.SMsmart.useE and EREADY then
-            	if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
-                	CastSpell(_E, minion)
-                end
-            end
             if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY then
         		local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)					
 				if BestPos ~= nil then
@@ -394,7 +408,14 @@ function LastHit()
         	if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY and not isPoisoned(minion) then
            		local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)					
 				if BestPos ~= nil then
-					CastSpell(_W, BestPos.x, BestPos.z)
+                    DelayAction(function()
+                        CastSpell(_W, BestPos.x, BestPos.z)
+                    end, 0.7 - GetLatency() / 1000)
+                end
+            end
+            if minion ~= nil and ValidTarget(minion, SkillE.range) and Config.SMsmart.useE and EREADY then
+                if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
+                    CastSpell(_E, minion)
                 end
             end
             if Config.SMsmart.useEnplh and getDmg("AD", minion, myHero) >= minion.health then
@@ -407,6 +428,9 @@ function LastHit()
 end
 
 function rassHa(unit)
+
+    if Config.SMharass.aa then SxOrb:EnableAttacks() end
+
 	if Config.SMharass.qflee then
         if Config.SMsbtw.useW and WREADY then
                 CastW(unit)
@@ -422,12 +446,16 @@ end
 
 function Jungle()
 
+    if Config.SMjfarm.aa then SxOrb:EnableAttacks() end
+
     if Config.SMjfarm.jungle then
         local JungleMob = GetJungleMob() 
 
         if JungleMob ~= nil then
             if Config.SMfarm.useW and GetDistance(JungleMob) <= SkillW.range and WREADY then
-                CastSpell(_W, JungleMob.x, JungleMob.z)
+                DelayAction(function()
+                    CastSpell(_W, JungleMob.x, JungleMob.z)
+                end, 1 - GetLatency() / 1000)
             end
             if Config.SMjfarm.useQ and GetDistance(JungleMob) <= SkillQ.range and QREADY then
 				CastSpell(_Q, JungleMob.x, JungleMob.z)
@@ -452,7 +480,7 @@ end
 function CastW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WPosition, WHitChance  = VPrediction:GetPredictedPos(unit, 1.5, 2500, myHero, false)
+        local WPosition, WHitChance  = VPrediction:GetPredictedPos(unit, 1, 2500, myHero, false)
         if WHitChance >= 2 then
             CastSpell(_W, WPosition.x, WPosition.z)
         end
@@ -602,8 +630,23 @@ end
 
 
 function AutoPots()
-    if REGPOT and CanCast(REGPOT) and lowHp(myHero) and not UsingPot then 
-        CastSpell(REGPOT) 
+    if GetInventoryItemIsCastable(2003) and lowHp(myHero) and not UsingPot then 
+       CastItem(2003) 
+    end
+end
+
+function lowMana(unit)
+    if unit.mana <= (Config.SMother.useMPots/100*myHero.maxMana) then
+        return true
+    else
+        return false
+    end
+end
+
+
+function AutoMpots()
+    if GetInventoryItemIsCastable(2004) and lowMana(myHero) and not UsingMpot then 
+       CastItem(2004) 
     end
 end
 
@@ -698,12 +741,14 @@ function Menu()
     Config.SMsmart:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useE", "Use E-LastHit poisoned", SCRIPT_PARAM_ONOFF, true)
     Config.SMsmart:addParam("useEnplh", "E-LastHit non-poisoned", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsmart:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMharass:addParam("qflee", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("C"))
     Config.SMharass:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useW", "Use W", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMharass:addParam("harassMana", "Min. Mana", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
+    Config.SMharass:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMfarm:addParam("farm", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
     Config.SMfarm:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -711,6 +756,7 @@ function Menu()
     Config.SMfarm:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMfarm:addParam("laneMana", "Min. Mana", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
+    Config.SMfarm:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMjfarm:addParam("jungle", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
     Config.SMjfarm:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -718,6 +764,7 @@ function Menu()
     Config.SMjfarm:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMjfarm:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMjfarm:addParam("jungleMana", "Min. Mana", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
+    Config.SMfarm:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMsbtw:addParam("sbtw", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("S"))
     Config.SMsbtw:addParam("useQ", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -725,14 +772,20 @@ function Menu()
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useUlt", "Use Ult x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+    Config.SMsbtw:addParam("aa", "Enable AutoAttacks", SCRIPT_PARAM_ONOFF, true)
 
   
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoR", "Auto-R AntiGapCloser", SCRIPT_PARAM_ONOFF, true)
-    --Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
-    --Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
+    Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("autoMPot", "Auto-ManaPots", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("useMPots", "use when at % mana", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
+
 
     Config.pred:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"  })
     
@@ -1011,6 +1064,34 @@ function CountEnemyHeroInRange(range)
             end
         end
     return enemyinRrange
+end
+
+function GetSlotItemFromName(itemname)
+    local slot
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if ((#item > 0) and (item:lower() == itemname:lower())) then
+            slot = i
+        end
+    end
+    return slot
+end
+
+function GetSlotItem(id, unit)
+    unit = unit or myHero
+
+    if (not ItemNames[id]) then
+        return ___GetInventorySlotItem(id, unit)
+    end
+
+    local name  = ItemNames[id]
+    
+    for slot = ITEM_1, ITEM_7 do
+        local item = unit:GetSpellData(slot).name
+        if ((#item > 0) and (item:lower() == name:lower())) then
+            return slot
+        end
+    end
 end
 
 function GetBestLineFarmPosition(range, width, objects)
