@@ -763,7 +763,7 @@ function Menu()
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("count", "Ult when x enemy in range", SCRIPT_PARAM_SLICE, 2, 1, 5, 0)
-    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
+    --Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("combomode", "Combo Mode", SCRIPT_PARAM_LIST, 3, {"QWER", "WQER", "QWQR", "justBURST"})
 
   
@@ -785,9 +785,9 @@ function Menu()
                 end
             end
 
-    Config.SMdraw:addParam("drawQ","Draw Q-Range", SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawW","Draw W-Range", SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawE","Draw R-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawQ", "Draw Q-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawW", "Draw W-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawE", "Draw R-Range", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
