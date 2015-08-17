@@ -470,7 +470,7 @@ end
 function CastQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QPosition, QHitChance = VPrediction:GetPredictedPos(unit, 0.5, 1800, myHero, false)
+        local QCastPosition,  QHitChance,  QPosition = VPrediction:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
         if QHitChance >= 2 then
             CastSpell(_Q, QPosition.x,  QPosition.z)
         end
@@ -480,9 +480,9 @@ end
 function CastW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local WPosition, WHitChance  = VPrediction:GetPredictedPos(unit, 1, 2500, myHero, false)
+        local AOECastPosition, MainTargetHitChance, nTargets = VPrediction:GetCircularAOECastPosition(unit, SkillW.delay, SkillW.radius, SkillW.range, SkillW.speed, myHero)
         if WHitChance >= 2 then
-            CastSpell(_W, WPosition.x, WPosition.z)
+            CastSpell(_W, AOECastPosition.x, AOECastPosition.z)
         end
     end
 end
