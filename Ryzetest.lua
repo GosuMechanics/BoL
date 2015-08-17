@@ -341,7 +341,7 @@ local GapCloserList = {
 function OnLoad()
 
     local ToUpdate = {}
-    ToUpdate.Version = 1
+    ToUpdate.Version = 1.1
     ToUpdate.UseHttps = true
     ToUpdate.Host = "raw.githubusercontent.com"
     ToUpdate.VersionPath = "/GosuMechanics/BoL/master/Ryze.version"
