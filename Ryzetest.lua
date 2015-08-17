@@ -342,6 +342,7 @@ function OnLoad()
 
     local ToUpdate = {}
     ToUpdate.Version = 1
+    DelayAction(function()
     ToUpdate.UseHttps = true
     ToUpdate.Host = "raw.githubusercontent.com"
     ToUpdate.VersionPath = "/GosuMechanics/BoL/master/Ryze.version"
