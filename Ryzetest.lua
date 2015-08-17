@@ -268,19 +268,22 @@ function OnTick()
         
         AutoIgnite()
 
+        if Config.SMother.autoPot and lowHp(myHero) then AutoPots() end
+        if Config.SMother.autoMPot and lowMana(myHero) then AutoMpots() end
+
     Checks()
 end
 
 function OnDraw()
     if not myHero.dead then
         if Config.SMdraw.drawQ and QREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 38, 38, 255))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 38, 38, 255))
         end
         if Config.SMdraw.drawW and WREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawE and EREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
         end
     end
 end
@@ -771,8 +774,12 @@ function Menu()
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoW", "Auto-W AntiGapcloser", SCRIPT_PARAM_ONOFF, true)
-    --Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
-    --Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
+    Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("autoMPot", "Auto-ManaPots", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("useMPots", "use when at % mana", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
 
     Config.pred:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "SPrediction"})
     
@@ -1139,11 +1146,15 @@ function round(num)
 end
 
 function DrawCircle2(x, y, z, radius, color)
-  local vPos1 = Vector(x, y, z)
-  local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
-  local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
-  local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+    local vPos1 = Vector(x, y, z)
+    local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+    local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+    local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+    if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+        DrawCircleNextLvl(x, y, z, radius, 1, color, 75)    
+    end
 end
+
 
 function OnProcessSpell(unit, spell)
     if Config.SMother.autoW and WREADY then
