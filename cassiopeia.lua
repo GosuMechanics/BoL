@@ -4,6 +4,7 @@ require 'SxOrbwalk'
 require 'VPrediction'
 require 'HPrediction'
 require 'SPrediction'
+require 'SourceLib'
 
 if _G.BuffFix then
 _G.BUFF_NONE = 0
@@ -98,7 +99,7 @@ local lastRemove = 0
 local i
 local VP = nil
 
-local GapCloserList = {
+--[[local GapCloserList = {
     {charName = "Aatrox", spellName = "AatroxQ", name = "Q"},
     {charName = "Akali", spellName = "AkaliShadowDance", name = "R"},
     {charName = "Alistar", spellName = "Headbutt", name = "W"},
@@ -135,6 +136,63 @@ local GapCloserList = {
     {charName = "MonkeyKing", spellName = "MonkeyKingNimbus", name = "Q"},
     {charName = "XinZhao", spellName = "XenZhaoSweep", name = "Q"},
     {charName = "Yasuo", spellName = "YasuoDashWrapper", name = "E"},
+}]]
+
+Interrupt = {
+    ["Katarina"] = {charName = "Katarina", stop = {["KatarinaR"] = {name = "Death lotus", spellName = "KatarinaR", ult = true }}},
+    ["Nunu"] = {charName = "Nunu", stop = {["AbsoluteZero"] = {name = "Absolute Zero", spellName = "AbsoluteZero", ult = true }}},
+    ["Malzahar"] = {charName = "Malzahar", stop = {["AlZaharNetherGrasp"] = {name = "Nether Grasp", spellName = "AlZaharNetherGrasp", ult = true}}},
+    ["Caitlyn"] = {charName = "Caitlyn", stop = {["CaitlynAceintheHole"] = {name = "Ace in the hole", spellName = "CaitlynAceintheHole", ult = true, projectileName = "caitlyn_ult_mis.troy"}}},
+    ["FiddleSticks"] = {charName = "FiddleSticks", stop = {["Crowstorm"] = {name = "Crowstorm", spellName = "Crowstorm", ult = true}}},
+    ["Galio"] = {charName = "Galio", stop = {["GalioIdolOfDurand"] = {name = "Idole of Durand", spellName = "GalioIdolOfDurand", ult = true}}},
+    ["Janna"] = {charName = "Janna", stop = {["ReapTheWhirlwind"] = {name = "Monsoon", spellName = "ReapTheWhirlwind", ult = true}}},
+    ["MissFortune"] = {charName = "MissFortune", stop = {["MissFortune"] = {name = "Bullet time", spellName = "MissFortuneBulletTime", ult = true}}},
+    ["MasterYi"] = {charName = "MasterYi", stop = {["MasterYi"] = {name = "Meditate", spellName = "Meditate", ult = false}}},
+    ["Pantheon"] = {charName = "Pantheon", stop = {["PantheonRJump"] = {name = "Skyfall", spellName = "PantheonRJump", ult = true}}},
+    ["Shen"] = {charName = "Shen", stop = {["ShenStandUnited"] = {name = "Stand united", spellName = "ShenStandUnited", ult = true}}},
+    ["Urgot"] = {charName = "Urgot", stop = {["UrgotSwap2"] = {name = "Position Reverser", spellName = "UrgotSwap2", ult = true}}},
+    ["Varus"] = {charName = "Varus", stop = {["VarusQ"] = {name = "Piercing Arrow", spellName = "Varus", ult = false}}},
+    ["Warwick"] = {charName = "Warwick", stop = {["InfiniteDuress"] = {name = "Infinite Duress", spellName = "InfiniteDuress", ult = true}}},
+}
+
+isAGapcloserUnit = {
+    ['Ahri']        = {true, spell = _R,                  range = 450,   projSpeed = 2200, },
+    ['Aatrox']      = {true, spell = _Q,                  range = 1000,  projSpeed = 1200, },
+    ['Akali']       = {true, spell = _R,                  range = 800,   projSpeed = 2200, },
+    ['Alistar']     = {true, spell = _W,                  range = 650,   projSpeed = 2000, },
+    ['Amumu']       = {true, spell = _Q,                  range = 1100,  projSpeed = 1800, },
+    ['Corki']       = {true, spell = _W,                  range = 800,   projSpeed = 650,  },
+    ['Diana']       = {true, spell = _R,                  range = 825,   projSpeed = 2000, },
+    ['Darius']      = {true, spell = _R,                  range = 460,   projSpeed = math.huge, },
+    ['Fiora']       = {true, spell = _Q,                  range = 600,   projSpeed = 2000, },
+    ['Fizz']        = {true, spell = _Q,                  range = 550,   projSpeed = 2000, },
+    ['Gragas']      = {true, spell = _E,                  range = 600,   projSpeed = 2000, },
+    ['Graves']      = {true, spell = _E,                  range = 425,   projSpeed = 2000, exeption = true },
+    ['Hecarim']     = {true, spell = _R,                  range = 1000,  projSpeed = 1200, },
+    ['Irelia']      = {true, spell = _Q,                  range = 650,   projSpeed = 2200, },
+    ['JarvanIV']    = {true, spell = _Q,                  range = 770,   projSpeed = 2000, },
+    ['Jax']         = {true, spell = _Q,                  range = 700,   projSpeed = 2000, },
+    ['Jayce']       = {true, spell = 'JayceToTheSkies',   range = 600,   projSpeed = 2000, },
+    ['Khazix']      = {true, spell = _E,                  range = 900,   projSpeed = 2000, },
+    ['Leblanc']     = {true, spell = _W,                  range = 600,   projSpeed = 2000, },
+    --['LeeSin']      = {true, spell = 'blindmonkqtwo',     range = 1300,  projSpeed = 1800, },
+    ['Leona']       = {true, spell = _E,                  range = 900,   projSpeed = 2000, },
+    ['Lucian']      = {true, spell = _E,                  range = 425,   projSpeed = 2000, },
+    ['Malphite']    = {true, spell = _R,                  range = 1000,  projSpeed = 1500, },
+    ['Maokai']      = {true, spell = _W,                  range = 525,   projSpeed = 2000, },
+    ['MonkeyKing']  = {true, spell = _E,                  range = 650,   projSpeed = 2200, },
+    ['Pantheon']    = {true, spell = _W,                  range = 600,   projSpeed = 2000, },
+    ['Poppy']       = {true, spell = _E,                  range = 525,   projSpeed = 2000, },
+    ['Riven']       = {true, spell = _E,                  range = 150,   projSpeed = 2000, },
+    ['Renekton']    = {true, spell = _E,                  range = 450,   projSpeed = 2000, },
+    ['Sejuani']     = {true, spell = _Q,                  range = 650,   projSpeed = 2000, },
+    ['Shen']        = {true, spell = _E,                  range = 575,   projSpeed = 2000, },
+    ['Shyvana']     = {true, spell = _R,                  range = 1000,  projSpeed = 2000, },
+    ['Tristana']    = {true, spell = _W,                  range = 900,   projSpeed = 2000, },
+    ['Tryndamere']  = {true, spell = 'Slash',             range = 650,   projSpeed = 1450, },
+    ['XinZhao']     = {true, spell = _E,                  range = 650,   projSpeed = 2000, },
+    ['Yasuo']       = {true, spell = _E,                  range = 475,   projSpeed = 1000, },
+    ['Vayne']       = {true, spell = _Q,                  range = 300,   projSpeed = 1000, },
 }
 
 function OnLoad()
@@ -142,6 +200,11 @@ function OnLoad()
 	Variables()
 	Menu()
 	PriorityOnLoad()
+
+    DLib:RegisterDamageSource(_Q, _MAGIC, 35, 40, _MAGIC, _AP, 0.8)
+    DLib:RegisterDamageSource(_W, _MAGIC, 15, 10, _MAGIC, _AP, 0.15, function() return (player:CanUseSpell(_W) == READY) end)
+    DLib:RegisterDamageSource(_E, _MAGIC, 35, 35, _MAGIC, _AP, 0.55)
+    DLib:RegisterDamageSource(_R, _MAGIC, 75, 125, _MAGIC, _AP, 0.6, function() return (player:CanUseSpell(_R) == READY) end)
 
     HP_Q = HPSkillshot({type = "DelayCircle", delay = 0.5, range = 850, radius = 100, speed = 1000})
     HP_W = HPSkillshot({type = "DelayCircle", delay = 1, range = 925, radius = 100, speed = 1000})
@@ -275,13 +338,13 @@ end
 function OnDraw()
     if not myHero.dead then
         if Config.SMdraw.drawQ and QREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 255, 255, 255))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawW and WREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawE and EREADY then
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
         end
     end
 end
@@ -291,10 +354,10 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    if lowHp(myHero) and CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3157)then
+    if Config.SMsbtw.sbtw and lowHp(myHero) and CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3157)then
         CastItem(3157)
     end
-    if CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3048) then
+    if Config.SMsbtw.sbtw and myHero.health <= (50/100*myHero.maxHealth) and GetInventoryItemIsCastable(3048) then
         CastItem(3048)
     end
 
@@ -305,9 +368,7 @@ function Combo(unit)
             	CastQ(unit)
         	end
         	if Config.SMsbtw.useW and WREADY then
-                DelayAction(function()
-                    CastW(unit)
-                end, 1 - GetLatency() / 1000)
+                CastW(unit)
         	end
         	if Config.SMsbtw.useE and EREADY then
             	CastE(unit)
@@ -322,9 +383,7 @@ function Combo(unit)
                     CastSQ(unit)
                 end
                 if Config.SMsbtw.useW and WREADY then
-                    DelayAction(function()
-                        CastSW(unit)
-                    end, 1 - GetLatency() / 1000)
+                    CastSW(unit)
                 end
                 if Config.SMsbtw.useE and EREADY then
                     CastE(unit)
@@ -338,9 +397,7 @@ function Combo(unit)
                 CastHPREDQ(unit)
             end
             if Config.SMsbtw.useW and WREADY then
-                DelayAction(function()
-                    CastHPREDW(unit)
-                end, 1 - GetLatency() / 1000)
+                CastHPREDW(unit)
             end
             if Config.SMsbtw.useE and EREADY then
                 CastE(unit)
@@ -361,6 +418,8 @@ function LaneClear()
 	if Config.SMfarm.farm then
     	for i, minion in pairs(enemyMinions.objects) do
         	if ValidTarget(minion) and minion ~= nil then
+                local AllMinions = SelectUnits(enemyMinions.objects, function(t) return ValidTarget(t) end)
+                AllMinions = GetPredictedPositionsTable(VP, AllMinions, SkillQ.delay, SkillQ.width, SkillQ.range + SkillQ.width, math.huge, myHero, false)
         		if Config.SMfarm.useQ and GetDistance(minion) <= SkillQ.range and QREADY then
         			local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)
 					
@@ -368,20 +427,26 @@ function LaneClear()
                         CastSpell(_Q, BestPos.x, BestPos.z)
 					end
 				end
-        		if Config.SMfarm.useW and GetDistance(minion) <= SkillW.range and WREADY and not isPoisoned(minion) then
-           			local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)
+        		if Config.SMfarm.useW and GetDistance(minion) <= SkillW.range and WREADY then
+           			local CasterMinions = SelectUnits(enemyMinions.objects, function(t) return (t.charName:lower():find("wizard") or t.charName:lower():find("caster")) and ValidTarget(t) end)
+                    CasterMinions = GetPredictedPositionsTable(VP, CasterMinions, SkillW.delay, SkillW.width, SkillW.range, SkillW.speed, myHero, false)
+                    local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)                  
+            
+                    local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)
 					
 					if BestPos ~= nil then
-                        DelayAction(function()
-                            CastSpell(_W, BestPos.x, BestPos.z)
-                        end, 0.7 - GetLatency() / 1000)
+                        CastSpell(_W, BestPos.x, BestPos.z)
 					end
 				end
         		if Config.SMfarm.useE and EREADY --[[getDmg("AD", minion, myHero) < minion.health]] then
-            		if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
-                		CastSpell(_E, minion)
-                    elseif isPoisoned(minion) then
-                        CastSpell(_E, minion)
+                    local PoisonedMinions = SelectUnits(enemyMinions.objects, function(t) return ValidTarget(t) and isPoisoned(t) end)
+                    for i, minion in ipairs(PoisonedMinions) do
+                        local time = 0.25 + 1900 / GetDistance(minion.visionPos, myHero.visionPos) + 0.1
+                        if VP:GetPredictedHealth(minion, time) - DLib:CalcSpellDamage(minion, _E) < 0 then
+            		        --if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
+                		        CastSpell(_E, minion)
+                            --end
+                        end
                 	end
                 end
             end
@@ -398,27 +463,36 @@ function LastHit()
 	if Config.SMsmart.smartfarm then
     	for i, minion in pairs(enemyMinions.objects) do
             if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY then
+                local AllMinions = SelectUnits(enemyMinions.objects, function(t) return ValidTarget(t) end)
+                AllMinions = GetPredictedPositionsTable(VP, AllMinions, SkillQ.delay, SkillQ.width, SkillQ.range + SkillQ.width, math.huge, myHero, false)
         		local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)					
 				if BestPos ~= nil then
 					CastSpell(_Q, BestPos.x, BestPos.z)
 				end
 			end
-        	if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY and not isPoisoned(minion) then
+        	if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY then
+                local CasterMinions = SelectUnits(enemyMinions.objects, function(t) return (t.charName:lower():find("wizard") or t.charName:lower():find("caster")) and ValidTarget(t) end)
+                CasterMinions = GetPredictedPositionsTable(VP, CasterMinions, SkillW.delay, SkillW.width, SkillW.range, SkillW.speed, myHero, false)
+
            		local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)					
 				if BestPos ~= nil then
-                    DelayAction(function()
-                        CastSpell(_W, BestPos.x, BestPos.z)
-                    end, 0.7 - GetLatency() / 1000)
+                    CastSpell(_W, BestPos.x, BestPos.z)
                 end
             end
             if minion ~= nil and ValidTarget(minion, SkillE.range) and Config.SMsmart.useE and EREADY then
-                if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
-                    CastSpell(_E, minion)
+                local PoisonedMinions = SelectUnits(enemyMinions.objects, function(t) return ValidTarget(t) and isPoisoned(t) end)
+                for i, minion in ipairs(PoisonedMinions) do
+                    local time = 0.25 + 1900 / GetDistance(minion.visionPos, myHero.visionPos) + 0.1
+                    if VP:GetPredictedHealth(minion, time) - DLib:CalcSpellDamage(minion, _E) < 0 then
+                        if getDmg("E", minion, myHero) >= minion.health and isPoisoned(minion) then
+                            CastSpell(_E, minion)
+                        end
+                    end
                 end
-            end
-            if Config.SMsmart.useEnplh and getDmg("AD", minion, myHero) >= minion.health then
-                if getDmg("E", minion, myHero) >= minion.health then
-                    CastSpell(_E, minion)
+                if Config.SMsmart.useEnplh and getDmg("AD", minion, myHero) >= minion.health then
+                    if getDmg("E", minion, myHero) >= minion.health then
+                        CastSpell(_E, minion)
+                    end
 				end
             end
         end
@@ -451,9 +525,7 @@ function Jungle()
 
         if JungleMob ~= nil then
             if Config.SMfarm.useW and GetDistance(JungleMob) <= SkillW.range and WREADY then
-                DelayAction(function()
-                    CastSpell(_W, JungleMob.x, JungleMob.z)
-                end, 1 - GetLatency() / 1000)
+                CastSpell(_W, JungleMob.x, JungleMob.z)
             end
             if Config.SMjfarm.useQ and GetDistance(JungleMob) <= SkillQ.range and QREADY then
 				CastSpell(_Q, JungleMob.x, JungleMob.z)
@@ -468,9 +540,9 @@ end
 function CastQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QCastPosition,  QHitChance,  QPosition = VPrediction:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
+        local QCastPosition,  QHitChance,  QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
         if QHitChance >= 2 then
-            CastSpell(_Q, QPosition.x,  QPosition.z)
+            CastSpell(_Q, QCastPosition.x,  QCastPosition.z)
         end
     end
 end
@@ -478,7 +550,7 @@ end
 function CastW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local AOECastPosition, MainTargetHitChance, nTargets = VPrediction:GetCircularAOECastPosition(unit, SkillW.delay, SkillW.radius, SkillW.range, SkillW.speed, myHero)
+        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetCircularAOECastPosition(unit, SkillW.delay, SkillW.radius, SkillW.range, SkillW.speed, myHero)
         if MainTargetHitChance >= 2 then
             CastSpell(_W, AOECastPosition.x, AOECastPosition.z)
         end
@@ -539,7 +611,7 @@ end
 
 function CastR(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillR.range and CountEnemyHeroInRange(SkillR.range) >= Config.SMsbtw.useUlt then
-        local mainCastPosition, mainHitChance, maxHit = VPrediction:GetConeAOECastPosition(unit, SkillR.delay, SkillR.angle, SkillR.range, SkillR.speed, myHero)
+        local mainCastPosition, mainHitChance, maxHit = VP:GetConeAOECastPosition(unit, SkillR.delay, SkillR.angle, SkillR.range, SkillR.speed, myHero)
         if mainHitChance >= 2 then
             CastSpell(_R, unit)
         end
@@ -776,7 +848,6 @@ function Menu()
     Config.SMother:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("killsteal", "Kill Steal", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-    Config.SMother:addParam("autoR", "Auto-R AntiGapCloser", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
     Config.SMother:addParam("autoMPot", "Auto-ManaPots", SCRIPT_PARAM_ONOFF, true)
@@ -787,18 +858,35 @@ function Menu()
 
     Config.pred:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"  })
     
-        Config.SMother:addSubMenu("GapCloser Spells", "ES2")
+        --[[Config.SMother:addSubMenu("GapCloser Spells", "ES2")
             for i, enemy in ipairs(GetEnemyHeroes()) do
                 for _, champ in pairs(GapCloserList) do
                     if enemy.charName == champ.charName then
                         Config.SMother.ES2:addParam(champ.spellName, "GapCloser "..champ.charName.." "..champ.name, SCRIPT_PARAM_ONOFF, true)
                     end
                 end
+            end]]
+
+        Config.SMother:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+        Config.SMother.interrupt:addParam("r", "Interrupt with R", SCRIPT_PARAM_ONOFF, true)
+        for i, a in pairs(GetEnemyHeroes()) do
+            if Interrupt[a.charName] ~= nil then
+                for i, spell in pairs(Interrupt[a.charName].stop) do
+                    Config.SMother.interrupt:addParam(spell.spellName, a.charName.." - "..spell.name, SCRIPT_PARAM_ONOFF, true)
+                end
             end
+        end
 
     Config.SMdraw:addParam("drawQ","Draw Q-Range",SCRIPT_PARAM_ONOFF, true)
     Config.SMdraw:addParam("drawW","Draw W-Range",SCRIPT_PARAM_ONOFF, true)
     Config.SMdraw:addParam("drawE","Draw R-Range",SCRIPT_PARAM_ONOFF, true)
+
+    Config.SMother:addSubMenu("[" .. myHero.charName.. "] - Anti Gap-Closer", "gapClose")
+        for _, enemy in pairs(GetEnemyHeroes()) do
+            if isAGapcloserUnit[enemy.charName] ~= nil then
+                Config.SMother.gapClose:addParam(enemy.charName, enemy.charName .. " - " .. enemy:GetSpellData(isAGapcloserUnit[enemy.charName].spell).name, SCRIPT_PARAM_ONOFF, true)
+            end
+        end
 
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
@@ -817,16 +905,17 @@ end
 
 function Variables()
 
-    SkillQ = { name = "CassiopeiaNoxiousBlast", speed = 1000, delay = 0.25, range = 850, width = 50, collision = false, aoe = true, type = "circular"}
-    SkillW = { name = "CassiopeiaMiasma", speed = 1000, delay = 0.5, range = 925, radius = 50, width = 50, collision = false, aoe = true, type = "circular"}
+    SkillQ = { name = "CassiopeiaNoxiousBlast", speed = 1000, delay = 0.25, range = 850, width = 100, collision = false, aoe = true, type = "circular"}
+    SkillW = { name = "CassiopeiaMiasma", speed = 1000, delay = 0.25, range = 925, radius = 100, width = 100, collision = false, aoe = true, type = "circular"}
     SkillE = { name = "CassiopeiaTwinFang", range = 750 }
     SkillR = { name = "CassiopeiaPetrifyingGaze", speed = math.huge, delay = 0.5, range = 825, angle = 80, width = 410, collision = false, aoe = true, type = "cone"}
 
 	enemyMinions = minionManager(MINION_ENEMY, SkillE.range, myHero, MINION_SORT_HEALTH_ASC)
 	
-	VPrediction = VPrediction()
     HPred = HPrediction()
     SP = SPrediction()
+    VP = VPrediction()
+    DLib = DamageLib()
 	
 	JungleMobs = {}
 	JungleFocusMobs = {}
@@ -1179,10 +1268,13 @@ function round(num)
 end
 
 function DrawCircle2(x, y, z, radius, color)
-  local vPos1 = Vector(x, y, z)
-  local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
-  local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
-  local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+    local vPos1 = Vector(x, y, z)
+    local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+    local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+    local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+    if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+        DrawCircleNextLvl(x, y, z, radius, 1, color, 75)    
+    end
 end
 
 function isFacing(source, target, lineLength)
@@ -1198,14 +1290,43 @@ function isBothFacing(source, target, lineLength)
 end
 
 
-function isPoisoned(unit)
+--[[function isPoisoned(unit)
     if TargetHaveBuff("cassiopeianoxiousblastpoison", unit)  or TargetHaveBuff("cassiopeiamiasmapoison", unit) then
             return true
         end
     return false
+end]]
+
+--[[function isPoisoned(unit)
+  for i = 1 , unit.buffCount do
+   local buff =  unit:getBuff(i)
+   if buff and buff.name == "cassiopeianoxiousblastpoison" then return true end
+  end
+  return false
+end]]
+--[[function isPoisoned(unit)
+    for i = 1, unit.buffCount do
+        local Buff = unit:getBuff(i)
+        if BuffIsValid(Buff) and Buff.name:find("poison") and (Buff.endT - (math.min(GetDistance(myHero.visionPos, unit.visionPos), 700)/1900 + 0.25 + GetLatency()/2000) - GetGameTimer() > 0) then
+            return true
+        end
+    end
+
+    return false
+end]]
+
+function isPoisoned(target)
+    for i = 1, target.buffCount do
+        local tBuff = target:getBuff(i)
+        if BuffIsValid(tBuff) and tBuff.name:find("poison") and (tBuff.endT - (math.min(GetDistance(myHero.visionPos, target.visionPos), 700)/1900 + 0.25 + GetLatency()/2000) - GetGameTimer() > 0) then
+            return true
+        end
+    end
+
+    return false
 end
 
-function OnProcessSpell(unit, spell)
+--[[function OnProcessSpell(unit, spell)
     if Config.SMother.autoR and RREADY then
         for _, x in pairs(GapCloserList) do
             if unit and unit.team ~= myHero.team and unit.type == myHero.type and spell then
@@ -1219,6 +1340,38 @@ function OnProcessSpell(unit, spell)
                             CastSpell(_R, unit)
                         end
                     end
+                end
+            end
+        end
+    end
+end]]
+function OnProcessSpell(object, spellProc)
+    if myHero.dead then return end
+    if object.team == myHero.team then return end
+    
+    if Interrupt[object.charName] ~= nil then
+        spell = Interrupt[object.charName].stop[spellProc.name]
+        if spell ~= nil then
+            if Config.SMother.interrupt[spellProc.name] then
+                if ValidTarget(unit) and GetDistance(object) < SkillR.range and RREADY and Config.SMother.interrupt.r then
+                    CastSpell(_R, object.x, object.z)
+                end
+            end
+        end
+    end
+        
+    local unit = object
+    local spell = spellProc
+    
+    if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
+        if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Config.SMother.gapClose[unit.charName] then
+            if spell.target ~= nil and spell.target.isMe or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
+                CastSpell(_R, object)
+            elseif not spell.target then
+                local endPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                local endPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
+                    CastSpell(_R, endPos1.x, endPos2.z)
                 end
             end
         end
