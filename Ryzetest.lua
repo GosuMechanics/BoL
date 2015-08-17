@@ -1110,6 +1110,34 @@ function TrueRange()
     return myHero.range + GetDistance(myHero, myHero.minBBox)
 end
 
+function GetSlotItemFromName(itemname)
+    local slot
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if ((#item > 0) and (item:lower() == itemname:lower())) then
+            slot = i
+        end
+    end
+    return slot
+end
+
+function GetSlotItem(id, unit)
+    unit = unit or myHero
+
+    if (not ItemNames[id]) then
+        return ___GetInventorySlotItem(id, unit)
+    end
+
+    local name  = ItemNames[id]
+    
+    for slot = ITEM_1, ITEM_7 do
+        local item = unit:GetSpellData(slot).name
+        if ((#item > 0) and (item:lower() == name:lower())) then
+            return slot
+        end
+    end
+end
+
 function GetBestLineFarmPosition(range, width, objects)
     local BestPos 
     local BestHit = 0
