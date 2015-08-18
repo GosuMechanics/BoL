@@ -414,14 +414,14 @@ function LaneClear()
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
 
-                if Config.SMfarm.useQ and GetDistance(minion) <= SkillQ.range and QREADY and not TargetPoisoned(minion) then
+                if Config.SMfarm.useQ and GetDistance(minion) <= SkillQ.range and QREADY then
                     local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)
                     
-                    if BestPos ~= nil then
+                    if BestPos ~= nil and not TargetPoisoned(minion) then
                         CastSpell(_Q, BestPos.x, BestPos.z)
                     end
                 end
-                if Config.SMfarm.useW and GetDistance(minion) <= SkillW.range and WREADY and not TargetPoisoned(minion) then
+                if Config.SMfarm.useW and GetDistance(minion) <= SkillW.range and WREADY then
                     local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)
                     
                     if BestPos ~= nil and BestHit >= 2 and not TargetPoisoned(unit) then
@@ -444,21 +444,21 @@ function LastHit()
 
     enemyMinions:update() 
 
-    if Config.SMsmart.aa then SxOrb:EnableAttacks() end
+    if Config.SMsmart.aa and not EREADY then SxOrb:EnableAttacks() end
 
     if Config.SMsmart.smartfarm then
         for i, minion in pairs(enemyMinions.objects) do
-            if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY and not TargetPoisoned(minion) then
+            if Config.SMsmart.useQ and GetDistance(minion) <= SkillQ.range and QREADY then
                 
                 local BestPos, BestHit = GetBestCircularFarmPosition(SkillQ.range, SkillQ.width, enemyMinions.objects)                  
-                if BestPos ~= nil then
+                if BestPos ~= nil and not TargetPoisoned(minion) then
                     CastSpell(_Q, BestPos.x, BestPos.z)
                 end
             end
-            if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY and not TargetPoisoned(minion) then
+            if Config.SMsmart.useW and GetDistance(minion) <= SkillW.range and WREADY then
                 
                 local BestPos, BestHit = GetBestCircularFarmPosition(SkillW.range, SkillW.width, enemyMinions.objects)                  
-                    if BestPos ~= nil and BestHit >= 3 then
+                    if BestPos ~= nil and BestHit >= 3 and not TargetPoisoned(minion) then
                         CastSpell(_W, BestPos.x, BestPos.z)
                     end
                 end
@@ -515,31 +515,39 @@ function Jungle()
 end
 
 function CastQ(unit, minion)
-    if unit ~= nil and GetDistance(unit) <= SkillQ.range then
-
-        local QCastPosition, QHitChance, QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
-        if QHitChance >= 2 then
-            CastSpell(_Q, QCastPosition.x, QCastPosition.z)
+    if unit ~= nil then
+        local IsImmobile, Position = VP:IsImmobile(unit, SkillQ.delay, SkillQ.radius, SkillQ.speed, myHero)
+        if IsImmobile then
+            CastSpell(_Q, Position.x, Position.z)
         else
             local TargetDashing, CanHit, Position = VP:IsDashing(unit, SkillQ.delay, SkillQ.radius, SkillQ.speed, myHero)
-            if CanHit then
+            if TargetDashing and GetDistance(unit) <= SkillQ.range then
                 CastSpell(_Q, Position.x, Position.z)
+            else
+                local QCastPosition, QHitChance, QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
+                if QCastPosition and QHitChance >= 2 and GetDistance(unit) <= SkillQ.range then
+                    CastSpell(_Q, QCastPosition.x, QCastPosition.z)
+                end
             end
         end
     end
 end
 
 function CastW(unit, minion)
-     if unit ~= nil and GetDistance(unit) <= SkillW.range then
-
-        local WCastPosition, WHitChance, WPosition = VP:GetCircularCastPosition(unit, SkillW.delay, SkillQ.width, SkillW.range, SkillW.speed, myHero, false)
-        if WHitChance >= 2 then
-            CastSpell(_W, WCastPosition.x, WCastPosition.z)
+     if unit ~= nil then
+        local IsImmobile, Position = VP:IsImmobile(unit, SkillW.delay, SkillW.radius, SkillW.speed, myHero)
+        if IsImmobile then
+            CastSpell(_W, Position.x, Position.z)
         else
             local TargetDashing, CanHit, Position = VP:IsDashing(unit, SkillW.delay, SkillW.radius, SkillW.speed, myHero)
-            if CanHit then
+            if TargetDashing and GetDistance(unit) <= SkillW.range then
                 CastSpell(_W, Position.x, Position.z)
-            end           
+            else
+                local WCastPosition, WHitChance, WPosition = VP:GetCircularCastPosition(unit, SkillW.delay, SkillQ.width, SkillW.range, SkillW.speed, myHero, false)
+                if WHitChance >= 2 and GetDistance(unit) <= SkillW.range then
+                    CastSpell(_W, WCastPosition.x, WCastPosition.z)
+                end
+            end         
         end        
     end
 end
@@ -1336,7 +1344,7 @@ function OnProcessSpell(object, spellProc)
         if spell ~= nil then
             if Config.SMother.interrupt[spellProc.name] then
                 if ValidTarget(unit) and GetDistance(object) < SkillR.range and RREADY and Config.SMother.interrupt.r then
-                    CastSpell(_R, object.x, object.z)
+                    CastSpell(_R, unit)
                 end
             end
         end
@@ -1347,7 +1355,7 @@ function OnProcessSpell(object, spellProc)
     
     if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
         if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Config.SMother.gapClose[unit.charName] then
-            if spell.target ~= nil and spell.target.isMe or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
+            if spell.target ~= nil and spell.target and spell.target.networkID == myHero.networkID or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
                 CastSpell(_R, object)
             elseif not spell.target then
                 local startPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
