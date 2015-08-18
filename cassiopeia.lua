@@ -331,13 +331,16 @@ end
 function OnDraw()
     if not myHero.dead then
         if Config.SMdraw.drawQ and QREADY then
-            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 255, 255, 255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawW and WREADY then
-            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawE and EREADY then
-            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
+        end
+        if Config.SMdraw.drawR and RREADY then
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillR.range, ARGB(255, 255, 255, 255))
         end
     end
 end
@@ -513,9 +516,9 @@ end
 function CastQ(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillQ.range then
 
-        local QCastPosition,  QHitChance,  QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
+        local QCastPosition, QHitChance, QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
         if QHitChance >= 2 then
-            CastSpell(_Q, QCastPosition.x,  QCastPosition.z)
+            CastSpell(_Q, QCastPosition.x, QCastPosition.z)
         end
     end
 end
@@ -523,9 +526,9 @@ end
 function CastW(unit, minion)
      if unit ~= nil and GetDistance(unit) <= SkillW.range then
 
-        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetCircularAOECastPosition(unit, SkillW.delay, SkillW.radius, SkillW.range, SkillW.speed, myHero)
-        if MainTargetHitChance >= 2 then
-            CastSpell(_W, AOECastPosition.x, AOECastPosition.z)
+        local WCastPosition, WHitChance, WPosition = VP:GetCircularCastPosition(unit, SkillW.delay, SkillQ.width, SkillW.range, SkillW.speed, myHero, false)
+        if WHitChance >= 2 then
+            CastSpell(_W, WCastPosition.x, WCastPosition.z)
         end
     end
 end
@@ -585,7 +588,7 @@ end
 function CastR(unit, minion)
     if unit ~= nil and GetDistance(unit) <= SkillR.range and CountEnemyHeroInRange(SkillR.range) >= Config.SMsbtw.useUlt then
         local mainCastPosition, mainHitChance, maxHit = VP:GetConeAOECastPosition(unit, SkillR.delay, SkillR.angle, SkillR.range, SkillR.speed, myHero)
-        if mainHitChance >= 2 then
+        if mainHitChance >= 2 and maxHit >= 2 then
             CastSpell(_R, unit)
         end
     end
@@ -854,7 +857,8 @@ function Menu()
 
     Config.SMdraw:addParam("drawQ","Draw Q-Range",SCRIPT_PARAM_ONOFF, true)
     Config.SMdraw:addParam("drawW","Draw W-Range",SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawE","Draw R-Range",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawE","Draw E-Range",SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawR","Draw R-Range",SCRIPT_PARAM_ONOFF, true)
 
     Config.SMother:addSubMenu("[" .. myHero.charName.. "] - Anti Gap-Closer", "gapClose")
         for _, enemy in pairs(GetEnemyHeroes()) do
@@ -1239,6 +1243,17 @@ end
 
 function round(num) 
   if num >= 0 then return math.floor(num+.5) else return math.ceil(num-.5) end
+end
+
+function DrawCircle(x, y, z, radius, color)
+    local vPos1 = Vector(x, y, z)
+    local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+    local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+    local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+        
+    if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+        DrawCircleNextLvl(x, y, z, radius, 1, color, 300) 
+    end
 end
 
 function DrawCircle2(x, y, z, radius, color)
