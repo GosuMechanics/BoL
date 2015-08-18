@@ -432,6 +432,8 @@ function LaneClear()
                 if Config.SMfarm.useE and EREADY --[[getDmg("AD", minion, myHero) < minion.health]] then
                     if getDmg("E", minion, myHero) >= minion.health and TargetPoisoned(minion) then
                         CastSpell(_E, minion)
+                    elseif TargetPoisoned(minion) then 
+                        CastSpell(_E, minion)
                     end
                 end
             end
