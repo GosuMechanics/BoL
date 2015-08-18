@@ -526,7 +526,7 @@ function CastQ(unit, minion)
             else
                 local QCastPosition, QHitChance, QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
                 if QCastPosition and QHitChance >= 2 and GetDistance(unit) <= SkillQ.range then
-                    CastSpell(_Q, QCastPosition.x, QCastPosition.z)
+                    CastSpell(_Q, QCastPosition.x, QCastPosition.y,QCastPosition.z)
                 end
             end
         end
@@ -545,7 +545,7 @@ function CastW(unit, minion)
             else
                 local WCastPosition, WHitChance, WPosition = VP:GetCircularCastPosition(unit, SkillW.delay, SkillQ.width, SkillW.range, SkillW.speed, myHero, false)
                 if WHitChance >= 2 and GetDistance(unit) <= SkillW.range then
-                    CastSpell(_W, WCastPosition.x, WCastPosition.z)
+                    CastSpell(_W, WCastPosition.x, WCastPosition.y, WCastPosition.z)
                 end
             end         
         end        
