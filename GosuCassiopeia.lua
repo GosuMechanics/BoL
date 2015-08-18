@@ -520,6 +520,11 @@ function CastQ(unit, minion)
         local QCastPosition, QHitChance, QPosition = VP:GetCircularCastPosition(unit, SkillQ.delay, SkillQ.width, SkillQ.range, SkillQ.speed, myHero, false)
         if QHitChance >= 2 then
             CastSpell(_Q, QCastPosition.x, QCastPosition.z)
+        else
+            local TargetDashing, CanHit, Position = VP:IsDashing(unit, SkillQ.delay, SkillQ.radius, SkillQ.speed, myHero)
+            if CanHit then
+                CastSpell(_Q, Position.x, Position.z)
+            end
         end
     end
 end
@@ -530,7 +535,12 @@ function CastW(unit, minion)
         local WCastPosition, WHitChance, WPosition = VP:GetCircularCastPosition(unit, SkillW.delay, SkillQ.width, SkillW.range, SkillW.speed, myHero, false)
         if WHitChance >= 2 then
             CastSpell(_W, WCastPosition.x, WCastPosition.z)
-        end
+        else
+            local TargetDashing, CanHit, Position = VP:IsDashing(unit, SkillW.delay, SkillW.radius, SkillW.speed, myHero)
+            if CanHit then
+                CastSpell(_W, Position.x, Position.z)
+            end           
+        end        
     end
 end
 
@@ -885,8 +895,8 @@ end
 
 function Variables()
 
-    SkillQ = { name = "CassiopeiaNoxiousBlast", range = 925, delay = 0.6, speed = math.huge, width = 80, radius = 80, ready = false }
-    SkillW = { name = "CassiopeiaMiasma", range = 925, delay = 0.375, speed = math.huge, width = 100, radius = 80, ready = false }
+    SkillQ = { name = "CassiopeiaNoxiousBlast", range = 925, delay = 0.6, speed = 1800, width = 80, radius = 80, ready = false }
+    SkillW = { name = "CassiopeiaMiasma", range = 925, delay = 0.9, speed = 2500, width = 100, radius = 80, ready = false }
     SkillE = { name = "CassiopeiaTwinFang", range = 700, delay = nil, speed = nil, width = nil, ready = false }
     SkillR = { name = "CassiopeiaPetrifyingGaze", range = 750, delay = 0.5, speed = math.huge, angle = 80, ready = false }
 
