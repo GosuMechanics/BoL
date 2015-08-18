@@ -4,7 +4,6 @@ require 'SxOrbwalk'
 require 'VPrediction'
 require 'HPrediction'
 require 'SPrediction'
-require 'SourceLib'
 
 if _G.BuffFix then
 _G.BUFF_NONE = 0
