@@ -1,7 +1,5 @@
 if myHero.charName ~= "Ryze" then return end
 
--------------------------------------------------------------------
-
 require 'SxOrbwalk'
 require 'VPrediction'
 require 'SPrediction'
@@ -102,47 +100,64 @@ local StackShield = false
 local i
 local VP = nil
 
-local GapCloserList = {
-    {charName = "Aatrox", spellName = "AatroxQ", name = "Q"},
-    {charName = "Akali", spellName = "AkaliShadowDance", name = "R"},
-    {charName = "Alistar", spellName = "Headbutt", name = "W"},
-    {charName = "Amumu", spellName = "BandageToss", name = "Q"},
-    {charName = "Fiora", spellName = "FioraQ", name = "Q"},
-    {charName = "Diana", spellName = "DianaTeleport", name = "W"},
-    {charName = "Elise", spellName = "EliseSpiderQCast", name = "W"},
-    {charName = "FiddleSticks", spellName = "Crowstorm", name = "R"},
-    {charName = "Fizz", spellName = "FizzPiercingStrike", name = "Q"},
-    {charName = "Gragas", spellName = "GragasE", name = "E"},
-    {charName = "Hecarim", spellName = "HecarimUlt", name = "R"},
-    {charName = "JarvanIV", spellName = "JarvanIVDragonStrike", name = "E"},
-    {charName = "Irelia", spellName = "IreliaGatotsu", name = "Q"},
-    {charName = "Jax", spellName = "JaxLeapStrike", name = "Q"},
-    {charName = "Katarina", spellName = "ShadowStep", name = "E"},
-    {charName = "Kassadin", spellName = "RiftWalk", name = "R"},
-    {charName = "Khazix", spellName = "KhazixE", name = "E"},
-    {charName = "Khazix", spellName = "khazixelong", name = "Evolved E"},
-    {charName = "LeBlanc", spellName = "LeblancSlide", name = "W"},
-    {charName = "LeBlanc", spellName = "LeblancSlideM", name = "UltW"},
-    {charName = "LeeSin", spellName = "BlindMonkQTwo", name = "Q"},
-    {charName = "Leona", spellName = "LeonaZenithBlade", name = "E"},
-    {charName = "Malphite", spellName = "UFSlash", name = "R"},
-    {charName = "Nautilus", spellName = "NautilusAnchorDrag", name = "Q"},
-    {charName = "Pantheon", spellName = "Pantheon_LeapBash", name = "R"},
-    {charName = "Poppy", spellName = "PoppyHeroicCharge", name = "W"},
-    {charName = "Renekton", spellName = "RenektonSliceAndDice", name = "E"},
-    {charName = "Riven", spellName = "RivenTriCleave", name = "E"},
-    {charName = "Sejuani", spellName = "SejuaniArcticAssault", name = "E"},
-    {charName = "Shen", spellName = "ShenShadowDash", name = "E"},
-    {charName = "Tristana", spellName = "RocketJump", name = "W"},
-    {charName = "Tryndamere", spellName = "slashCast", name = "E"},
-    {charName = "Vi", spellName = "ViQ", name = "Q"},
-    {charName = "MonkeyKing", spellName = "MonkeyKingNimbus", name = "Q"},
-    {charName = "XinZhao", spellName = "XenZhaoSweep", name = "Q"},
-    {charName = "Yasuo", spellName = "YasuoDashWrapper", name = "E"},
+Interrupt = {
+    ["Katarina"] = {charName = "Katarina", stop = {["KatarinaR"] = {name = "Death lotus", spellName = "KatarinaR", ult = true }}},
+    ["Nunu"] = {charName = "Nunu", stop = {["AbsoluteZero"] = {name = "Absolute Zero", spellName = "AbsoluteZero", ult = true }}},
+    ["Malzahar"] = {charName = "Malzahar", stop = {["AlZaharNetherGrasp"] = {name = "Nether Grasp", spellName = "AlZaharNetherGrasp", ult = true}}},
+    ["Caitlyn"] = {charName = "Caitlyn", stop = {["CaitlynAceintheHole"] = {name = "Ace in the hole", spellName = "CaitlynAceintheHole", ult = true, projectileName = "caitlyn_ult_mis.troy"}}},
+    ["FiddleSticks"] = {charName = "FiddleSticks", stop = {["Crowstorm"] = {name = "Crowstorm", spellName = "Crowstorm", ult = true}}},
+    ["Galio"] = {charName = "Galio", stop = {["GalioIdolOfDurand"] = {name = "Idole of Durand", spellName = "GalioIdolOfDurand", ult = true}}},
+    ["Janna"] = {charName = "Janna", stop = {["ReapTheWhirlwind"] = {name = "Monsoon", spellName = "ReapTheWhirlwind", ult = true}}},
+    ["MissFortune"] = {charName = "MissFortune", stop = {["MissFortune"] = {name = "Bullet time", spellName = "MissFortuneBulletTime", ult = true}}},
+    ["MasterYi"] = {charName = "MasterYi", stop = {["MasterYi"] = {name = "Meditate", spellName = "Meditate", ult = false}}},
+    ["Pantheon"] = {charName = "Pantheon", stop = {["PantheonRJump"] = {name = "Skyfall", spellName = "PantheonRJump", ult = true}}},
+    ["Shen"] = {charName = "Shen", stop = {["ShenStandUnited"] = {name = "Stand united", spellName = "ShenStandUnited", ult = true}}},
+    ["Urgot"] = {charName = "Urgot", stop = {["UrgotSwap2"] = {name = "Position Reverser", spellName = "UrgotSwap2", ult = true}}},
+    ["Varus"] = {charName = "Varus", stop = {["VarusQ"] = {name = "Piercing Arrow", spellName = "Varus", ult = false}}},
+    ["Warwick"] = {charName = "Warwick", stop = {["InfiniteDuress"] = {name = "Infinite Duress", spellName = "InfiniteDuress", ult = true}}},
+}
+
+isAGapcloserUnit = {
+    ['Ahri']        = {true, spell = _R,                  range = 450,   projSpeed = 2200, },
+    ['Aatrox']      = {true, spell = _Q,                  range = 1000,  projSpeed = 1200, },
+    ['Akali']       = {true, spell = _R,                  range = 800,   projSpeed = 2200, },
+    ['Alistar']     = {true, spell = _W,                  range = 650,   projSpeed = 2000, },
+    ['Amumu']       = {true, spell = _Q,                  range = 1100,  projSpeed = 1800, },
+    ['Corki']       = {true, spell = _W,                  range = 800,   projSpeed = 650,  },
+    ['Diana']       = {true, spell = _R,                  range = 825,   projSpeed = 2000, },
+    ['Darius']      = {true, spell = _R,                  range = 460,   projSpeed = math.huge, },
+    ['Fiora']       = {true, spell = _Q,                  range = 600,   projSpeed = 2000, },
+    ['Fizz']        = {true, spell = _Q,                  range = 550,   projSpeed = 2000, },
+    ['Gragas']      = {true, spell = _E,                  range = 600,   projSpeed = 2000, },
+    ['Graves']      = {true, spell = _E,                  range = 425,   projSpeed = 2000, exeption = true },
+    ['Hecarim']     = {true, spell = _R,                  range = 1000,  projSpeed = 1200, },
+    ['Irelia']      = {true, spell = _Q,                  range = 650,   projSpeed = 2200, },
+    ['JarvanIV']    = {true, spell = _Q,                  range = 770,   projSpeed = 2000, },
+    ['Jax']         = {true, spell = _Q,                  range = 700,   projSpeed = 2000, },
+    ['Jayce']       = {true, spell = 'JayceToTheSkies',   range = 600,   projSpeed = 2000, },
+    ['Khazix']      = {true, spell = _E,                  range = 900,   projSpeed = 2000, },
+    ['Leblanc']     = {true, spell = _W,                  range = 600,   projSpeed = 2000, },
+    --['LeeSin']      = {true, spell = 'blindmonkqtwo',     range = 1300,  projSpeed = 1800, },
+    ['Leona']       = {true, spell = _E,                  range = 900,   projSpeed = 2000, },
+    ['Lucian']      = {true, spell = _E,                  range = 425,   projSpeed = 2000, },
+    ['Malphite']    = {true, spell = _R,                  range = 1000,  projSpeed = 1500, },
+    ['Maokai']      = {true, spell = _W,                  range = 525,   projSpeed = 2000, },
+    ['MonkeyKing']  = {true, spell = _E,                  range = 650,   projSpeed = 2200, },
+    ['Pantheon']    = {true, spell = _W,                  range = 600,   projSpeed = 2000, },
+    ['Poppy']       = {true, spell = _E,                  range = 525,   projSpeed = 2000, },
+    ['Riven']       = {true, spell = _E,                  range = 150,   projSpeed = 2000, },
+    ['Renekton']    = {true, spell = _E,                  range = 450,   projSpeed = 2000, },
+    ['Sejuani']     = {true, spell = _Q,                  range = 650,   projSpeed = 2000, },
+    ['Shen']        = {true, spell = _E,                  range = 575,   projSpeed = 2000, },
+    ['Shyvana']     = {true, spell = _R,                  range = 1000,  projSpeed = 2000, },
+    ['Tristana']    = {true, spell = _W,                  range = 900,   projSpeed = 2000, },
+    ['Tryndamere']  = {true, spell = 'Slash',             range = 650,   projSpeed = 1450, },
+    ['XinZhao']     = {true, spell = _E,                  range = 650,   projSpeed = 2000, },
+    ['Yasuo']       = {true, spell = _E,                  range = 475,   projSpeed = 1000, },
+    ['Vayne']       = {true, spell = _Q,                  range = 300,   projSpeed = 1000, },
 }
 
 function OnLoad()
-
     print("<b><font color=\"#6699FF\">GosuMechanics:</font></b> <font color=\"#FFFFFF\">Ryze</font>")
     Variables()
     Menu()
@@ -158,7 +173,7 @@ function OnLoad()
         [3411]              = "TrinketOrbLvl1",
         [3166]              = "TrinketTotemLvl1",
         [3450]              = "OdinTrinketRevive",
-        [2041]              = "ItemCrystalFlask",
+        [2041]                = "ItemCrystalFlask",
         [2054]              = "ItemKingPoroSnack",
         [2138]              = "ElixirOfIron",
         [2137]              = "ElixirOfRuin",
@@ -268,11 +283,11 @@ function OnTick()
         if Config.SMharass.qflee and not IsMyManaLow("Harass") then
             rassHa(Target)
         end
-        
-        AutoIgnite()
 
         if Config.SMother.autoPot and lowHp(myHero) then AutoPots() end
         if Config.SMother.autoMPot and lowMana(myHero) then AutoMpots() end
+        
+        AutoIgnite()
 
     Checks()
 end
@@ -280,13 +295,13 @@ end
 function OnDraw()
     if not myHero.dead then
         if Config.SMdraw.drawQ and QREADY then
-            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 38, 38, 255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, ARGB(255, 38, 38, 255))
         end
         if Config.SMdraw.drawW and WREADY then
-            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, ARGB(255, 255, 255, 255))
         end
         if Config.SMdraw.drawE and EREADY then
-            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, ARGB(255, 255, 255, 255))
         end
     end
 end
@@ -296,6 +311,13 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
+
+    if Config.SMsbtw.sbtw and Config.SMother.useZhonya and lowHp(myHero) and CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3157)then
+        CastItem(3157)
+    end
+    if Config.SMsbtw.sbtw and Config.SMother.useSeraph and myHero.health <= (50/100*myHero.maxHealth) and GetInventoryItemIsCastable(3048) then
+        CastItem(3048)
+    end
 
     if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type and GetDistance(unit) <= SkillQ.range then
 
@@ -423,7 +445,7 @@ function SBTW(unit)
                 if Config.SMsbtw.useQ and WREADY then
                             CastW(unit)
                         end
-                        if Config.SMsbtw.useR and RREADY and GetDistance(unit) <= SkillW.range then
+                        if Config.SMsbtw.useR and RREADY then
                                     CastSpell(_R)
                                 end
                                 if Config.SMsbtw.useQ and EREADY and not QREADY then
@@ -467,7 +489,7 @@ end
 function LastHit()
 
     enemyMinions:update()  
-
+    if not QREADY then SxOrb:EnableAttacks() end
     if Config.SMsmart.smartfarm then
         for i, minion in pairs(enemyMinions.objects) do
             if minion ~= nil and ValidTarget(minion) and Config.SMsmart.useQ and QREADY then
@@ -558,7 +580,7 @@ end
 function CastW(unit)
     if unit ~= nil and GetDistance(unit) <= SkillW.range then
         if VIP_USER and Config.SMother.usePackets then
-            Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+            Packet("S_CAST", {spellId = _W, targetNetworkId = unit.networkID}):send()
         else
             CastSpell(_W, unit)
         end
@@ -708,6 +730,51 @@ function AutoMpots()
     end
 end
 
+function GetSlotItemFromName(itemname)
+    local slot
+    for i = 6, 12 do
+        local item = myHero:GetSpellData(i).name
+        if ((#item > 0) and (item:lower() == itemname:lower())) then
+            slot = i
+        end
+    end
+    return slot
+end
+
+function GetSlotItem(id, unit)
+    unit = unit or myHero
+
+    if (not ItemNames[id]) then
+        return ___GetInventorySlotItem(id, unit)
+    end
+
+    local name  = ItemNames[id]
+    
+    for slot = ITEM_1, ITEM_7 do
+        local item = unit:GetSpellData(slot).name
+        if ((#item > 0) and (item:lower() == name:lower())) then
+            return slot
+        end
+    end
+end
+
+function UseItems(unit)
+    if unit ~= nil then
+        for _, item in pairs(Items) do
+            item.slot = GetInventorySlotItem(item.id)
+            if item.slot ~= nil then
+                if item.reqTarget and GetDistance(unit) < item.range then
+                    CastSpell(item.slot, unit)
+                elseif not item.reqTarget then
+                    if (GetDistance(unit) - getHitBoxRadius(myHero) - getHitBoxRadius(unit)) < 50 then
+                        CastSpell(item.slot)
+                    end
+                end
+            end
+        end
+    end
+end
+
 function UseQSS(unit, scary)
     if lastRemove > os.clock() - 1 then return end
     for i, Item in pairs(Items) do
@@ -817,7 +884,7 @@ function Menu()
     Config.SMsbtw:addParam("useE", "Use E", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("useR", "Use R", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("count", "Ult when x enemy in range", SCRIPT_PARAM_SLICE, 2, 1, 5, 0)
-    --Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
+    Config.SMsbtw:addParam("useitems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Config.SMsbtw:addParam("combomode", "Combo Mode", SCRIPT_PARAM_LIST, 3, {"QWER", "WQER", "QWQR", "justBURST"})
 
   
@@ -829,28 +896,39 @@ function Menu()
     Config.SMother:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
     Config.SMother:addParam("autoMPot", "Auto-ManaPots", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("useMPots", "use when at % mana", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+    Config.SMother:addParam("useZhonya", "Auto-Zhonya LowHP", SCRIPT_PARAM_ONOFF, true)
+    Config.SMother:addParam("useSeraph", "Auto-Seraph LowHP", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
     Config.SMother:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
 
     Config.pred:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "SPrediction"})
     
-        Config.SMother:addSubMenu("GapCloser Spells", "ES2")
-            for i, enemy in ipairs(GetEnemyHeroes()) do
-                for _, champ in pairs(GapCloserList) do
-                    if enemy.charName == champ.charName then
-                        Config.SMother.ES2:addParam(champ.spellName, "GapCloser "..champ.charName.." "..champ.name, SCRIPT_PARAM_ONOFF, true)
-                    end
+        Config.SMother:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+        Config.SMother.interrupt:addParam("r", "Interrupt with W", SCRIPT_PARAM_ONOFF, true)
+        for i, a in pairs(GetEnemyHeroes()) do
+            if Interrupt[a.charName] ~= nil then
+                for i, spell in pairs(Interrupt[a.charName].stop) do
+                    Config.SMother.interrupt:addParam(spell.spellName, a.charName.." - "..spell.name, SCRIPT_PARAM_ONOFF, true)
                 end
             end
+        end
 
-    Config.SMdraw:addParam("drawQ", "Draw Q-Range", SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawW", "Draw W-Range", SCRIPT_PARAM_ONOFF, true)
-    Config.SMdraw:addParam("drawE", "Draw R-Range", SCRIPT_PARAM_ONOFF, true)
+        Config.SMother:addSubMenu("[" .. myHero.charName.. "] - Anti Gap-Closer", "gapClose")
+        for _, enemy in pairs(GetEnemyHeroes()) do
+            if isAGapcloserUnit[enemy.charName] ~= nil then
+                Config.SMother.gapClose:addParam(enemy.charName, enemy.charName .. " - " .. enemy:GetSpellData(isAGapcloserUnit[enemy.charName].spell).name, SCRIPT_PARAM_ONOFF, true)
+            end
+        end
+
+    Config.SMdraw:addParam("drawQ","Draw Q-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawW","Draw W-Range", SCRIPT_PARAM_ONOFF, true)
+    Config.SMdraw:addParam("drawE","Draw R-Range", SCRIPT_PARAM_ONOFF, true)
 
     Config.SMother:permaShow("usePackets")
     Config.SMother:permaShow("ignite")
-    --Config.SMother:permaShow("useqss")
+    Config.SMother:permaShow("useqss")
     Config.SMother:permaShow("killsteal")
+    Config.pred:permaShow("prediction")
         
     Config:addSubMenu("Orbwalking Settings", "Orbwalking")
         SxOrb:LoadToMenu(Config.Orbwalking)
@@ -1043,23 +1121,6 @@ function CountEnemyHeroInRange(range)
     return enemyinRrange
 end
 
-function UseItems(unit)
-    if unit ~= nil then
-        for _, item in pairs(Items) do
-            item.slot = GetInventorySlotItem(item.id)
-            if item.slot ~= nil then
-                if item.reqTarget and GetDistance(unit) < item.range then
-                    CastSpell(item.slot, unit)
-                elseif not item.reqTarget then
-                    if (GetDistance(unit) - getHitBoxRadius(myHero) - getHitBoxRadius(unit)) < 50 then
-                        CastSpell(item.slot)
-                    end
-                end
-            end
-        end
-    end
-end
-
 function getHitBoxRadius(target)
     return GetDistance(target.minBBox, target.maxBBox)/2
 end
@@ -1108,34 +1169,6 @@ end
 
 function TrueRange()
     return myHero.range + GetDistance(myHero, myHero.minBBox)
-end
-
-function GetSlotItemFromName(itemname)
-    local slot
-    for i = 6, 12 do
-        local item = myHero:GetSpellData(i).name
-        if ((#item > 0) and (item:lower() == itemname:lower())) then
-            slot = i
-        end
-    end
-    return slot
-end
-
-function GetSlotItem(id, unit)
-    unit = unit or myHero
-
-    if (not ItemNames[id]) then
-        return ___GetInventorySlotItem(id, unit)
-    end
-
-    local name  = ItemNames[id]
-    
-    for slot = ITEM_1, ITEM_7 do
-        local item = unit:GetSpellData(slot).name
-        if ((#item > 0) and (item:lower() == name:lower())) then
-            return slot
-        end
-    end
 end
 
 function GetBestLineFarmPosition(range, width, objects)
@@ -1225,30 +1258,39 @@ function round(num)
 end
 
 function DrawCircle2(x, y, z, radius, color)
-    local vPos1 = Vector(x, y, z)
-    local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
-    local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
-    local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
-    if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
-        DrawCircleNextLvl(x, y, z, radius, 1, color, 75)    
-    end
+  local vPos1 = Vector(x, y, z)
+  local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+  local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+  local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
 end
 
-
-function OnProcessSpell(unit, spell)
-    if Config.SMother.autoW and WREADY then
-        for _, x in pairs(GapCloserList) do
-            if unit and unit.team ~= myHero.team and unit.type == myHero.type and spell then
-                if spell.name == x.spellName and Config.SMother.ES2[x.spellName] and ValidTarget(unit, SkillW.range) then
-                    if spell.target and spell.target.isMe then
-                        CastW(unit)
-                    elseif not spell.target then
-                        local endPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
-                        local endPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
-                        if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
-                            CastW(unit)
-                        end
-                    end
+function OnProcessSpell(object, spellProc)
+    if myHero.dead then return end
+    if object.team == myHero.team then return end
+    
+    if Interrupt[object.charName] ~= nil then
+        spell = Interrupt[object.charName].stop[spellProc.name]
+        if spell ~= nil then
+            if Config.SMother.interrupt[spellProc.name] then
+                if ValidTarget(unit) and GetDistance(object) < SkillW.range and WREADY and Config.SMother.interrupt.r then
+                    CastSpell(_W, unit)
+                end
+            end
+        end
+    end
+        
+    local unit = object
+    local spell = spellProc
+    
+    if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
+        if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Config.SMother.gapClose[unit.charName] then
+            if spell.target ~= nil and spell.target and spell.target.networkID == myHero.networkID or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
+                CastSpell(_W, unit)
+            elseif not spell.target then
+                local startPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                local startPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
+                    CastSpell(_W, startPos1.x, startPos2.z)
                 end
             end
         end
