@@ -735,6 +735,7 @@ local Tdashing = false
 local Tdashing2 = false
 local UsingPot = false
 local lastRemove = 0
+local TornadoReady = false
 
 Interrupt = {
     ["Katarina"] = {charName = "Katarina", stop = {["KatarinaR"] = {name = "Death lotus", spellName = "KatarinaR", ult = true }}},
@@ -1018,7 +1019,7 @@ function Combo(unit)
             Q12(unit)
         end
         if Settings.combo.useQ then
-            Q3(unit)
+            Q3(Target)
         end
         if Settings.combo.useR then    
             sbtwR()
@@ -1046,14 +1047,14 @@ function LastHit(unit)
     if FarmKey then
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
-                if Settings.farm.useQ and GetDistance(minion) <= SkillQ12.range and SkillQ12.ready then
+                if Settings.farm.useQ and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
                     if getDmg("Q", minion, myHero) >= minion.health then
                        Q12(minion)
                     end
                 end
-                if Settings.farm.useQ and GetDistance(minion) <= SkillQ3.range and SkillQ3.ready then
+                if Settings.farm.useQ and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
                     if getDmg("Q", minion, myHero) >= minion.health then
-                        Q3(minion)
+                       Q3(minion)
                     end
                 end
                 if Settings.farm.useE and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
@@ -1068,7 +1069,7 @@ end
 
 function Harass(unit)
     if Settings.harass.useQ12 then Q12(unit) end
-    if Settings.harass.useQ3 then Q3(unit) end
+    if Settings.harass.useQ3 then Q3(Target) end
 end
 
 function LaneClear()
@@ -1138,21 +1139,22 @@ function Q12(unit, minion)
     if SkillQ12.ready and ValidTarget(unit, SkillQ12.range) then
         local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ12.delay, SkillQ12.width, SkillQ12.range, SkillQ12.speed, myHero, false)
         if HitChance >= 2 and CastPacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+            Packet("S_CAST", {spellId = 0, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
         else
-            CastSpell(_Q, CastPosition.x, CastPosition.z)
+            CastSpell(0, CastPosition.x, CastPosition.z)
         end
     end
+
 end
 
 function Q3(unit, minion)
     local CastPacket = Settings.misc.usePackets
     if myHero:GetSpellData(_Q).name == "yasuoq3w" and ValidTarget(unit, SkillQ3.range) then  
         local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ3.delay, SkillQ3.width, SkillQ3.range, SkillQ3.speed, myHero, false)
-        if HitChance >= 2 and CastPacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
+        if HitChance >= 2 and CastPacket and not IsDashing() and TornadoReady then
+            Packet("S_CAST", {spellId = 0, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
         else
-            CastSpell(_Q, CastPosition.x, CastPosition.z)
+            CastSpell(0, CastPosition.x, CastPosition.z)
         end     
     end
 end
@@ -1267,10 +1269,10 @@ end
 
 function AutoQenemy()
 
-    if Settings.harass.useQ12 and SkillQ12.ready and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
+    if Settings.harass.useQ12 and SkillQ12.ready and Tower and (not UnderTurret(myHero)) then
         Q12(Target)
     end
-    if Settings.harass.useQ3 and SkillQ3.ready and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
+    if Settings.harass.useQ3 and SkillQ3.ready and Tower and (not UnderTurret(myHero)) then
         Q3(Target)
     end
 end     
@@ -1409,6 +1411,9 @@ function OnApplyBuff(source, unit, buff)
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
             UsingPot = true
         end
+        if unit and unit.isMe and buff.name == "yasuoq3w" then
+            TornadoReady = true
+        end
     if unit.isMe and Settings.misc.useqss then
         if buff.name and buff.type == 5 or buff.type == 12 or buff.type == 11 or buff.type == 25 or buff.type == 7 or buff.type == 22 or buff.type == 21 or buff.type == 8
         or (buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))
@@ -1426,6 +1431,9 @@ function OnRemoveBuff(unit, buff)
     if not unit or not buff or unit.type ~= myHero.type then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
             UsingPot = false
+    end
+    if unit and unit.isMe and buff.name == "yasuoq3w" then
+        TornadoReady = false
     end
 end
 
@@ -1484,7 +1492,7 @@ function Menu()
 		Settings.lane:addParam("useQ", "LaneClear with "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
 		Settings.lane:addParam("useELH", "LastHit with "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.lane:addParam("useEalways", "Always use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
-        Settings.lane:addParam("laneItems", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
+        --Settings.lane:addParam("laneItems", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
 		
 	Settings:addSubMenu("["..myHero.charName.."] - Jungle Clear Settings", "jungle")
 		Settings.jungle:addParam("jungleKey", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
