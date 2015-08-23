@@ -810,7 +810,7 @@ function OnLoad()
 
     Tower = GetTurrets()
 
-	print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo</font>")
+	print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo 1.0</font>")
 	Variables()
 	Menu()
 	PriorityOnLoad()
