@@ -1225,7 +1225,7 @@ end
 function AutoUltKillable()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if Settings.ks.autoult and ValidTarget(Target, SkillR.range) and Rks(Target) and not isRecalling then
+        if Settings.ks.autoR and ValidTarget(Target, SkillR.range) and Rks(Target) and not isRecalling then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
