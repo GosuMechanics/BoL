@@ -717,26 +717,6 @@ Champions = {
     }},
 }
 
-local Minions
-local SteelTempest
-local eStack = 0
-local qBuffName = "Yasuo_Q_wind_ready_buff.troy"
-local farmSafe = false
-local i
-local attacked = false
-local isattacking = 0
-local animTime = 0
-local IsRecalling = false
-local knockedUp = 0
-local Knockups = {}
-local Tower = nil
-local towerUnit = nil
-local Tdashing = false
-local Tdashing2 = false
-local UsingPot = false
-local lastRemove = 0
-local TornadoReady = false
-
 Interrupt = {
     ["Katarina"] = {charName = "Katarina", stop = {["KatarinaR"] = {name = "Death lotus", spellName = "KatarinaR", ult = true }}},
     ["Nunu"] = {charName = "Nunu", stop = {["AbsoluteZero"] = {name = "Absolute Zero", spellName = "AbsoluteZero", ult = true }}},
@@ -794,6 +774,26 @@ isAGapcloserUnit = {
     ['Vayne']       = {true, spell = _Q,                  range = 300,   projSpeed = 1000, },
 }
 
+local Minions
+local SteelTempest
+local eStack = 0
+local qBuffName = "Yasuo_Q_wind_ready_buff.troy"
+local farmSafe = false
+local i
+local attacked = false
+local isattacking = 0
+local animTime = 0
+local IsRecalling = false
+local knockedUp = 0
+local Knockups = {}
+local Tower = nil
+local towerUnit = nil
+local Tdashing = false
+local Tdashing2 = false
+local UsingPot = false
+local lastRemove = 0
+local TornadoReady = false
+
 ------------------------------------------------------
 --			 Callbacks				
 ------------------------------------------------------
@@ -814,6 +814,7 @@ function OnLoad()
 	Variables()
 	Menu()
 	PriorityOnLoad()
+    VP = VPrediction()
 
     ItemNames               = {
         [3303]              = "ArchAngelsDummySpell",
@@ -1019,7 +1020,7 @@ function Combo(unit)
             Q12(unit)
         end
         if Settings.combo.useQ then
-            Q3(Target)
+            Q3(unit)
         end
         if Settings.combo.useR then    
             sbtwR()
@@ -1031,7 +1032,7 @@ function Combo(unit)
             checkMinion = getNearestMinion(Target)
             if eStack < 2 and checkMinion ~= nil and GetDistance(eEndPos(checkMinion)) < SkillQ.width then
                 E(checkMinion)
-            else
+            elseif TargetDistance > SkillE.range then
                 E(Target)
             end
         end
@@ -1085,17 +1086,21 @@ function LaneClear()
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
                 if Settings.lane.useQ and GetDistance(minion) <= SkillQ12.range and SkillQ12.ready then
-                    if getDmg("Q", minion, myHero) >= minion.health then
-                       Q12(minion)
+                    local BestPos, BestHit = GetBestLineFarmPosition(SkillQ12.range, SkillQ12.width, enemyMinions.objects)
+                    
+                    if BestPos ~= nil and BestHit >= 2 and getDmg("Q", minion, myHero) >= minion.health  then
+                        CastSpell(0, BestPos.x, BestPos.z)
                     else
-                        Q12(minion)
+                        CastSpell(0, BestPos.x, BestPos.z)
                     end
                 end
                 if Settings.lane.useQ and GetDistance(minion) <= SkillQ3.range and SkillQ3.ready then
-                    if getDmg("Q", minion, myHero) >= minion.health then
-                        Q3(minion)
+                 local BestPos, BestHit = GetBestLineFarmPosition(SkillQ12.range, SkillQ12.width, enemyMinions.objects)
+                    
+                    if BestPos ~= nil and BestHit >= 2 and getDmg("Q", minion, myHero) >= minion.health  then
+                        CastSpell(0, BestPos.x, BestPos.z)
                     else
-                        Q3(minion)
+                        CastSpell(0, BestPos.x, BestPos.z)
                     end
                 end
                 if Settings.lane.useELH and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
@@ -1138,20 +1143,19 @@ function Q12(unit, minion)
     local CastPacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit, SkillQ12.range) then
         local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ12.delay, SkillQ12.width, SkillQ12.range, SkillQ12.speed, myHero, false)
-        if HitChance >= 2 and CastPacket and not IsDashing() then
-            Packet("S_CAST", {spellId = 0, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+        if HitChance >= 2 and CastPacket and not IsDashing() and GetDistance(unit) <= SkillQ12.range then
+            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
         else
-            CastSpell(0, CastPosition.x, CastPosition.z)
+            CastSpell(_Q, CastPosition.x, CastPosition.z)
         end
     end
-
 end
 
 function Q3(unit, minion)
     local CastPacket = Settings.misc.usePackets
     if myHero:GetSpellData(_Q).name == "yasuoq3w" and ValidTarget(unit, SkillQ3.range) then  
         local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ3.delay, SkillQ3.width, SkillQ3.range, SkillQ3.speed, myHero, false)
-        if HitChance >= 2 and CastPacket and not IsDashing() and TornadoReady then
+        if HitChance >= 2 and CastPacket and not IsDashing() and TornadoReady and GetDistance(unit) <= SkillQ3.range then
             Packet("S_CAST", {spellId = 0, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
         else
             CastSpell(0, CastPosition.x, CastPosition.z)
@@ -1179,6 +1183,16 @@ function AutoQenemyminion(unit, minion)
         end
     end
 end
+
+function AutoQenemy()
+
+    if Settings.harass.useQ12 and SkillQ12.ready and Tower and (not UnderTurret(myHero)) then
+        Q12(Target)
+    end
+    if Settings.harass.useQ3 and SkillQ3.ready and Tower and (not UnderTurret(myHero)) then
+        Q3(Target)
+    end
+end    
 
 function Rks(unit)
     if unit.health <= (Settings.ks.autoRkillable/100*unit.maxHealth)*1.5 then
@@ -1224,8 +1238,8 @@ function AutoUlt()
     for i, v in ipairs(GetEnemyHeroes()) do
         if not v.canMove and v.y > 130 and ValidTarget(v) then
             knocked = knocked + 1
-            if Settings.ks.autoult and SkillR.ready and CanCast(_R) and not isRecalling then
-                if knocked >= Settings.ks.Ult3 then
+            if Settings.combo.autoult and SkillR.ready and CanCast(_R) and not isRecalling then
+                if knocked >= Settings.combo.Ult3 then
                     CastSpell(_R)
                 end
             end
@@ -1265,17 +1279,7 @@ function KillSteal()
     else 
       ksTarget = nil
     end
-end
-
-function AutoQenemy()
-
-    if Settings.harass.useQ12 and SkillQ12.ready and Tower and (not UnderTurret(myHero)) then
-        Q12(Target)
-    end
-    if Settings.harass.useQ3 and SkillQ3.ready and Tower and (not UnderTurret(myHero)) then
-        Q3(Target)
-    end
-end     
+end 
 
 function IsDashing()
     return Tdashing
@@ -1405,7 +1409,7 @@ end
 
 function OnApplyBuff(source, unit, buff)
 
-    if buff and unit == myHero then print(buff.name) end
+    --if buff and unit == myHero then print(buff.name) end
 
     if not unit or not buff then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
@@ -1996,6 +2000,40 @@ function GetCustomTarget()
 	return TargetSelector.target
 end
 
+function ResetAA()
+    if _G.AutoCarry then _G.AutoCarry.Orbwalker:ResetAttackTimer() end
+end
+
+function GetBestLineFarmPosition(range, width, objects)
+    local BestPos 
+    local BestHit = 0
+    for i, object in ipairs(objects) do
+        local EndPos = Vector(myHero.pos) + range * (Vector(object) - Vector(myHero.pos)):normalized()
+        local hit = CountObjectsOnLineSegment(myHero.pos, EndPos, width, objects)
+        if hit > BestHit then
+            BestHit = hit
+            BestPos = Vector(object)
+            if BestHit == #objects then
+               break
+            end
+         end
+    end
+
+    return BestPos, BestHit
+end
+
+function CountObjectsOnLineSegment(StartPos, EndPos, width, objects)
+    local n = 0
+    for i, object in ipairs(objects) do
+        local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(StartPos, EndPos, object)
+        if isOnSegment and GetDistanceSqr(pointSegment, object) < width * width then
+            n = n + 1
+        end
+    end
+
+    return n
+end
+
 function GetBestCircularFarmPosition(range, radius, objects)
     local BestPos 
     local BestHit = 0
@@ -2097,7 +2135,10 @@ function OnProcessSpell(object,spellProc)
     if myHero.dead then return end
     if object.isMe and spellProc.name:lower():find("attack") then
         animTime = spellProc.animationTime*0.1
-    end 
+    end
+    if object.isMe and (spellProc.name == "yasuoq" or spellProc.name == "yasuoq2" or spellProc.name == "yasuoq3w")then
+        ResetAA()
+    end
 
     if Settings.blocks.autoW then 
         if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
