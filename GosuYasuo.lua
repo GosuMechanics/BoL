@@ -1,6 +1,5 @@
 if myHero.charName ~= "Yasuo" then return end
-
-    require 'SxOrbWalk'
+    
     require 'VPrediction'
 
 if _G.BuffFix then
@@ -774,6 +773,9 @@ isAGapcloserUnit = {
     ['Vayne']       = {true, spell = _Q,                  range = 300,   projSpeed = 1000, },
 }
 
+local count = 0
+local isSx
+local isSac
 local Minions
 local SteelTempest
 local eStack = 0
@@ -815,6 +817,7 @@ function OnLoad()
     Menu()
     PriorityOnLoad()
     VP = VPrediction()
+    LoadOrbwalker()
 
     ItemNames               = {
         [3303]              = "ArchAngelsDummySpell",
@@ -912,6 +915,34 @@ function OnLoad()
     ___GetInventorySlotItem = rawget(_G, "GetInventorySlotItem")
     _G.GetInventorySlotItem = GetSlotItem
 
+end
+
+function LoadOrbwalker()
+    if _G.Reborn_Initialised then
+      print("GosuMechanics:Yasuo: Reborn loaded and authed")
+            isSac = true
+            loaded = true
+            Settings:addSubMenu("["..myHero.charName.."] - Orbwalker", "Orbwalker")
+            Settings.Orbwalker:addParam("info", "SAC:R detected", SCRIPT_PARAM_INFO, "")
+    elseif _G.Reborn_Loaded and not _G.Reborn_Initialised and count < 30 then
+            if printedWaiting == false then
+      print("GosuMechanics:Yasuo: Waiting for Reborn auth")
+            printedWaiting = true
+            end
+      DelayAction(LoadOrbwalker, 1)
+            count = count + 1
+    else
+            if count >= 30 then
+            print("GosuMechanics:Yasuo: SAC failed to auth")
+            end
+            require 'SxOrbWalk'
+      print("SxOrbWalk: Loading...")
+                Settings:addSubMenu(""..myHero.charName.." - Orbwalker", "Orbwalker")
+                SxOrb:LoadToMenu(Settings.Orbwalker)
+                isSx = true
+            print("SxOrbWalk: Loaded")
+            loaded = true
+        end
 end
 
 function OnTick()
@@ -1469,7 +1500,7 @@ function Checks()
     
     TargetSelector:update()
     Target = GetCustomTarget()
-    SxOrb:ForceTarget(Target)
+    --SxOrb:ForceTarget(Target)
     
     if Settings.drawing.lfc.lfc then _G.DrawCircle = DrawCircle2 else _G.DrawCircle = _G.oldDrawCircle end
 end
@@ -1593,8 +1624,8 @@ function Menu()
         Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
 
-    Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
-        SxOrb:LoadToMenu(Settings.Orbwalking)
+    --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
+        --SxOrb:LoadToMenu(Settings.Orbwalking)
     
     TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, SkillQ.range, DAMAGE_PHYSICAL)
     TargetSelector.name = "Gosu"
@@ -2013,6 +2044,10 @@ function GetCustomTarget()
     return TargetSelector.target
 end
 
+function ResetAA()
+    if _G.AutoCarry then _G.AutoCarry.Orbwalker:ResetAttackTimer() end
+end
+
 function GetBestLineFarmPosition(range, width, objects)
     local BestPos 
     local BestHit = 0
@@ -2145,9 +2180,9 @@ function OnProcessSpell(object,spellProc)
     if object.isMe and spellProc.name:lower():find("attack") then
         animTime = spellProc.animationTime*0.1
     end
-    --[[if object.isMe and (spellProc.name == "yasuoq" or spellProc.name == "yasuoq2" or spellProc.name == "yasuoq3w")then
+    if object.isMe and (spellProc.name == "yasuoq" or spellProc.name == "yasuoq2" or spellProc.name == "yasuoq3w")then
         ResetAA()
-    end]]
+    end
 
     if Settings.blocks.autoW then 
         if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
@@ -2161,11 +2196,13 @@ function OnProcessSpell(object,spellProc)
                     end                    
                     if GetDistance(spellProc.startPos) <= range then
                         if GetDistance(spellProc.endPos) <= SkillW.range then
-                            if SkillW.ready and Settings.blocks[spellProc.name] and Settings.misc.usePackets then
+                            if SkillW.ready and Settings.blocks[spellProc.name] == true then 
+                                if Settings.misc.usePackets then
                                 --PrintChat("W TEST")
-                                Packet("S_CAST", {spellId = _W, toX=object.x, toY=object.z, fromX=object.x, fromY=object.z}):send()
-                            else
-                                CastSpell(_W, object.x, object.z)
+                                    Packet("S_CAST", {spellId = _W, toX=object.x, toY=object.z, fromX=object.x, fromY=object.z}):send()
+                                else
+                                    CastSpell(_W, object.x, object.z)
+                                end
                             end
                         end
                     end
