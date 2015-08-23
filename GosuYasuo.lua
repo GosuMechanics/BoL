@@ -919,21 +919,21 @@ end
 
 function LoadOrbwalker()
     if _G.Reborn_Initialised then
-      print("GosuMechanics:Yasuo: Reborn loaded and authed")
+      print("GosuMechanics:Yasuo : Reborn loaded and authed")
             isSac = true
             loaded = true
             Settings:addSubMenu("["..myHero.charName.."] - Orbwalker", "Orbwalker")
             Settings.Orbwalker:addParam("info", "SAC:R detected", SCRIPT_PARAM_INFO, "")
     elseif _G.Reborn_Loaded and not _G.Reborn_Initialised and count < 30 then
             if printedWaiting == false then
-      print("GosuMechanics:Yasuo: Waiting for Reborn auth")
+      print("GosuMechanics:Yasuo : Waiting for Reborn auth")
             printedWaiting = true
             end
       DelayAction(LoadOrbwalker, 1)
             count = count + 1
     else
             if count >= 30 then
-            print("GosuMechanics:Yasuo: SAC failed to auth")
+            print("GosuMechanics:Yasuo : SAC failed to auth")
             end
             require 'SxOrbWalk'
       print("SxOrbWalk: Loading...")
