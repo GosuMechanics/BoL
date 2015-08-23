@@ -1095,7 +1095,7 @@ function LaneClear()
                     end
                 end
                 if Settings.lane.useQ and GetDistance(minion) <= SkillQ3.range and SkillQ3.ready then
-                 local BestPos, BestHit = GetBestLineFarmPosition(SkillQ12.range, SkillQ12.width, enemyMinions.objects)
+                 local BestPos, BestHit = GetBestLineFarmPosition(SkillQ3.range, SkillQ3.width, enemyMinions.objects)
                     
                     if BestPos ~= nil and BestHit >= 2 and getDmg("Q", minion, myHero) >= minion.health  then
                         CastSpell(0, BestPos.x, BestPos.z)
