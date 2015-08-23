@@ -1583,7 +1583,7 @@ function Menu()
 	Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
 		SxOrb:LoadToMenu(Settings.Orbwalking)
 	
-	TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, SkillQ.range, DAMAGE_PHYSICAL, true)
+	TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, SkillQ.range, DAMAGE_PHYSICAL)
 	TargetSelector.name = "Gosu"
 	Settings:addTS(TargetSelector)
 
@@ -2000,10 +2000,6 @@ function GetCustomTarget()
 	return TargetSelector.target
 end
 
-function ResetAA()
-    if _G.AutoCarry then _G.AutoCarry.Orbwalker:ResetAttackTimer() end
-end
-
 function GetBestLineFarmPosition(range, width, objects)
     local BestPos 
     local BestHit = 0
@@ -2136,9 +2132,9 @@ function OnProcessSpell(object,spellProc)
     if object.isMe and spellProc.name:lower():find("attack") then
         animTime = spellProc.animationTime*0.1
     end
-    if object.isMe and (spellProc.name == "yasuoq" or spellProc.name == "yasuoq2" or spellProc.name == "yasuoq3w")then
+    --[[if object.isMe and (spellProc.name == "yasuoq" or spellProc.name == "yasuoq2" or spellProc.name == "yasuoq3w")then
         ResetAA()
-    end
+    end]]
 
     if Settings.blocks.autoW then 
         if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
