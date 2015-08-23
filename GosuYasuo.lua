@@ -1061,12 +1061,12 @@ function LastHit(unit)
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
                 if Settings.farm.useQ12 and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
-                    if getDmg("Q", minion, myHero) >= minion.health then
+                    if minion.health <= getDmg("Q", minion, myHero) then
                        Q12(minion)
                     end
                 end
                 if Settings.farm.useQ3 and GetDistance(minion, myHero) <= SkillQ3.range and SkillQ3.ready then
-                    if getDmg("Q", minion, myHero) >= minion.health then
+                    if minion.health <= getDmg("Q", minion, myHero) then
                        Q3(minion)
                     end
                 end
