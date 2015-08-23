@@ -795,7 +795,7 @@ local lastRemove = 0
 local TornadoReady = false
 
 ------------------------------------------------------
---			 Callbacks				
+--           Callbacks              
 ------------------------------------------------------
 
 function OnLoad()
@@ -810,10 +810,10 @@ function OnLoad()
 
     Tower = GetTurrets()
 
-	print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo 1.0</font>")
-	Variables()
-	Menu()
-	PriorityOnLoad()
+    print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo 1.0</font>")
+    Variables()
+    Menu()
+    PriorityOnLoad()
     VP = VPrediction()
 
     ItemNames               = {
@@ -915,35 +915,47 @@ function OnLoad()
 end
 
 function OnTick()
-	ComboKey = Settings.combo.comboKey
-	HarassKey = Settings.harass.harassKey
-	HarassToggle = Settings.harass.harassToggle
-	JungleClearKey = Settings.jungle.jungleKey
-	LaneClearKey = Settings.lane.laneKey
-	FarmKey = Settings.farm.farmKey
-	
-	if ComboKey then
-		Combo(Target)
-	end
-	
-	if HarassKey or HarassToggle then
-		Harass(Target)
-	end
-	
-	if FarmKey then
-		LastHit()
-	end
-	if JungleClearKey then
-		JungleClear()
-	end
-	
-	if LaneClearKey then
-		LaneClear()
-	end
-	
-	if Settings.ks.killSteal then
-		KillSteal()
-	end	
+    ComboKey = Settings.combo.comboKey
+    HarassKey = Settings.harass.harassKey
+    HarassToggle = Settings.harass.harassToggle
+    JungleClearKey = Settings.jungle.jungleKey
+    LaneClearKey = Settings.lane.laneKey
+    FarmKey = Settings.farm.farmKey
+
+    if Tdashing ~= false and os.clock() > Eduration2 then
+        Tdashing = false
+    end
+    if Tdashing2 ~= false and os.clock() > Eduration3 then
+        Tdashing2 = false
+    end
+
+    if dashed ~= nil and dashed - os.clock() < 0 then 
+        posAfterE = nil
+        dashed = nil
+    end
+    
+    if ComboKey then
+        Combo(Target)
+    end
+    
+    if HarassKey or HarassToggle then
+        Harass(Target)
+    end
+    
+    if FarmKey then
+        LastHit()
+    end
+    if JungleClearKey then
+        JungleClear()
+    end
+    
+    if LaneClearKey then
+        LaneClear()
+    end
+    
+    if Settings.ks.killSteal then
+        KillSteal()
+    end 
 
     if Settings.ks.autoIgnite then
         AutoIgnite()
@@ -970,41 +982,41 @@ function OnTick()
     if Settings.harass.useQminion then
         AutoQenemyminion()
     end
-	
-	Checks()
+    
+    Checks()
 
-	AutoUlt()
+    AutoUlt()
 
     GetItemSlot()
 end
 
 function OnDraw()
-	if not myHero.dead and not Settings.drawing.mDraw then
-		if SkillQ.ready and Settings.drawing.qDraw then 
-			DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
-		end
-		if SkillW.ready and Settings.drawing.wDraw then 
-			DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, RGB(Settings.drawing.wColor[2], Settings.drawing.wColor[3], Settings.drawing.wColor[4]))
-		end
-		if SkillE.ready and Settings.drawing.eDraw then 
-			DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, RGB(Settings.drawing.eColor[2], Settings.drawing.eColor[3], Settings.drawing.eColor[4]))
-		end
-		if SkillR.ready and Settings.drawing.rDraw then 
-			DrawCircle(myHero.x, myHero.y, myHero.z, SkillR.range, RGB(Settings.drawing.rColor[2], Settings.drawing.rColor[3], Settings.drawing.rColor[4]))
-		end
-		
-		if Settings.drawing.myHero then
-			DrawCircle(myHero.x, myHero.y, myHero.z, TrueRange(), RGB(Settings.drawing.myColor[2], Settings.drawing.myColor[3], Settings.drawing.myColor[4]))
-		end
-		
-		if Settings.drawing.Target and Target ~= nil then
-			DrawCircle(Target.x, Target.y, Target.z, 80, ARGB(255, 10, 255, 10))
-		end
-	end
+    if not myHero.dead and not Settings.drawing.mDraw then
+        if SkillQ.ready and Settings.drawing.qDraw then 
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+        end
+        if SkillW.ready and Settings.drawing.wDraw then 
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, RGB(Settings.drawing.wColor[2], Settings.drawing.wColor[3], Settings.drawing.wColor[4]))
+        end
+        if SkillE.ready and Settings.drawing.eDraw then 
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, RGB(Settings.drawing.eColor[2], Settings.drawing.eColor[3], Settings.drawing.eColor[4]))
+        end
+        if SkillR.ready and Settings.drawing.rDraw then 
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillR.range, RGB(Settings.drawing.rColor[2], Settings.drawing.rColor[3], Settings.drawing.rColor[4]))
+        end
+        
+        if Settings.drawing.myHero then
+            DrawCircle(myHero.x, myHero.y, myHero.z, TrueRange(), RGB(Settings.drawing.myColor[2], Settings.drawing.myColor[3], Settings.drawing.myColor[4]))
+        end
+        
+        if Settings.drawing.Target and Target ~= nil then
+            DrawCircle(Target.x, Target.y, Target.z, 80, ARGB(255, 10, 255, 10))
+        end
+    end
 end
 
 ------------------------------------------------------
---			 Functions				
+--           Functions              
 ------------------------------------------------------
 
 function Combo(unit)
@@ -1025,14 +1037,14 @@ function Combo(unit)
         if Settings.combo.useR then    
             sbtwR()
         end
-        if SkillE.ready and Settings.combo.useE and TargetDistance <= 1300 then
+        if SkillE.ready and Settings.combo.useE and TargetDistance == SkillE.range then
             if eStack == 2 then
                 E(Target)
             end
             checkMinion = getNearestMinion(Target)
             if eStack < 2 and checkMinion ~= nil and GetDistance(eEndPos(checkMinion)) < SkillQ.width then
                 E(checkMinion)
-            elseif TargetDistance > SkillE.range then
+            elseif TargetDistance == SkillE.range then
                 E(Target)
             end
         end
@@ -1048,12 +1060,12 @@ function LastHit(unit)
     if FarmKey then
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
-                if Settings.farm.useQ and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
+                if Settings.farm.useQ12 and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
                     if getDmg("Q", minion, myHero) >= minion.health then
                        Q12(minion)
                     end
                 end
-                if Settings.farm.useQ and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
+                if Settings.farm.useQ3 and GetDistance(minion, myHero) <= SkillQ3.range and SkillQ3.ready then
                     if getDmg("Q", minion, myHero) >= minion.health then
                        Q3(minion)
                     end
@@ -1070,7 +1082,7 @@ end
 
 function Harass(unit)
     if Settings.harass.useQ12 then Q12(unit) end
-    if Settings.harass.useQ3 then Q3(Target) end
+    if Settings.harass.useQ3 then Q3(unit) end
 end
 
 function LaneClear()
@@ -1442,79 +1454,80 @@ function OnRemoveBuff(unit, buff)
 end
 
 ------------------------------------------------------
---			 Checks, menu & stuff				
+--           Checks, menu & stuff               
 ------------------------------------------------------
 
 function Checks()
-	SkillQ12.ready = (myHero:CanUseSpell(_Q) == READY and ( myHero:GetSpellData(_Q).name == "YasuoQW" or myHero:GetSpellData(_Q).name == "yasuoq2w"))
+    SkillQ12.ready = (myHero:CanUseSpell(_Q) == READY and ( myHero:GetSpellData(_Q).name == "YasuoQW" or myHero:GetSpellData(_Q).name == "yasuoq2w"))
     SkillQ3.ready  = (myHero:CanUseSpell(_Q) == READY and myHero:GetSpellData(_Q).name == "yasuoq3w")
     SkillQ.ready = (myHero:CanUseSpell(_Q) == READY)
-	SkillW.ready = (myHero:CanUseSpell(_W) == READY)
-	SkillE.ready = (myHero:CanUseSpell(_E) == READY)
-	SkillR.ready = (myHero:CanUseSpell(_R) == READY)
-	
-	IREADY = (igniteSpell ~= nil and myHero:CanUseSpell(igniteSpell) == READY)
-	
-	TargetSelector:update()
-	Target = GetCustomTarget()
-	SxOrb:ForceTarget(Target)
-	
-	if Settings.drawing.lfc.lfc then _G.DrawCircle = DrawCircle2 else _G.DrawCircle = _G.oldDrawCircle end
+    SkillW.ready = (myHero:CanUseSpell(_W) == READY)
+    SkillE.ready = (myHero:CanUseSpell(_E) == READY)
+    SkillR.ready = (myHero:CanUseSpell(_R) == READY)
+    
+    IREADY = (igniteSpell ~= nil and myHero:CanUseSpell(igniteSpell) == READY)
+    
+    TargetSelector:update()
+    Target = GetCustomTarget()
+    SxOrb:ForceTarget(Target)
+    
+    if Settings.drawing.lfc.lfc then _G.DrawCircle = DrawCircle2 else _G.DrawCircle = _G.oldDrawCircle end
 end
 
 
 function Menu()
-	Settings = scriptConfig("GosuMechanics", "Yasuo")
-	
-	Settings:addSubMenu("["..myHero.charName.."] - Combo Settings", "combo")
-		Settings.combo:addParam("comboKey", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-		Settings.combo:addParam("useQ", "Use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.combo:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
+    Settings = scriptConfig("GosuMechanics", "Yasuo")
+    
+    Settings:addSubMenu("["..myHero.charName.."] - Combo Settings", "combo")
+        Settings.combo:addParam("comboKey", "Beast Mode", SCRIPT_PARAM_ONKEYDOWN, false, 32)
+        Settings.combo:addParam("useQ", "Use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:permaShow("autoult")
-	
-	Settings:addSubMenu("["..myHero.charName.."] - Harass Settings", "harass")
-		Settings.harass:addParam("harassKey", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("C"))
-		Settings.harass:addParam("harassToggle", "Harass Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, GetKey("L"))
-		Settings.harass:addParam("useQ12", "Use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.harass:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.harass:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.harass:addParam("useQminion", "AutoQ EnemyMinion", SCRIPT_PARAM_ONOFF, true)
-		Settings.harass:addParam("useQjungle", "AutoQ JungleMob", SCRIPT_PARAM_ONOFF, true)
-		Settings.harass:permaShow("harassToggle")
-		
-	Settings:addSubMenu("["..myHero.charName.."] - LastHit", "farm")
-		Settings.farm:addParam("farmKey", "KastHit", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("A"))
-		Settings.farm:addParam("useQ", "use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.farm:addParam("useE", "use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
-		
-	Settings:addSubMenu("["..myHero.charName.."] - Lane Clear Settings", "lane")
-		Settings.lane:addParam("laneKey", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
-		Settings.lane:addParam("useQ", "LaneClear with "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.lane:addParam("useELH", "LastHit with "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
+    
+    Settings:addSubMenu("["..myHero.charName.."] - Harass Settings", "harass")
+        Settings.harass:addParam("harassKey", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("C"))
+        Settings.harass:addParam("harassToggle", "Harass Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, GetKey("L"))
+        Settings.harass:addParam("useQ12", "Use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.harass:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.harass:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.harass:addParam("useQminion", "AutoQ EnemyMinion", SCRIPT_PARAM_ONOFF, true)
+        Settings.harass:addParam("useQjungle", "AutoQ JungleMob", SCRIPT_PARAM_ONOFF, true)
+        Settings.harass:permaShow("harassToggle")
+        
+    Settings:addSubMenu("["..myHero.charName.."] - LastHit", "farm")
+        Settings.farm:addParam("farmKey", "KastHit", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("A"))
+        Settings.farm:addParam("useQ12", "use "..SkillQ12.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.farm:addParam("useQ3", "use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.farm:addParam("useE", "use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
+        
+    Settings:addSubMenu("["..myHero.charName.."] - Lane Clear Settings", "lane")
+        Settings.lane:addParam("laneKey", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
+        Settings.lane:addParam("useQ", "LaneClear with "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.lane:addParam("useELH", "LastHit with "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.lane:addParam("useEalways", "Always use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         --Settings.lane:addParam("laneItems", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
-		
-	Settings:addSubMenu("["..myHero.charName.."] - Jungle Clear Settings", "jungle")
-		Settings.jungle:addParam("jungleKey", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
-		Settings.jungle:addParam("useQ", "use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
-		Settings.jungle:addParam("useE", "use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
+        
+    Settings:addSubMenu("["..myHero.charName.."] - Jungle Clear Settings", "jungle")
+        Settings.jungle:addParam("jungleKey", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
+        Settings.jungle:addParam("useQ", "use "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.jungle:addParam("useE", "use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
 
     Settings:addSubMenu("["..myHero.charName.."] - Escape Settings", "esc")
         Settings.esc:addParam("run", "Escape Key", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("Z"))
-		
-	Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
-		Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
+        
+    Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
+        Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoR", "Auto-R KS", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
         Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-		Settings.ks:permaShow("killSteal")
+        Settings.ks:permaShow("killSteal")
         Settings.ks:permaShow("autoR")
 
-	Settings:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+    Settings:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
         Settings.interrupt:addParam("r", "Interrupt with Yasuoq3w", SCRIPT_PARAM_ONOFF, true)
         for i, a in pairs(GetEnemyHeroes()) do
             if Interrupt[a.charName] ~= nil then
@@ -1530,10 +1543,10 @@ function Menu()
             end
         end
 
-	Settings:addSubMenu("["..myHero.charName.."] - WindWall Settings", "blocks")
+    Settings:addSubMenu("["..myHero.charName.."] - WindWall Settings", "blocks")
         Settings.blocks:addParam("autoW", " Auto "..SkillW.name.." ", SCRIPT_PARAM_ONOFF, true)
 
-	for i = 1, heroManager.iCount,1 do
+    for i = 1, heroManager.iCount,1 do
         local hero = heroManager:getHero(i)
         if hero.team ~= player.team then
             if Champions[hero.charName] ~= nil then
@@ -1551,272 +1564,272 @@ function Menu()
         end
     end
 
-	Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")	
-		Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
-		Settings.drawing:addParam("Target", "Draw Circle on Target", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("Text", "Draw Text on Target", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("myHero", "Draw My Range", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("myColor", "Draw My Range Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
-		Settings.drawing:addParam("qDraw", "Draw "..SkillQ.name.." Range", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("qColor", "Draw "..SkillQ.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
-		Settings.drawing:addParam("wDraw", "Draw "..SkillW.name.." Range", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("wColor", "Draw "..SkillW.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
-		Settings.drawing:addParam("eDraw", "Draw "..SkillE.name.." Range", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("eColor", "Draw "..SkillE.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
-		Settings.drawing:addParam("rDraw", "Draw "..SkillR.name.." Range", SCRIPT_PARAM_ONOFF, true)
-		Settings.drawing:addParam("rColor", "Draw "..SkillR.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
-		
-		Settings.drawing:addSubMenu("Lag Free Circles", "lfc")	
-			Settings.drawing.lfc:addParam("lfc", "Lag Free Circles", SCRIPT_PARAM_ONOFF, false)
-			Settings.drawing.lfc:addParam("CL", "Quality", 4, 75, 75, 2000, 0)
-			Settings.drawing.lfc:addParam("Width", "Width", 4, 1, 1, 10, 0)
-	
-	Settings:addSubMenu("["..myHero.charName.."] - Misc Settings", "misc")
+    Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")   
+        Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
+        Settings.drawing:addParam("Target", "Draw Circle on Target", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("Text", "Draw Text on Target", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("myHero", "Draw My Range", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("myColor", "Draw My Range Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
+        Settings.drawing:addParam("qDraw", "Draw "..SkillQ.name.." Range", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("qColor", "Draw "..SkillQ.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
+        Settings.drawing:addParam("wDraw", "Draw "..SkillW.name.." Range", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("wColor", "Draw "..SkillW.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
+        Settings.drawing:addParam("eDraw", "Draw "..SkillE.name.." Range", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("eColor", "Draw "..SkillE.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
+        Settings.drawing:addParam("rDraw", "Draw "..SkillR.name.." Range", SCRIPT_PARAM_ONOFF, true)
+        Settings.drawing:addParam("rColor", "Draw "..SkillR.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
+        
+        Settings.drawing:addSubMenu("Lag Free Circles", "lfc")  
+            Settings.drawing.lfc:addParam("lfc", "Lag Free Circles", SCRIPT_PARAM_ONOFF, false)
+            Settings.drawing.lfc:addParam("CL", "Quality", 4, 75, 75, 2000, 0)
+            Settings.drawing.lfc:addParam("Width", "Width", 4, 1, 1, 10, 0)
+    
+    Settings:addSubMenu("["..myHero.charName.."] - Misc Settings", "misc")
         Settings.misc:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         Settings.misc:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
-	    Settings.misc:permaShow("usePackets")
+        Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
 
-	Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
-		SxOrb:LoadToMenu(Settings.Orbwalking)
-	
-	TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, SkillQ.range, DAMAGE_PHYSICAL)
-	TargetSelector.name = "Gosu"
-	Settings:addTS(TargetSelector)
+    Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
+        SxOrb:LoadToMenu(Settings.Orbwalking)
+    
+    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, SkillQ.range, DAMAGE_PHYSICAL)
+    TargetSelector.name = "Gosu"
+    Settings:addTS(TargetSelector)
 
 end
 
 function Variables()
-	SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
-	SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.5, speed = 1500, width = 90, ready = false }
+    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
+    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.5, speed = 1500, width = 90, ready = false }
     SkillQ = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
-	SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
-	SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
-	SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
-	ignite = { name = "summonerdot", range = 600, slot = nil }
-	
-	enemyMinions = minionManager(MINION_ENEMY, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
+    SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
+    SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
+    SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
+    ignite = { name = "summonerdot", range = 600, slot = nil }
+    
+    enemyMinions = minionManager(MINION_ENEMY, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
     JungleMinions = minionManager(MINION_JUNGLE, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
-	
-	VP = VPrediction()
-	
-	JungleMobs = {}
-	JungleFocusMobs = {}
-	
-	if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then
-		ignite = SUMMONER_1
-	elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then
-		ignite = SUMMONER_2
-	end
-	
-	if GetGame().map.shortName == "twistedTreeline" then
-		TwistedTreeline = true 
-	else
-		TwistedTreeline = false
-	end
-	
-	_G.oldDrawCircle = rawget(_G, 'DrawCircle')
-	_G.DrawCircle = DrawCircle2	
-	
-	priorityTable = {
-			AP = {
-				"Annie", "Ahri", "Akali", "Anivia", "Annie", "Brand", "Cassiopeia", "Diana", "Evelynn", "FiddleSticks", "Fizz", "Gragas", "Heimerdinger", "Karthus",
-				"Kassadin", "Katarina", "Kayle", "Kennen", "Leblanc", "Lissandra", "Lux", "Malzahar", "Mordekaiser", "Morgana", "Nidalee", "Orianna",
-				"Ryze", "Sion", "Swain", "Syndra", "Teemo", "TwistedFate", "Veigar", "Viktor", "Vladimir", "Xerath", "Ziggs", "Zyra", "Velkoz"
-			},
-			
-			Support = {
-				"Alistar", "Blitzcrank", "Janna", "Karma", "Leona", "Lulu", "Nami", "Nunu", "Sona", "Soraka", "Taric", "Thresh", "Zilean", "Braum"
-			},
-			
-			Tank = {
-				"Amumu", "Chogath", "DrMundo", "Galio", "Hecarim", "Malphite", "Maokai", "Nasus", "Rammus", "Sejuani", "Nautilus", "Shen", "Singed", "Skarner", "Volibear",
-				"Warwick", "Yorick", "Zac"
-			},
-			
-			AD_Carry = {
-				"Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jayce", "Jinx", "KogMaw", "Lucian", "MasterYi", "MissFortune", "Pantheon", "Quinn", "Shaco", "Sivir",
-				"Talon","Tryndamere", "Tristana", "Twitch", "Urgot", "Varus", "Vayne", "Yasuo", "Zed"
-			},
-			
-			Bruiser = {
-				"Aatrox", "Darius", "Elise", "Fiora", "Gangplank", "Garen", "Irelia", "JarvanIV", "Jax", "Khazix", "LeeSin", "Nocturne", "Olaf", "Poppy",
-				"Renekton", "Rengar", "Riven", "Rumble", "Shyvana", "Trundle", "Udyr", "Vi", "MonkeyKing", "XinZhao"
-			}
-	}
+    
+    VP = VPrediction()
+    
+    JungleMobs = {}
+    JungleFocusMobs = {}
+    
+    if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then
+        ignite = SUMMONER_1
+    elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then
+        ignite = SUMMONER_2
+    end
+    
+    if GetGame().map.shortName == "twistedTreeline" then
+        TwistedTreeline = true 
+    else
+        TwistedTreeline = false
+    end
+    
+    _G.oldDrawCircle = rawget(_G, 'DrawCircle')
+    _G.DrawCircle = DrawCircle2 
+    
+    priorityTable = {
+            AP = {
+                "Annie", "Ahri", "Akali", "Anivia", "Annie", "Brand", "Cassiopeia", "Diana", "Evelynn", "FiddleSticks", "Fizz", "Gragas", "Heimerdinger", "Karthus",
+                "Kassadin", "Katarina", "Kayle", "Kennen", "Leblanc", "Lissandra", "Lux", "Malzahar", "Mordekaiser", "Morgana", "Nidalee", "Orianna",
+                "Ryze", "Sion", "Swain", "Syndra", "Teemo", "TwistedFate", "Veigar", "Viktor", "Vladimir", "Xerath", "Ziggs", "Zyra", "Velkoz"
+            },
+            
+            Support = {
+                "Alistar", "Blitzcrank", "Janna", "Karma", "Leona", "Lulu", "Nami", "Nunu", "Sona", "Soraka", "Taric", "Thresh", "Zilean", "Braum"
+            },
+            
+            Tank = {
+                "Amumu", "Chogath", "DrMundo", "Galio", "Hecarim", "Malphite", "Maokai", "Nasus", "Rammus", "Sejuani", "Nautilus", "Shen", "Singed", "Skarner", "Volibear",
+                "Warwick", "Yorick", "Zac"
+            },
+            
+            AD_Carry = {
+                "Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jayce", "Jinx", "KogMaw", "Lucian", "MasterYi", "MissFortune", "Pantheon", "Quinn", "Shaco", "Sivir",
+                "Talon","Tryndamere", "Tristana", "Twitch", "Urgot", "Varus", "Vayne", "Yasuo", "Zed"
+            },
+            
+            Bruiser = {
+                "Aatrox", "Darius", "Elise", "Fiora", "Gangplank", "Garen", "Irelia", "JarvanIV", "Jax", "Khazix", "LeeSin", "Nocturne", "Olaf", "Poppy",
+                "Renekton", "Rengar", "Riven", "Rumble", "Shyvana", "Trundle", "Udyr", "Vi", "MonkeyKing", "XinZhao"
+            }
+    }
 
-	Items = {
-		BRK = { id = 3153, range = 450, reqTarget = true, slot = nil },
-		BWC = { id = 3144, range = 400, reqTarget = true, slot = nil },
-		DFG = { id = 3128, range = 750, reqTarget = true, slot = nil },
-		HGB = { id = 3146, range = 400, reqTarget = true, slot = nil },
-		RSH = { id = 3074, range = 350, reqTarget = false, slot = nil },
-		STD = { id = 3131, range = 350, reqTarget = false, slot = nil },
-		TMT = { id = 3077, range = 350, reqTarget = false, slot = nil },
-		YGB = { id = 3142, range = 350, reqTarget = false, slot = nil },
-		BFT = { id = 3188, range = 750, reqTarget = true, slot = nil },
-		RND = { id = 3143, range = 275, reqTarget = false, slot = nil }
-	}
-	
-	if not TwistedTreeline then
-		JungleMobNames = { 
-			["SRU_MurkwolfMini2.1.3"]	= true,
-			["SRU_MurkwolfMini2.1.2"]	= true,
-			["SRU_MurkwolfMini8.1.3"]	= true,
-			["SRU_MurkwolfMini8.1.2"]	= true,
-			["SRU_BlueMini1.1.2"]		= true,
-			["SRU_BlueMini7.1.2"]		= true,
-			["SRU_BlueMini21.1.3"]		= true,
-			["SRU_BlueMini27.1.3"]		= true,
-			["SRU_RedMini10.1.2"]		= true,
-			["SRU_RedMini10.1.3"]		= true,
-			["SRU_RedMini4.1.2"]		= true,
-			["SRU_RedMini4.1.3"]		= true,
-			["SRU_KrugMini11.1.1"]		= true,
-			["SRU_KrugMini5.1.1"]		= true,
-			["SRU_RazorbeakMini9.1.2"]	= true,
-			["SRU_RazorbeakMini9.1.3"]	= true,
-			["SRU_RazorbeakMini9.1.4"]	= true,
-			["SRU_RazorbeakMini3.1.2"]	= true,
-			["SRU_RazorbeakMini3.1.3"]	= true,
-			["SRU_RazorbeakMini3.1.4"]	= true
-		}
-		
-		FocusJungleNames = {
-			["SRU_Blue1.1.1"]			= true,
-			["SRU_Blue7.1.1"]			= true,
-			["SRU_Murkwolf2.1.1"]		= true,
-			["SRU_Murkwolf8.1.1"]		= true,
-			["SRU_Gromp13.1.1"]			= true,
-			["SRU_Gromp14.1.1"]			= true,
-			["Sru_Crab16.1.1"]			= true,
-			["Sru_Crab15.1.1"]			= true,
-			["SRU_Red10.1.1"]			= true,
-			["SRU_Red4.1.1"]			= true,
-			["SRU_Krug11.1.2"]			= true,
-			["SRU_Krug5.1.2"]			= true,
-			["SRU_Razorbeak9.1.1"]		= true,
-			["SRU_Razorbeak3.1.1"]		= true,
-			["SRU_Dragon6.1.1"]			= true,
-			["SRU_Baron12.1.1"]			= true
-		}
-	else
-		FocusJungleNames = {
-			["TT_NWraith1.1.1"]			= true,
-			["TT_NGolem2.1.1"]			= true,
-			["TT_NWolf3.1.1"]			= true,
-			["TT_NWraith4.1.1"]			= true,
-			["TT_NGolem5.1.1"]			= true,
-			["TT_NWolf6.1.1"]			= true,
-			["TT_Spiderboss8.1.1"]		= true
-		}		
-		JungleMobNames = {
-			["TT_NWraith21.1.2"]		= true,
-			["TT_NWraith21.1.3"]		= true,
-			["TT_NGolem22.1.2"]			= true,
-			["TT_NWolf23.1.2"]			= true,
-			["TT_NWolf23.1.3"]			= true,
-			["TT_NWraith24.1.2"]		= true,
-			["TT_NWraith24.1.3"]		= true,
-			["TT_NGolem25.1.1"]			= true,
-			["TT_NWolf26.1.2"]			= true,
-			["TT_NWolf26.1.3"]			= true
-		}
-	end
-		
-	for i = 0, objManager.maxObjects do
-		local object = objManager:getObject(i)
-		if object and object.valid and not object.dead then
-			if FocusJungleNames[object.name] then
-				JungleFocusMobs[#JungleFocusMobs+1] = object
-			elseif JungleMobNames[object.name] then
-				JungleMobs[#JungleMobs+1] = object
-			end
-		end
-	end
+    Items = {
+        BRK = { id = 3153, range = 450, reqTarget = true, slot = nil },
+        BWC = { id = 3144, range = 400, reqTarget = true, slot = nil },
+        DFG = { id = 3128, range = 750, reqTarget = true, slot = nil },
+        HGB = { id = 3146, range = 400, reqTarget = true, slot = nil },
+        RSH = { id = 3074, range = 350, reqTarget = false, slot = nil },
+        STD = { id = 3131, range = 350, reqTarget = false, slot = nil },
+        TMT = { id = 3077, range = 350, reqTarget = false, slot = nil },
+        YGB = { id = 3142, range = 350, reqTarget = false, slot = nil },
+        BFT = { id = 3188, range = 750, reqTarget = true, slot = nil },
+        RND = { id = 3143, range = 275, reqTarget = false, slot = nil }
+    }
+    
+    if not TwistedTreeline then
+        JungleMobNames = { 
+            ["SRU_MurkwolfMini2.1.3"]   = true,
+            ["SRU_MurkwolfMini2.1.2"]   = true,
+            ["SRU_MurkwolfMini8.1.3"]   = true,
+            ["SRU_MurkwolfMini8.1.2"]   = true,
+            ["SRU_BlueMini1.1.2"]       = true,
+            ["SRU_BlueMini7.1.2"]       = true,
+            ["SRU_BlueMini21.1.3"]      = true,
+            ["SRU_BlueMini27.1.3"]      = true,
+            ["SRU_RedMini10.1.2"]       = true,
+            ["SRU_RedMini10.1.3"]       = true,
+            ["SRU_RedMini4.1.2"]        = true,
+            ["SRU_RedMini4.1.3"]        = true,
+            ["SRU_KrugMini11.1.1"]      = true,
+            ["SRU_KrugMini5.1.1"]       = true,
+            ["SRU_RazorbeakMini9.1.2"]  = true,
+            ["SRU_RazorbeakMini9.1.3"]  = true,
+            ["SRU_RazorbeakMini9.1.4"]  = true,
+            ["SRU_RazorbeakMini3.1.2"]  = true,
+            ["SRU_RazorbeakMini3.1.3"]  = true,
+            ["SRU_RazorbeakMini3.1.4"]  = true
+        }
+        
+        FocusJungleNames = {
+            ["SRU_Blue1.1.1"]           = true,
+            ["SRU_Blue7.1.1"]           = true,
+            ["SRU_Murkwolf2.1.1"]       = true,
+            ["SRU_Murkwolf8.1.1"]       = true,
+            ["SRU_Gromp13.1.1"]         = true,
+            ["SRU_Gromp14.1.1"]         = true,
+            ["Sru_Crab16.1.1"]          = true,
+            ["Sru_Crab15.1.1"]          = true,
+            ["SRU_Red10.1.1"]           = true,
+            ["SRU_Red4.1.1"]            = true,
+            ["SRU_Krug11.1.2"]          = true,
+            ["SRU_Krug5.1.2"]           = true,
+            ["SRU_Razorbeak9.1.1"]      = true,
+            ["SRU_Razorbeak3.1.1"]      = true,
+            ["SRU_Dragon6.1.1"]         = true,
+            ["SRU_Baron12.1.1"]         = true
+        }
+    else
+        FocusJungleNames = {
+            ["TT_NWraith1.1.1"]         = true,
+            ["TT_NGolem2.1.1"]          = true,
+            ["TT_NWolf3.1.1"]           = true,
+            ["TT_NWraith4.1.1"]         = true,
+            ["TT_NGolem5.1.1"]          = true,
+            ["TT_NWolf6.1.1"]           = true,
+            ["TT_Spiderboss8.1.1"]      = true
+        }       
+        JungleMobNames = {
+            ["TT_NWraith21.1.2"]        = true,
+            ["TT_NWraith21.1.3"]        = true,
+            ["TT_NGolem22.1.2"]         = true,
+            ["TT_NWolf23.1.2"]          = true,
+            ["TT_NWolf23.1.3"]          = true,
+            ["TT_NWraith24.1.2"]        = true,
+            ["TT_NWraith24.1.3"]        = true,
+            ["TT_NGolem25.1.1"]         = true,
+            ["TT_NWolf26.1.2"]          = true,
+            ["TT_NWolf26.1.3"]          = true
+        }
+    end
+        
+    for i = 0, objManager.maxObjects do
+        local object = objManager:getObject(i)
+        if object and object.valid and not object.dead then
+            if FocusJungleNames[object.name] then
+                JungleFocusMobs[#JungleFocusMobs+1] = object
+            elseif JungleMobNames[object.name] then
+                JungleMobs[#JungleMobs+1] = object
+            end
+        end
+    end
 end
 
 function SetPriority(table, hero, priority)
-	for i=1, #table, 1 do
-		if hero.charName:find(table[i]) ~= nil then
-			TS_SetHeroPriority(priority, hero.charName)
-		end
-	end
+    for i=1, #table, 1 do
+        if hero.charName:find(table[i]) ~= nil then
+            TS_SetHeroPriority(priority, hero.charName)
+        end
+    end
 end
  
 function arrangePrioritys()
-		for i, enemy in ipairs(GetEnemyHeroes()) do
-		SetPriority(priorityTable.AD_Carry, enemy, 1)
-		SetPriority(priorityTable.AP,	   enemy, 2)
-		SetPriority(priorityTable.Support,  enemy, 3)
-		SetPriority(priorityTable.Bruiser,  enemy, 4)
-		SetPriority(priorityTable.Tank,	 enemy, 5)
-		end
+        for i, enemy in ipairs(GetEnemyHeroes()) do
+        SetPriority(priorityTable.AD_Carry, enemy, 1)
+        SetPriority(priorityTable.AP,      enemy, 2)
+        SetPriority(priorityTable.Support,  enemy, 3)
+        SetPriority(priorityTable.Bruiser,  enemy, 4)
+        SetPriority(priorityTable.Tank,  enemy, 5)
+        end
 end
 
 function arrangePrioritysTT()
         for i, enemy in ipairs(GetEnemyHeroes()) do
-		SetPriority(priorityTable.AD_Carry, enemy, 1)
-		SetPriority(priorityTable.AP,       enemy, 1)
-		SetPriority(priorityTable.Support,  enemy, 2)
-		SetPriority(priorityTable.Bruiser,  enemy, 2)
-		SetPriority(priorityTable.Tank,     enemy, 3)
+        SetPriority(priorityTable.AD_Carry, enemy, 1)
+        SetPriority(priorityTable.AP,       enemy, 1)
+        SetPriority(priorityTable.Support,  enemy, 2)
+        SetPriority(priorityTable.Bruiser,  enemy, 2)
+        SetPriority(priorityTable.Tank,     enemy, 3)
         end
 end
 
 function UseItems(unit)
-	if unit ~= nil then
-		for _, item in pairs(Items) do
-			item.slot = GetInventorySlotItem(item.id)
-			if item.slot ~= nil then
-				if item.reqTarget and GetDistance(unit) < item.range then
-					CastSpell(item.slot, unit)
-				elseif not item.reqTarget then
-					if (GetDistance(unit) - getHitBoxRadius(myHero) - getHitBoxRadius(unit)) < 50 then
-						CastSpell(item.slot)
-					end
-				end
-			end
-		end
-	end
+    if unit ~= nil then
+        for _, item in pairs(Items) do
+            item.slot = GetInventorySlotItem(item.id)
+            if item.slot ~= nil then
+                if item.reqTarget and GetDistance(unit) < item.range then
+                    CastSpell(item.slot, unit)
+                elseif not item.reqTarget then
+                    if (GetDistance(unit) - getHitBoxRadius(myHero) - getHitBoxRadius(unit)) < 50 then
+                        CastSpell(item.slot)
+                    end
+                end
+            end
+        end
+    end
 end
 
 function getHitBoxRadius(target)
-	return GetDistance(target.minBBox, target.maxBBox)/2
+    return GetDistance(target.minBBox, target.maxBBox)/2
 end
 
 function PriorityOnLoad()
-	if heroManager.iCount < 10 or (TwistedTreeline and heroManager.iCount < 6) then
-		print("<b><font color=\"#6699FF\">GosuMechanics:</font></b> <font color=\"#FFFFFF\">Too few champions to arrange priority.</font>")
-	elseif heroManager.iCount == 6 then
-		arrangePrioritysTT()
+    if heroManager.iCount < 10 or (TwistedTreeline and heroManager.iCount < 6) then
+        print("<b><font color=\"#6699FF\">GosuMechanics:</font></b> <font color=\"#FFFFFF\">Too few champions to arrange priority.</font>")
+    elseif heroManager.iCount == 6 then
+        arrangePrioritysTT()
     else
-		arrangePrioritys()
-	end
+        arrangePrioritys()
+    end
 end
 
 function GetJungleMob()
-	for _, Mob in pairs(JungleFocusMobs) do
-		if ValidTarget(Mob, SkillQ.range) then return Mob end
-	end
-	for _, Mob in pairs(JungleMobs) do
-		if ValidTarget(Mob, SkillQ.range) then return Mob end
-	end
+    for _, Mob in pairs(JungleFocusMobs) do
+        if ValidTarget(Mob, SkillQ.range) then return Mob end
+    end
+    for _, Mob in pairs(JungleMobs) do
+        if ValidTarget(Mob, SkillQ.range) then return Mob end
+    end
 end
 
 function OnCreateObj(obj)
-	if obj.valid then
-		if FocusJungleNames[obj.name] then
-			JungleFocusMobs[#JungleFocusMobs+1] = obj
-		elseif JungleMobNames[obj.name] then
-			JungleMobs[#JungleMobs+1] = obj
-		end
-	end
-	    --if GetDistance(obj)<50 then PrintChat(""..obj.name) end
+    if obj.valid then
+        if FocusJungleNames[obj.name] then
+            JungleFocusMobs[#JungleFocusMobs+1] = obj
+        elseif JungleMobNames[obj.name] then
+            JungleMobs[#JungleMobs+1] = obj
+        end
+    end
+        --if GetDistance(obj)<50 then PrintChat(""..obj.name) end
     if GetDistance(obj)<100 and obj.name:lower():find("yasuo") and obj.name:lower():find("trail") then
         --PrintChat("BLA")
         attacked = true
@@ -1854,17 +1867,17 @@ function OnCreateObj(obj)
 end
 
 function OnDeleteObj(obj)
-	for i, Mob in pairs(JungleMobs) do
-		if obj.name == Mob.name then
-			table.remove(JungleMobs, i)
-		end
-	end
-	for i, Mob in pairs(JungleFocusMobs) do
-		if obj.name == Mob.name then
-			table.remove(JungleFocusMobs, i)
-		end
-	end
-	    if obj.name=="Yasuo_base_R_indicator.beam.troy" then
+    for i, Mob in pairs(JungleMobs) do
+        if obj.name == Mob.name then
+            table.remove(JungleMobs, i)
+        end
+    end
+    for i, Mob in pairs(JungleFocusMobs) do
+        if obj.name == Mob.name then
+            table.remove(JungleFocusMobs, i)
+        end
+    end
+        if obj.name=="Yasuo_base_R_indicator.beam.troy" then
         knockedUp = knockedUp - 1
     end
 
@@ -1989,15 +2002,15 @@ function GetSlotItem(id, unit)
 end
 
 function TrueRange()
-	return myHero.range + GetDistance(myHero, myHero.minBBox)
+    return myHero.range + GetDistance(myHero, myHero.minBBox)
 end
 
 -- Trees
 function GetCustomTarget()
- 	TargetSelector:update() 	
-	if _G.MMA_Target and _G.MMA_Target.type == myHero.type then return _G.MMA_Target end
-	if _G.AutoCarry and _G.AutoCarry.Crosshair and _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then return _G.AutoCarry.Attack_Crosshair.target end
-	return TargetSelector.target
+    TargetSelector:update()     
+    if _G.MMA_Target and _G.MMA_Target.type == myHero.type then return _G.MMA_Target end
+    if _G.AutoCarry and _G.AutoCarry.Crosshair and _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then return _G.AutoCarry.Attack_Crosshair.target end
+    return TargetSelector.target
 end
 
 function GetBestLineFarmPosition(range, width, objects)
