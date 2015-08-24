@@ -1020,6 +1020,7 @@ function OnTick()
     end
 
         AutoUltKillable()
+        Ult()
      
     if Settings.harass.harassToggle then
         AutoQenemy()
