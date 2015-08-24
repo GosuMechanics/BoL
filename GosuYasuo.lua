@@ -2,6 +2,17 @@ if myHero.charName ~= "Yasuo" then return end
     
     require 'VPrediction'
 
+local version = 1.01
+local Author = "rainschiltz"
+
+local UPDATE_NAME = "Yasuo-Montage"
+local UPDATE_HOST = "raw.github.com"
+local UPDATE_PATH = "/GosuMechanics/BoL/master/GosuYasuo.version" .. "?rand=" .. math.random(1, 10000)
+local UPDATE_PATH2 = "/GosuMechanics/BoL/master/GosuYasuo.lua"
+local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
+local UPDATE_URL = "http://"..UPDATE_HOST..UPDATE_PATH2
+_G.UseUpdater = true
+----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
 _G.BUFF_NONE = 0
 _G.BUFF_GLOBAL = 1
@@ -917,6 +928,28 @@ function OnLoad()
 
 end
 
+function CheckUpdate()
+    local function AutoupdaterMsg(msg) print("<font color=\"#FF794C\"><b>GosuMechanics:Yasuo : </b></font> <font color=\"#FFDFBF\">"..msg..".</b></font>") end
+    if _G.UseUpdater then
+        local ServerData = GetWebResult(UPDATE_HOST, UPDATE_PATH)
+        if ServerData then
+            local ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
+            if ServerVersion then
+                ServerVersion = tonumber(ServerVersion)
+                if tonumber(version) < ServerVersion then
+                    AutoupdaterMsg("New version available"..ServerVersion)
+                    AutoupdaterMsg("Updating, please don't press F9")
+                    DownloadFile(UPDATE_URL, UPDATE_FILE_PATH, function () AutoupdaterMsg("Successfully updated. ("..version.." => "..ServerVersion.."), press F9 twice to load the updated version.") end)         
+                else
+                    AutoupdaterMsg("You have got the latest version ("..ServerVersion..")")
+                end
+            end
+        else
+        AutoupdaterMsg("Error downloading version info")
+        end
+    end
+end
+
 function LoadOrbwalker()
     if _G.Reborn_Initialised then
       print("GosuMechanics:Yasuo : Reborn loaded and authed")
@@ -937,7 +970,7 @@ function LoadOrbwalker()
             end
             require 'SxOrbWalk'
       print("SxOrbWalk: Loading...")
-                Settings:addSubMenu(""..myHero.charName.." - Orbwalker", "Orbwalker")
+                Settings:addSubMenu("["..myHero.charName.."] - Orbwalker", "Orbwalker")
                 SxOrb:LoadToMenu(Settings.Orbwalker)
                 isSx = true
             print("SxOrbWalk: Loaded")
@@ -1091,12 +1124,12 @@ function LastHit(unit)
     if FarmKey then
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
-                if Settings.farm.useQ12 and GetDistance(minion, myHero) <= SkillQ12.range and SkillQ12.ready then
+                if Settings.farm.useQ12 and SkillQ12.ready and GetDistance(minion) <= SkillQ12.range then
                     if minion.health <= getDmg("Q", minion, myHero) then
                        Q12(minion)
                     end
                 end
-                if Settings.farm.useQ3 and GetDistance(minion, myHero) <= SkillQ3.range and SkillQ3.ready then
+                if Settings.farm.useQ3 and SkillQ3.ready and GetDistance(minion) <= SkillQ3.range then
                     if minion.health <= getDmg("Q", minion, myHero) then
                        Q3(minion)
                     end
