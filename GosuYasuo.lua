@@ -1569,6 +1569,15 @@ function IsDashing2()
     return Dashing
 end
 
+function IgniteCheck()
+
+    if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then ignite = SUMMONER_1
+        Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+    elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then ignite = SUMMONER_2
+        Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+    end
+end
+
 function AutoIgnite()
     if Settings.ks.autoIgnite and ignite ~= nil and CanCast(ignite) then
         local igniteDamage = 50 + 20 * myHero.level
@@ -1807,7 +1816,7 @@ function Menu()
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoR", "Auto-R KS", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
-        Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+        --Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:permaShow("killSteal")
         Settings.ks:permaShow("autoR")
 
@@ -1903,13 +1912,7 @@ function Variables()
     
     JungleMobs = {}
     JungleFocusMobs = {}
-    
-    if myHero:GetSpellData(SUMMONER_1).name:find("summonerdot") then
-        ignite = SUMMONER_1
-    elseif myHero:GetSpellData(SUMMONER_2).name:find("summonerdot") then
-        ignite = SUMMONER_2
-    end
-    
+
     if GetGame().map.shortName == "twistedTreeline" then
         TwistedTreeline = true 
     else
