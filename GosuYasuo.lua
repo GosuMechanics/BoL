@@ -1,6 +1,6 @@
 if myHero.charName ~= "Yasuo" then return end
     
-function Print(message) print("<font color=\"#0000e5\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
+function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
     require 'VPrediction'
 
 
