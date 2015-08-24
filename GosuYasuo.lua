@@ -1700,7 +1700,7 @@ function OnApplyBuff(source, unit, buff)
         end
     for i, buffs in pairs(buffTable) do  
         if unit and unit.team == TEAM_ENEMY and unit.type == 'obj_AI_Hero' and buff.name == buffs then 
-            KnockedByAlly = false 
+            KnockedByAlly = true 
             unitsknocked  = unitsknocked +1
         end 
     end   
