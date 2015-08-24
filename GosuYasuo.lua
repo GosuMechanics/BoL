@@ -2,16 +2,6 @@ if myHero.charName ~= "Yasuo" then return end
     
     require 'VPrediction'
 
-local version = 1.01
-local Author = "rainschiltz"
-
-local UPDATE_NAME = "GosuYasuo"
-local UPDATE_HOST = "raw.githubusercontent.com"
-local UPDATE_PATH = "/GosuMechanics/BoL/master/GosuYasuo.version" .. "?rand=" .. math.random(1, 10000)
-local UPDATE_PATH2 = "/GosuMechanics/BoL/master/GosuYasuo.lua"
-local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
-local UPDATE_URL = "http://"..UPDATE_HOST..UPDATE_PATH2
-_G.UseUpdater = true
 ----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
 _G.BUFF_NONE = 0
@@ -813,6 +803,21 @@ local TornadoReady = false
 
 function OnLoad()
 
+    local ToUpdate = {}
+    ToUpdate.Version = 1.01
+    ToUpdate.UseHttps = true
+    ToUpdate.Host = "raw.githubusercontent.com"
+    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/GosuYasuo.version"
+    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/GosuYasuo.lua"
+    ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
+    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
+    ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found") end
+    ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
+    ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
+    RUScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
+
+    Print(" Version "..ToUpdate.Version.." Loaded")
+
     if VIP_USER then
         AdvancedCallback:bind('OnTowerFocus', function(tower, unit) OnTowerFocus(tower,unit) end)
         AdvancedCallback:bind('OnTowerIdle', function(tower) OnTowerIdle(tower) end)
@@ -926,28 +931,6 @@ function OnLoad()
     ___GetInventorySlotItem = rawget(_G, "GetInventorySlotItem")
     _G.GetInventorySlotItem = GetSlotItem
 
-end
-
-function CheckUpdate()
-    local function AutoupdaterMsg(msg) print("<font color=\"#FF794C\"><b>GosuMechanics:Yasuo : </b></font> <font color=\"#FFDFBF\">"..msg..".</b></font>") end
-    if _G.UseUpdater then
-        local ServerData = GetWebResult(UPDATE_HOST, UPDATE_PATH)
-        if ServerData then
-            local ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
-            if ServerVersion then
-                ServerVersion = tonumber(ServerVersion)
-                if tonumber(version) < ServerVersion then
-                    AutoupdaterMsg("New version available"..ServerVersion)
-                    AutoupdaterMsg("Updating, please don't press F9")
-                    DownloadFile(UPDATE_URL, UPDATE_FILE_PATH, function () AutoupdaterMsg("Successfully updated. ("..version.." => "..ServerVersion.."), press F9 twice to load the updated version.") end)         
-                else
-                    AutoupdaterMsg("You have got the latest version ("..ServerVersion..")")
-                end
-            end
-        else
-        AutoupdaterMsg("Error downloading version info")
-        end
-    end
 end
 
 function LoadOrbwalker()
