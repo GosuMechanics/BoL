@@ -1904,7 +1904,6 @@ function Variables()
     SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
     SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
-    ignite = { name = "summonerdot", range = 600, slot = nil }
     
     enemyMinions = minionManager(MINION_ENEMY, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
     JungleMinions = minionManager(MINION_JUNGLE, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
