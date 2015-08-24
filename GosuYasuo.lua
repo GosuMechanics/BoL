@@ -1689,7 +1689,7 @@ end
 
 function OnApplyBuff(source, unit, buff)
 
-    if buff and unit == myHero then print(buff.name) end
+    --if buff and unit == myHero then print(buff.name) end
 
     if not unit or not buff then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
