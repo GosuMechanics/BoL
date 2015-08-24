@@ -791,7 +791,7 @@ local animTime = 0
 local IsRecalling = false
 local knockedUp = 0
 local Knockups = {}
-local animTime = 0
+--local animTime = 0
 local Tower = nil
 local towerUnit = nil
 local Tdashing = false
@@ -2412,9 +2412,9 @@ function OnProcessSpell(object,spellProc)
     end    
 
     if myHero.dead then return end
-    if object.isMe and spellProc.name:lower():find("attack") then
-        animTime = spellProc.animationTime*0.1
-    end
+    --if object.isMe and spellProc.name:lower():find("attack") then
+        --animTime = spellProc.animationTime*0.1
+    --end
     if object.isMe and (spellProc.name == "yasuoq" or spellProc.name == "yasuoq2" or spellProc.name == "yasuoq3w")then
         ResetAA()
     end
