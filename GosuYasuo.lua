@@ -1700,10 +1700,16 @@ function OnApplyBuff(source, unit, buff)
         end
     for i, buffs in pairs(buffTable) do  
         if unit and unit.team == TEAM_ENEMY and unit.type == 'obj_AI_Hero' and buff.name == buffs then 
-            KnockedByAlly = true 
+            KnockedByAlly = false 
             unitsknocked  = unitsknocked +1
         end 
-    end   
+    end
+    for i, buffs in pairs(buffTable) do  
+        if unit and unit.team == TEAM_ENEMY and unit.type == 'obj_AI_Hero' and buff.name == buffs then 
+            counter = counter + 1 
+            KnockedByAlly = true 
+        end 
+    end  
     if unit.isMe and Settings.misc.useqss then
         if buff.name and buff.type == 5 or buff.type == 12 or buff.type == 11 or buff.type == 25 or buff.type == 7 or buff.type == 22 or buff.type == 21 or buff.type == 8
         or (buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))
