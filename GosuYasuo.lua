@@ -931,7 +931,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.05
+    ToUpdate.Version = 1.06
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1504,7 +1504,7 @@ function AutoUlt()
     for i, v in ipairs(GetEnemyHeroes()) do
         if not v.canMove and v.y > 130 and ValidTarget(v) then
             knocked = knocked + 1
-            if Settings.combo.autoult and SkillR.ready and CanCast(_R) and not isRecalling then
+            if Settings.combo.autoult and SkillR.ready and not isRecalling then
                 if knocked >= Settings.combo.Ult3 then
                     CastSpell(_R)
                 end
@@ -1518,7 +1518,7 @@ function AutoUltByAlly()
     for i, v in ipairs(GetEnemyHeroes()) do
         if not v.canMove and v.y > 130 and ValidTarget(v) then
             knocked = knocked + 1
-            if Settings.combo.autoult and SkillR.ready and CanCast(_R) and not isRecalling then
+            if Settings.combo.autoult and SkillR.ready and not isRecalling then
                 if KnockedByAlly then
                     CastSpell(_R)
                 end
@@ -1579,7 +1579,7 @@ function IgniteCheck()
 end
 
 function AutoIgnite()
-    if Settings.ks.autoIgnite and ignite ~= nil and CanCast(ignite) then
+    if Settings.ks.autoIgnite and ignite ~= nil and IREADY then
         local igniteDamage = 50 + 20 * myHero.level
     for i = 1, heroManager.iCount, 1 do
       local target = heroManager:getHero(i)
@@ -1759,6 +1759,7 @@ function Checks()
     SkillW.ready = (myHero:CanUseSpell(_W) == READY)
     SkillE.ready = (myHero:CanUseSpell(_E) == READY)
     SkillR.ready = (myHero:CanUseSpell(_R) == READY)
+    IREADY = (ignite ~= nil and myHero:CanUseSpell(ignite) == READY)
     
     TargetSelector:update()
     Target = GetCustomTarget()
@@ -2187,13 +2188,9 @@ function lowHp(unit)
 end
 
 function AutoPots()
-    if REGPOT and CanCast(REGPOT) and lowHp(myHero) and not UsingPot and not IsRecalling then 
+    if REGPOT and lowHp(myHero) and not UsingPot and not IsRecalling then 
         CastSpell(REGPOT) 
     end
-end
-
-function CanCast(spell)
-return myHero:CanUseSpell(spell) == READY
 end
 
 function GetItemSlot()
