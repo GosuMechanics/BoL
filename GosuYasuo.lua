@@ -1304,7 +1304,7 @@ function Combo(unit)
         end
     end
         mPos = getNearestMinion(mousePos)
-        if SkillE.ready and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil and mPos then
+        if SkillE.ready and mPos and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
             E(mPos)
         end
 end
