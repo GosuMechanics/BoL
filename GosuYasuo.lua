@@ -919,7 +919,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.02
+    ToUpdate.Version = 1.03
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
