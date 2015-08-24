@@ -791,6 +791,7 @@ local animTime = 0
 local IsRecalling = false
 local knockedUp = 0
 local Knockups = {}
+local animTime = 0
 local Tower = nil
 local towerUnit = nil
 local Tdashing = false
