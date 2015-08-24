@@ -1048,6 +1048,7 @@ function OnTick()
     Checks()
 
     AutoUlt()
+    AutoUltByAlly()
 
     GetItemSlot()
 end
@@ -1505,6 +1506,20 @@ function AutoUlt()
             knocked = knocked + 1
             if Settings.combo.autoult and SkillR.ready and CanCast(_R) and not isRecalling then
                 if knocked >= Settings.combo.Ult3 then
+                    CastSpell(_R)
+                end
+            end
+        end
+    end
+end
+
+function AutoUltByAlly()
+    knocked = 0
+    for i, v in ipairs(GetEnemyHeroes()) do
+        if not v.canMove and v.y > 130 and ValidTarget(v) then
+            knocked = knocked + 1
+            if Settings.combo.autoult and SkillR.ready and CanCast(_R) and not isRecalling then
+                if KnockedByAlly then
                     CastSpell(_R)
                 end
             end
