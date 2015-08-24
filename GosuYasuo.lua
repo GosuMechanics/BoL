@@ -1301,7 +1301,7 @@ function LastHit(unit)
     if FarmKey then
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
-                if Settings.farm.useQ12 and SkillQ12.ready and GetDistance(minion) <= SkillQ12.range then
+                if Settings.farm.useQ12 and SkillQ12.ready then
                     if minion.health <= getDmg("Q", minion, myHero) then
                        Q12(minion)
                     end
@@ -1408,7 +1408,7 @@ function Q3(unit, minion)
     local CastPacket = Settings.misc.usePackets
     if myHero:GetSpellData(_Q).name == "yasuoq3w" and ValidTarget(unit, SkillQ3.range) then  
         local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ3.delay, SkillQ3.width, SkillQ3.range, SkillQ3.speed, myHero, false)
-        if HitChance >= 2 and CastPacket and not IsDashing() and TornadoReady and GetDistance(unit) <= SkillQ3.range then
+        if HitChance >= 2 and CastPacket and not IsDashing() and TornadoReady then
             Packet("S_CAST", {spellId = 0, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()
         else
             CastSpell(0, CastPosition.x, CastPosition.z)
