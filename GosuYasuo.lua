@@ -1455,6 +1455,18 @@ function Rks(unit)
     end
 end
 
+function Ult()
+    knocked = 0
+    for i, v in ipairs(GetEnemyHeroes()) do
+        if not v.canMove and v.y > 130 and ValidTarget(v) then
+            knocked = knocked + 1
+            if Settings.combo.ally >= CountAllysInRange(SkillR.range, myHero) and SkillR.ready and CanCast(_R) and not isRecalling then
+                CastSpell(_R)
+            end
+        end
+    end
+end
+
 function E(unit)
     posAfterE = eEndPos(unit)
     if VIP_USER and Settings.misc.usePackets then
@@ -1726,6 +1738,7 @@ function Menu()
         Settings.combo:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
+        Settings.combo:addParam("ally", "Or when x ally in range", SCRIPT_PARAM_SLICE, 2,0,5,0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:permaShow("autoult")
     
@@ -2200,6 +2213,32 @@ function UseItems(unit, scary)
             end
         end
     end
+end
+
+function CountEnemyHeroInRange(range, object)
+    object = object or myHero
+    range = range and range * range or myHero.range * myHero.range
+    local enemyInRange = 0
+    for i = 1, heroManager.iCount, 1 do
+        local hero = heroManager:getHero(i)
+        if ValidTarget(hero) and not hero.dead and hero.visible and hero.team ~= myHero.team and GetDistanceSqr(object, hero) <= range then
+            enemyInRange = enemyInRange + 1
+        end
+    end
+    return enemyInRange
+end
+
+function CountAllysInRange(range, object)
+  local allyInRange = 0
+  local allies = GetAllyHeroes()
+  if object ~= nil and range then
+    for i, ally in pairs(allies) do
+      if not ally.dead and  ValidTarget(ally) and range > GetDistance(ally, object) then
+        allyInRange = allyInRange + 1
+      end
+    end
+  end
+  return allyInRange
 end
 
 function CountEnemiesNearUnitReg(unit, range)
