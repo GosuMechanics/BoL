@@ -1,6 +1,8 @@
 if myHero.charName ~= "Yasuo" then return end
     
+function Print(message) print("<font color=\"#0000e5\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
     require 'VPrediction'
+
 
 ----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
@@ -803,21 +805,6 @@ local TornadoReady = false
 
 function OnLoad()
 
-    local ToUpdate = {}
-    ToUpdate.Version = 1.01
-    ToUpdate.UseHttps = true
-    ToUpdate.Host = "raw.githubusercontent.com"
-    ToUpdate.VersionPath = "/GosuMechanics/BoL/master/GosuYasuo.version"
-    ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/GosuYasuo.lua"
-    ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
-    ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
-    ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found") end
-    ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
-    ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
-    RUScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
-
-    Print(" Version "..ToUpdate.Version.." Loaded")
-
     if VIP_USER then
         AdvancedCallback:bind('OnTowerFocus', function(tower, unit) OnTowerFocus(tower,unit) end)
         AdvancedCallback:bind('OnTowerIdle', function(tower) OnTowerIdle(tower) end)
@@ -930,6 +917,22 @@ function OnLoad()
     }
     ___GetInventorySlotItem = rawget(_G, "GetInventorySlotItem")
     _G.GetInventorySlotItem = GetSlotItem
+
+    local ToUpdate = {}
+    ToUpdate.Version = 1.01
+    DelayAction(function()
+        ToUpdate.UseHttps = true
+        ToUpdate.Host = "raw.githubusercontent.com"
+        ToUpdate.VersionPath = "/GosuMechanics/BoL/master/GosuYasuo.version"
+        ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/GosuYasuo.lua"
+        ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
+        ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion) end
+        ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found.") end
+        ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
+        ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
+        SxScriptUpdate(ToUpdate.Version,ToUpdate.UseHttps, ToUpdate.Host, ToUpdate.VersionPath, ToUpdate.ScriptPath, ToUpdate.SavePath, ToUpdate.CallbackUpdate,ToUpdate.CallbackNoUpdate, ToUpdate.CallbackNewVersion,ToUpdate.CallbackError)
+    end, 0.5)
+    Print("Version "..ToUpdate.Version.." loaded.")
 
 end
 
@@ -1062,8 +1065,8 @@ function OnDraw()
     end
 end
 
-class "RUScriptUpdate"
-function RUScriptUpdate:__init(LocalVersion,UseHttps, Host, VersionPath, ScriptPath, SavePath, CallbackUpdate, CallbackNoUpdate, CallbackNewVersion,CallbackError)
+class "SxScriptUpdate"
+function SxScriptUpdate:__init(LocalVersion,UseHttps, Host, VersionPath, ScriptPath, SavePath, CallbackUpdate, CallbackNoUpdate, CallbackNewVersion,CallbackError)
     self.LocalVersion = LocalVersion
     self.Host = Host
     self.VersionPath = '/BoL/TCPUpdater/GetScript'..(UseHttps and '5' or '6')..'.php?script='..self:Base64Encode(self.Host..VersionPath)..'&rand='..math.random(99999999)
@@ -1079,17 +1082,17 @@ function RUScriptUpdate:__init(LocalVersion,UseHttps, Host, VersionPath, ScriptP
     AddTickCallback(function() self:GetOnlineVersion() end)
 end
 
-function RUScriptUpdate:print(str)
+function SxScriptUpdate:print(str)
     print('<font color="#FFFFFF">'..os.clock()..': '..str)
 end
 
-function RUScriptUpdate:OnDraw()
+function SxScriptUpdate:OnDraw()
     if self.DownloadStatus ~= 'Downloading Script (100%)' and self.DownloadStatus ~= 'Downloading VersionInfo (100%)'then
         DrawText('Download Status: '..(self.DownloadStatus or 'Unknown'),50,10,50,ARGB(0xFF,0xFF,0xFF,0xFF))
     end
 end
 
-function RUScriptUpdate:CreateSocket(url)
+function SxScriptUpdate:CreateSocket(url)
     if not self.LuaSocket then
         self.LuaSocket = require("socket")
     else
@@ -1109,7 +1112,7 @@ function RUScriptUpdate:CreateSocket(url)
     self.File = ""
 end
 
-function RUScriptUpdate:Base64Encode(data)
+function SxScriptUpdate:Base64Encode(data)
     local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
     return ((data:gsub('.', function(x)
         local r,b='',x:byte()
@@ -1123,7 +1126,7 @@ function RUScriptUpdate:Base64Encode(data)
     end)..({ '', '==', '=' })[#data%3+1])
 end
 
-function RUScriptUpdate:GetOnlineVersion()
+function SxScriptUpdate:GetOnlineVersion()
     if self.GotScriptVersion then return end
 
     self.Receive, self.Status, self.Snipped = self.Socket:receive(1024)
@@ -1185,8 +1188,8 @@ function RUScriptUpdate:GetOnlineVersion()
     end
 end
 
-function RUScriptUpdate:DownloadUpdate()
-    if self.GotRUScriptUpdate then return end
+function SxScriptUpdate:DownloadUpdate()
+    if self.GotSxScriptUpdate then return end
     self.Receive, self.Status, self.Snipped = self.Socket:receive(1024)
     if self.Status == 'timeout' and not self.Started then
         self.Started = true
@@ -1249,7 +1252,7 @@ function RUScriptUpdate:DownloadUpdate()
                 end
             end
         end
-        self.GotRUScriptUpdate = true
+        self.GotSxScriptUpdate = true
     end
 end
 
