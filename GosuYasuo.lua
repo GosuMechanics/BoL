@@ -833,6 +833,7 @@ function OnLoad()
     PriorityOnLoad()
     VP = VPrediction()
     LoadOrbwalker()
+    IgniteCheck()
 
     ItemNames               = {
         [3303]              = "ArchAngelsDummySpell",
