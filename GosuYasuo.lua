@@ -919,7 +919,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.01
+    ToUpdate.Version = 1.02
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1717,8 +1717,6 @@ function Checks()
     SkillW.ready = (myHero:CanUseSpell(_W) == READY)
     SkillE.ready = (myHero:CanUseSpell(_E) == READY)
     SkillR.ready = (myHero:CanUseSpell(_R) == READY)
-    
-    IREADY = (igniteSpell ~= nil and myHero:CanUseSpell(igniteSpell) == READY)
     
     TargetSelector:update()
     Target = GetCustomTarget()
