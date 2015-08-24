@@ -799,6 +799,17 @@ local Tdashing2 = false
 local UsingPot = false
 local lastRemove = 0
 local TornadoReady = false
+local unitsknocked = 0
+local  KnockDetected , KnockedByAlly , counter
+local buffTable = {'monkeykingspinkknockup',
+                    'unstoppablefrocestun',
+                     'oriannastun',
+                     'moveawaycollission',
+                     'Pulverize',
+                     'headbutttarget',
+                     'HowlingGaleSpell',
+                     'BlindMonkRKick',
+                     'powerfistslow'}
 
 ------------------------------------------------------
 --           Callbacks              
@@ -1663,7 +1674,7 @@ end
 
 function OnApplyBuff(source, unit, buff)
 
-    --if buff and unit == myHero then print(buff.name) end
+    if buff and unit == myHero then print(buff.name) end
 
     if not unit or not buff then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
@@ -1672,6 +1683,12 @@ function OnApplyBuff(source, unit, buff)
         if unit and unit.isMe and buff.name == "yasuoq3w" then
             TornadoReady = true
         end
+    for i, buffs in pairs(buffTable) do  
+        if unit and unit.team == TEAM_ENEMY and unit.type == 'obj_AI_Hero' and buff.name == buffs then 
+            KnockedByAlly = false 
+            unitsknocked  = unitsknocked +1
+        end 
+    end   
     if unit.isMe and Settings.misc.useqss then
         if buff.name and buff.type == 5 or buff.type == 12 or buff.type == 11 or buff.type == 25 or buff.type == 7 or buff.type == 22 or buff.type == 21 or buff.type == 8
         or (buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))
@@ -1693,6 +1710,12 @@ function OnRemoveBuff(unit, buff)
     if unit and unit.isMe and buff.name == "yasuoq3w" then
         TornadoReady = false
     end
+    for i, buffs in pairs(buffTable) do  
+        if unit and unit.team == TEAM_ENEMY and unit.type == 'obj_AI_Hero' and buff.name == buffs then 
+            KnockedByAlly = false 
+            unitsknocked = unitsknocked -1
+        end 
+    end  
 end
 
 ------------------------------------------------------
