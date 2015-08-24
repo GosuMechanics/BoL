@@ -932,7 +932,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.07
+    ToUpdate.Version = 1.08
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1284,10 +1284,10 @@ function Combo(unit)
             UseItems(unit)
         end
         if Settings.combo.useQ12 then
-            Q(unit)
+            CastQ12(unit)
         end
         if Settings.combo.useQ3 then
-            Q(unit)
+            CastQ3(unit)
         end
         if Settings.combo.useR then    
             sbtwR()
@@ -1317,12 +1317,12 @@ function LastHit(unit)
             if ValidTarget(minion) and minion ~= nil then
                 if Settings.farm.useQ12 and SkillQ12.ready then
                     if minion.health <= getDmg("Q", minion, myHero) then
-                       Q(minion)
+                       CastQ12(minion)
                     end
                 end
                 if Settings.farm.useQ3 and SkillQ3.ready and GetDistance(minion) <= SkillQ3.range then
                     if minion.health <= getDmg("Q", minion, myHero) then
-                       Q(minion)
+                       CastQ3(minion)
                     end
                 end
                 if Settings.farm.useE and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
@@ -1336,8 +1336,8 @@ function LastHit(unit)
 end
 
 function Harass(unit)
-    if Settings.harass.useQ12 then Q(unit) end
-    if Settings.harass.useQ3 then Q(unit) end
+    if Settings.harass.useQ12 then CastQ12(unit) end
+    if Settings.harass.useQ3 then CastQ3(unit) end
 end
 
 function LaneClear()
@@ -1406,18 +1406,23 @@ function flee()
     end
 end
 
-function Q(unit, minion)
-    if SkillQ.ready and ValidTarget(unit, SkillQ12.range) then
-        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ12.delay, SkillQ12.width, SkillQ12.range, SkillQ12.speed, myHero, false)
-        if HitChance >= 2 and not IsDashing() and GetDistance(unit) <= SkillQ12.range then
-            CastSpell(_Q, CastPosition.x, CastPosition.z)
-        end
+function CastQ12(unit, minion)
 
-    elseif TornadoReady and ValidTarget(unit, SkillQ3.range) then  
-        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ3.delay, SkillQ3.width, SkillQ3.range, SkillQ3.speed, myHero, false)
+    if SkillQ12.ready and ValidTarget(unit) then
+        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ12.delay, SkillQ12.width, SkillQ12.range, SkillQ12.speed, myHero, false)
         if HitChance >= 2 and not IsDashing() then
             CastSpell(_Q, CastPosition.x, CastPosition.z)
-        end     
+        end
+    end
+end
+
+function CastQ3(unit, minion)
+
+    if myHero:GetSpellData(_Q).name == "yasuoq3w" and ValidTarget(unit) then
+        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, SkillQ3.delay, SkillQ3.radius, SkillQ3.range, SkillQ3.speed, myHero)  
+        if MainTargetHitChance >= 2 and nTargets >= 1 then
+            CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)  
+        end
     end
 end
 
@@ -1436,7 +1441,7 @@ function AutoQenemyminion(unit, minion)
     for index, minion in pairs(enemyMinions.objects) do
         if ValidTarget(minion) and not IsRecalling then
             if SkillQ12.ready and Settings.harass.useQminion and GetDistance(minion) <= SkillQ12.range then
-               Q12(minion)
+               CastQ12(minion)
             end
         end
     end
@@ -1444,11 +1449,11 @@ end
 
 function AutoQenemy()
 
-    if Settings.harass.useQ12 and SkillQ12.ready and Tower and (not UnderTurret(myHero)) then
-        Q(Target)
+    if Settings.harass.useQ12 and SkillQ12.ready and towerUnit~=nil then
+        CastQ12(Target)
     end
-    if Settings.harass.useQ3 and SkillQ3.ready and Tower and (not UnderTurret(myHero)) then
-        Q(Target)
+    if Settings.harass.useQ3 and SkillQ3.ready and towerUnit~=nil then
+        CastQ3(Target)
     end
 end    
 
@@ -1543,7 +1548,7 @@ function KillSteal()
         end
         if ValidTarget(ksTarget) then
             if dashed ~= nil and GetDistance(ksTarget) <= SkillQ12.width then
-                Q(ksTarget)
+                CastQ12(ksTarget)
             end
         end
     else 
@@ -1593,7 +1598,7 @@ function teamfight()
         end
     end
     if dashed ~= nil and count >= 2 then
-        Q(checkTarget)
+        CastQ12(checkTarget)
     end
 end
 
@@ -1889,7 +1894,7 @@ end
 
 function Variables()
     SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
-    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.5, speed = 1500, width = 90, ready = false }
+    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.25, speed = 1500, width = 90, radius = 90, ready = false }
     SkillQ = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
     SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
@@ -2488,7 +2493,7 @@ function OnProcessSpell(object,spellProc)
         if spell ~= nil then
             if Settings.interrupt[spellProc.name] then
                 if ValidTarget(unit) and GetDistance(object) < SkillQ3.range and SkillQ3.ready and Settings.interrupt.r then
-                    Q(unit)
+                    CastQ3(unit)
                 end
             end
         end
@@ -2500,12 +2505,12 @@ function OnProcessSpell(object,spellProc)
     if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
         if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Settings.gapClose[unit.charName] then
             if spell.target ~= nil and spell.target and spell.target.networkID == myHero.networkID or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
-               Q(object)
+               CastQ3(object)
             elseif not spell.target then
                 local startPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
                 local startPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
                 if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
-                   Q(startPos1.x, startPos2.z)
+                   CastQ3(startPos1.x, startPos2.z)
                 end
             end
         end
