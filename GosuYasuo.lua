@@ -1298,13 +1298,13 @@ function Combo(unit)
             checkMinion = getNearestMinion(Target)
             if eStack < 2 and checkMinion ~= nil and GetDistance(eEndPos(checkMinion)) < SkillQ.width then
                 E(checkMinion)
-            elseif TargetDistance == SkillE.range then
+            elseif TargetDistance == SkillE.range (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
                 E(Target)
             end
         end
     end
         mPos = getNearestMinion(mousePos)
-        if SkillE.ready and mPos and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
+        if SkillE.ready and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil and mPos then
             E(mPos)
         end
 end
