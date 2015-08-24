@@ -5,8 +5,8 @@ if myHero.charName ~= "Yasuo" then return end
 local version = 1.01
 local Author = "rainschiltz"
 
-local UPDATE_NAME = "Yasuo-Montage"
-local UPDATE_HOST = "raw.github.com"
+local UPDATE_NAME = "GosuYasuo"
+local UPDATE_HOST = "raw.githubusercontent.com"
 local UPDATE_PATH = "/GosuMechanics/BoL/master/GosuYasuo.version" .. "?rand=" .. math.random(1, 10000)
 local UPDATE_PATH2 = "/GosuMechanics/BoL/master/GosuYasuo.lua"
 local UPDATE_FILE_PATH = SCRIPT_PATH..GetCurrentEnv().FILE_NAME
@@ -823,7 +823,7 @@ function OnLoad()
 
     Tower = GetTurrets()
 
-    print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo 1.0</font>")
+    --print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo 1.0</font>")
     Variables()
     Menu()
     PriorityOnLoad()
