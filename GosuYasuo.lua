@@ -932,14 +932,14 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.09
+    ToUpdate.Version = 1.10
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
         ToUpdate.VersionPath = "/GosuMechanics/BoL/master/GosuYasuo.version"
         ToUpdate.ScriptPath =  "/GosuMechanics/BoL/master/GosuYasuo.lua"
         ToUpdate.SavePath = SCRIPT_PATH.._ENV.FILE_NAME
-        ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion"Please reload script.") end
+        ToUpdate.CallbackUpdate = function(NewVersion,OldVersion) Print("Updated to v"..NewVersion.."Please reload script.") end
         ToUpdate.CallbackNoUpdate = function(OldVersion) Print("No Updates Found.") end
         ToUpdate.CallbackNewVersion = function(NewVersion) Print("New Version found ("..NewVersion.."). Please wait until its downloaded") end
         ToUpdate.CallbackError = function(NewVersion) Print("Error while Downloading. Please try again.") end
