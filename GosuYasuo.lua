@@ -1658,10 +1658,10 @@ function DmgCalc()
         local enemy = heroManager:GetHero(i)
             if enemy ~= nil and ValidTarget(enemy) then
                 aaDmg       = ((getDmg("AD", enemy, myHero)) or 0)
-                qDmg        = (myHero:CalcDamage(enemy,(GetSpellData(_Q).level*20)+myHero.totalDamage) or 0)
-                eDmg        = getEDmg(enemy)
-                rDmg        = (myHero:CalcDamage(enemy,(GetSpellData(_R).level*20)+myHero.totalDamage) or 0)
-                iDmg        = ((50 + 20 * myHero.level) or 0)
+                qDmg        = ((getDmg("Q", enemy, myHero)) or 0)
+                eDmg        = ((getDmg("E", enemy, myHero)) or 0)
+                rDmg        = ((getDmg("R", enemy, myHero)) or 0)
+                iDmg        = ((getDmg("IGNITE", enemy, myHero)) or 0)
 
 
                     if enemy.health <= aaDmg
@@ -2127,7 +2127,7 @@ function Menu()
     --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
         --SxOrb:LoadToMenu(Settings.Orbwalking)
     
-    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)
+    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
     TargetSelector.name = "Gosu"
     Settings:addTS(TargetSelector)
 
