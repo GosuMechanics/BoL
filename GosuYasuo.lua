@@ -3,7 +3,6 @@ if myHero.charName ~= "Yasuo" then return end
 function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
     require 'VPrediction'
 
-
 ----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
 _G.BUFF_NONE = 0
@@ -124,7 +123,7 @@ Champions = {
         ["Shadow Dance"] = {spellKey = _R, isTargeted = true, name = "Shadow Dance", spellName = "Shadow Dance", spellDelay = 250, projectileName = "swain_shadowGrasp_transform.troy", range = 800, type = "LINE"},
     }},
     ["Ashe"] = {charName = "Ashe", skillshots = {
-        ["EnchantedCrystalArrow"] = { name = "Enchanted Arrow", spellName = "EnchantedCrystalArrow", spellDelay = 250, projectileName = "EnchantedCrystalArrow_mis.troy", projectileSpeed = 1600, range = 25000, radius = 130, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
+        ["EnchantedCrystalArrow"] = { name = "Enchanted Arrow", spellName = "EnchantedCrystalArrow", spellDelay = 250, projectileName = "EnchantedCrystalArrow_mis.troy", projectileSpeed = 1600, range = 25000, radius = 130, type = "LINE", fuckedUp = true, blockable = true, danger = 1},
         ["Volley"] = {spellKey = _W, isTrueRange = true, name = "Volley", spellName = "Volley", spellDelay = 250, range = 1200, radius = 200, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["FrostShot"] = { spellKey = _Q, isSelfCast = true, isAutoBuff = true, heroHasNoBuff = "FrostShot", noAnimation = true, spellName = "FrostShot", name = "FrostShot", range = 600, projectileName = "IceArrow_mis.troy",},
     }},
@@ -200,7 +199,7 @@ Champions = {
         ["EzrealMysticShot"]             = {spellKey = _Q, isCollision = true, name = "Mystic Shot",      spellName = "EzrealMysticShot", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1100, radius = 80, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["EzrealEssenceFlux"]            = {spellKey = _W, name = "Essence Flux",     spellName = "EzrealEssenceFlux",     spellDelay = 250, projectileName = "Ezreal_essenceflux_mis.troy", projectileSpeed = 1500, range = 900,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["EzrealMysticShotPulse"] = {name = "Mystic Shot",      spellName = "EzrealMysticShotPulse", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1200,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
-        ["EzrealTrueshotBarrage"]        = {spellKey = _R, isExecute = true, name = "Trueshot Barrage", spellName = "EzrealTrueshotBarrage", spellDelay = 1000, projectileName = "Ezreal_TrueShot_mis.troy", projectileSpeed = 2000, range = 20000, radius = 160, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
+        ["EzrealTrueshotBarrage"]        = {spellKey = _R, isExecute = true, name = "Trueshot Barrage", spellName = "EzrealTrueshotBarrage", spellDelay = 1000, projectileName = "Ezreal_TrueShot_mis.troy", projectileSpeed = 2000, range = 20000, radius = 160, type = "LINE", fuckedUp = true, blockable = true, danger = 1},
     }},
     ["Evelynn"] = {charName = "Evelynn", skillshots = {
     --unfinished
@@ -254,7 +253,7 @@ Champions = {
         ["IreliaGatotsu"] = { spellKey = _Q, isTargeted = true, spellName = "IreliaGatotsu", name = "IreliaGatotsu", range = 650,},
         ["IreliaEquilibriumStrike"] = { spellKey = _E, isTargeted = true, spellName = "IreliaEquilibriumStrike", name = "IreliaEquilibriumStrike", range = 425,
             castReq = function (target) return myHero.health < target.health end},
-        ["IreliaTranscendentBlades"] = { spellKey = _R, type = "LINE", spellName = "IreliaTranscendentBlades", name = "IreliaTranscendentBlades", range = 1200, projectileSpeed = 1600, projectileName = "Irelia_ult_dagger_mis.troy", radius = 120,},
+        ["IreliaTranscendentBlades"] = { spellKey = _R, type = "LINE", spellName = "IreliaTranscendentBlades", name = "IreliaTranscendentBlades", range = 1200, projectileSpeed = 1600, projectileName = "Irelia_ult_dagger_mis.troy", radius = 120, fuckedUp = false, blockable = true, danger = 1},
         ["IreliaHitenStyle"] = { spellKey = _W, isSelfCast = true, noAnimation = true, spellName = "IreliaHitenStyle", name = "IreliaHitenStyle", range = math.huge,},
     }},
     ["Janna"] = {charName = "Janna", skillshots = {
@@ -302,7 +301,7 @@ Champions = {
     ["Katarina"] = {charName = "Katarina", skillshots = {
         ["KatarinaE"] = { spellKey = _E, isTargeted = true, spellName = "KatarinaE", name = "KatarinaE", range = 700, projectileSpeed = 0, projectileName = "AnnieBasicAttack_mis.troy",},
         ["KatarinaW"] = { spellKey = _W, isSelfCast = true, spellName = "KatarinaW", name = "KatarinaW", range = 375, projectileSpeed = 1400, projectileName = "Disintegrate_mis.troy",},
-        ["KatarinaR"] = { spellKey = _R, isSelfCast = true, channelDuration = 2500, spellName = "KatarinaR", name = "KatarinaR", range = 550, projectileName = "katarina_deathLotus_mis.troy", fuckedUp = false, blockable = true, danger = 1},
+        ["KatarinaR"] = { spellKey = _R, isSelfCast = true, channelDuration = 2500, spellName = "KatarinaR", name = "KatarinaR", range = 550, projectileName = "katarina_deathLotus_mis.troy", fuckedUp = true, blockable = true, danger = 1},
         ["KatarinaQ"] = { spellKey = _Q, isTargeted = true, spellName = "KatarinaQ", name = "KatarinaQ", range = 675, projectileSpeed = 1100, projectileName = "katarina_bouncingBlades_mis.troy", fuckedUp = false, blockable = true, danger = 1},
     }}, 
     ["Kayle"] = {charName = "Kayle", skillshots = {
@@ -702,7 +701,7 @@ Champions = {
         ["ZiggsQ"] =  {spellKey = _Q, isCollision = true, name = "ZiggsQ", spellName = "ZiggsQ", spellDelay = 250, projectileName = "ZiggsQ.troy", projectileSpeed = 1700, range = 1400, radius = 155, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["ZiggsW"] =  {spellKey = _W, name = "ZiggsW", spellName = "ZiggsW", spellDelay = 250, projectileName = "ZiggsW_mis.troy", projectileSpeed = 1700, range = 1000, radius = 325, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["ZiggsE"] =  {spellKey = _E, name = "ZiggsE", spellName = "ZiggsE", spellDelay = 250, projectileName = "ZiggsE_Mis_Large.troy", projectileSpeed = 1700, range = 900, radius = 250, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
-        ["ZiggsR"] = { spellKey = _R, isExecute = true, type = "LINE", spellName = "ZiggsR", name = "ZiggsR", range = 5000, projectileSpeed = 1750, projectileName = "ZiggsR_Mis_Nuke.troy", radius = 550, fuckedUp = false, blockable = true, danger = 1},
+        ["ZiggsR"] = { spellKey = _R, isExecute = true, type = "LINE", spellName = "ZiggsR", name = "ZiggsR", range = 5000, projectileSpeed = 1750, projectileName = "ZiggsR_Mis_Nuke.troy", radius = 550, fuckedUp = true, blockable = true, danger = 1},
     }},
     ["Zilean"] = {charName = "Zilean", skillshots = {
     --unfinished
@@ -791,6 +790,9 @@ local animTime = 0
 local IsRecalling = false
 local knockedUp = 0
 local Knockups = {}
+local TargetKnockedup = {}
+local unitknocked = 0
+local targetknocked = 0
 --local animTime = 0
 local Tower = nil
 local towerUnit = nil
@@ -825,8 +827,6 @@ function OnLoad()
         AdvancedCallback:bind('OnRemoveBuff', function(unit, buff) OnLoseBuff(unit, buff) end)
     end
 
-    Tower = GetTurrets()
-
     --print("<b><font color=\"#6699FF\">GosuMechanics: </font></b> <font color=\"#FFFFFF\">Yasuo 1.0</font>")
     Variables()
     Menu()
@@ -834,6 +834,7 @@ function OnLoad()
     VP = VPrediction()
     LoadOrbwalker()
     IgniteCheck()
+    Tower = GetTurrets()
 
     ItemNames               = {
         [3303]              = "ArchAngelsDummySpell",
@@ -932,7 +933,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.12
+    ToUpdate.Version = 1.13
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -978,6 +979,9 @@ function LoadOrbwalker()
 end
 
 function OnTick()
+
+    if fuckedUpSpell ~= nil then fuckedUpSpells() end
+
     ComboKey = Settings.combo.comboKey
     HarassKey = Settings.harass.harassKey
     HarassToggle = Settings.harass.harassToggle
@@ -1031,8 +1035,6 @@ function OnTick()
     if Settings.misc.autoPot then
         AutoPots()
     end
-
-        AutoUltKillable()
      
     if Settings.harass.harassToggle then
         AutoQenemy()
@@ -1049,14 +1051,18 @@ function OnTick()
     Checks()
 
     AutoUlt()
-    AutoUltByAlly()
+
+    AutoUltKillable()
 
     GetItemSlot()
 end
 
 function OnDraw()
     if not myHero.dead and not Settings.drawing.mDraw then
-        if SkillQ.ready and Settings.drawing.qDraw then 
+        if SkillQ12.ready and Settings.drawing.qDraw then 
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+        end
+        if SkillQ3.ready and Settings.drawing.qDraw then 
             DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
         end
         if SkillW.ready and Settings.drawing.wDraw then 
@@ -1275,10 +1281,9 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    if ValidTarget(unit) and unit ~= nil and unit.type == myHero.type then
+    if Target ~= nil then
 
         teamfight()
-        local TargetDistance = GetDistance(Target)
         
         if Settings.combo.comboItems then
             UseItems(unit)
@@ -1292,41 +1297,48 @@ function Combo(unit)
         if Settings.combo.useR then    
             sbtwR()
         end
-        if SkillE.ready and Settings.combo.useE and TargetDistance == SkillE.range then
+        local TargetDistance = GetDistance(Target)
+        if TargetDistance > SkillE.range and Settings.combo.useEGap then
+            mPos = getNearestMinion(Target)
+            if SkillE.ready and mPos then 
+                E(mPos) 
+            end
+        end
+                
+        if SkillE.ready and Settings.combo.useE and TargetDistance <= SkillE.range and TargetDistance > Settings.combo.DistanceToE then
             if eStack == 2 then
                 E(Target)
             end
             checkMinion = getNearestMinion(Target)
             if eStack < 2 and checkMinion ~= nil and GetDistance(eEndPos(checkMinion)) < SkillQ.width then
                 E(checkMinion)
-            elseif TargetDistance == SkillE.range then
+            else
                 E(Target)
             end
         end
     end
-        mPos = getNearestMinion(mousePos)
-        if SkillE.ready and mPos and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
-            E(mPos)
-        end
 end
 
 function LastHit(unit)
     enemyMinions:update()
     if FarmKey then
         for i, minion in pairs(enemyMinions.objects) do
-            if ValidTarget(minion) and minion ~= nil then
-                if Settings.farm.useQ12 and SkillQ12.ready then
-                    if minion.health <= getDmg("Q", minion, myHero) then
-                       CastQ12(minion)
+            if ValidTarget(minion) then
+                local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+                if SkillQ12.ready and GetDistance(minion) <= SkillQ12.range and Settings.farm.useQ12 then
+                    if qDmg >= minion.health then
+                       CastQ12(minion, true)
                     end
                 end
-                if Settings.farm.useQ3 and SkillQ3.ready and GetDistance(minion) <= SkillQ3.range then
-                    if minion.health <= getDmg("Q", minion, myHero) then
-                       CastQ3(minion)
+                if SkillQ3.ready and GetDistance(minion) <= SkillQ3.range and Settings.farm.useQ3 then
+                    local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+                    if qDmg >= minion.health then
+                       CastQ3(minion, true)
                     end
                 end
-                if Settings.farm.useE and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
-                    if getDmg("E", minion, myHero) >= minion.health and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
+                if SkillE.ready and GetDistance(minion) <= SkillE.range and Settings.farm.useE then
+                    local eDmg = getEDmg(minion)
+                    if eDmg >= minion.health and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
                         E(minion)
                     end
                 end
@@ -1342,41 +1354,39 @@ end
 
 function LaneClear()
 
-    if VIP_USER and Tower then
-        local getOut = dodgeTowerMinion(Tower, 775)
-        if getOut ~= nil then
-            E(getOut)
-        end
-    end
     enemyMinions:update()
     if LaneClearKey then
         for i, minion in pairs(enemyMinions.objects) do
             if ValidTarget(minion) and minion ~= nil then
-                if Settings.lane.useQ and GetDistance(minion) <= SkillQ12.range and SkillQ12.ready then
+                local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+                if SkillQ12.ready and GetDistance(minion) <= SkillQ12.range and Settings.lane.useQ then
                     local BestPos, BestHit = GetBestLineFarmPosition(SkillQ12.range, SkillQ12.width, enemyMinions.objects)
                     
-                    if BestPos ~= nil and BestHit >= 2 and getDmg("Q", minion, myHero) >= minion.health  then
-                        CastSpell(0, BestPos.x, BestPos.z)
+                    if BestPos ~= nil and BestHit >= 2 and qDmg >= minion.health  then
+                        CastSpell(_Q, BestPos.x, BestPos.z)
                     else
-                        CastSpell(0, BestPos.x, BestPos.z)
+                        CastSpell(_Q, BestPos.x, BestPos.z)
                     end
                 end
-                if Settings.lane.useQ and GetDistance(minion) <= SkillQ3.range and SkillQ3.ready then
-                 local BestPos, BestHit = GetBestLineFarmPosition(SkillQ3.range, SkillQ3.width, enemyMinions.objects)
+                if SkillQ3.ready and GetDistance(minion) <= SkillQ3.range and Settings.lane.useQ then
+                    local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+                    local BestPos, BestHit = GetBestLineFarmPosition(SkillQ3.range, SkillQ3.width, enemyMinions.objects)
                     
-                    if BestPos ~= nil and BestHit >= 2 and getDmg("Q", minion, myHero) >= minion.health  then
-                        CastSpell(0, BestPos.x, BestPos.z)
+                    if BestPos ~= nil and BestHit >= 2 and qDmg >= minion.health  then
+                        CastSpell(_Q, BestPos.x, BestPos.z)
                     else
-                        CastSpell(0, BestPos.x, BestPos.z)
+                        CastSpell(_Q, BestPos.x, BestPos.z)
                     end
                 end
-                if Settings.lane.useELH and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
-                    if getDmg("E", minion, myHero) >= minion.health and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
+                if Settings.lane.useE == 1 and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
+                    local eDmg = getEDmg(minion)
+                    if eDmg >= minion.health and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
                         E(minion)
-                    elseif Settings.lane.useEalways and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil and GetDistance(minion, myHero) <= SkillE.range then
+                    elseif Settings.lane.useE == 2 and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil and GetDistance(minion, myHero) <= SkillE.range then
                         E(minion)
                     end
-                end 
+                end
+                if Settings.lane.laneItems then UseItems(minion) end
             end
         end
     end
@@ -1387,10 +1397,10 @@ function JungleClear()
         local JungleMob = GetJungleMob()
         
         if JungleMob ~= nil then
-            if Settings.jungle.useQ and GetDistance(JungleMob) <= SkillQ.range and SkillQ.ready then
+            if SkillQ.ready and GetDistance(JungleMob) <= SkillQ.range and Settings.jungle.useQ then
                 CastSpell(_Q, JungleMob.x, JungleMob.z)
             end
-            if Settings.jungle.useE and GetDistance(JungleMob) <= SkillE.range and SkillE.ready then
+            if SkillE.range and GetDistance(JungleMob) <= SkillE.range and Settings.jungle.useE then
                 CastSpell(_E, JungleMob)
             end
         end
@@ -1407,22 +1417,26 @@ function flee()
 end
 
 function CastQ12(unit, minion)
-
-    if SkillQ12.ready and ValidTarget(unit) then
-        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, SkillQ12.delay, SkillQ12.width, SkillQ12.range, SkillQ12.speed, myHero, false)
-        if HitChance >= 2 and not IsDashing() then
+    local CastPacket = Settings.misc.usePackets
+    if SkillQ12.ready and ValidTarget(unit,475) then
+        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.25, 55, 500, 1800, myHero, false)
+        if HitChance >= 2 and CastPacket and not IsDashing() then
+            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+        else
             CastSpell(_Q, CastPosition.x, CastPosition.z)
         end
     end
 end
 
 function CastQ3(unit, minion)
-
-    if myHero:GetSpellData(_Q).name == "yasuoq3w" and ValidTarget(unit) then
-        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, SkillQ3.delay, SkillQ3.radius, SkillQ3.range, SkillQ3.speed, myHero)  
-        if MainTargetHitChance >= 2 and nTargets >= 1 then
-            CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)  
-        end
+    local CastPacket = Settings.misc.usePackets
+    if SkillQ3.ready and ValidTarget(unit,900) then  
+        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.25, 90, 1000, 2500, myHero, false)
+        if MainTargetHitChance >= 2 and nTargets >= 1 and CastPacket and not IsDashing() then
+            Packet("S_CAST", {spellId = _Q3, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
+        else
+            CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
+        end     
     end
 end
 
@@ -1449,10 +1463,10 @@ end
 
 function AutoQenemy()
 
-    if Settings.harass.useQ12 and SkillQ12.ready and towerUnit~=nil then
+    if Settings.harass.useQ12 and SkillQ12.ready and not UnderTurret(myHero, true) then
         CastQ12(Target)
     end
-    if Settings.harass.useQ3 and SkillQ3.ready and towerUnit~=nil then
+    if Settings.harass.useQ3 and SkillQ3.ready and not UnderTurret(myHero, true) then
         CastQ3(Target)
     end
 end    
@@ -1475,7 +1489,7 @@ end
 function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if ValidTarget(Target, SkillR.range) and Rks(Target) then
+        if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
@@ -1501,20 +1515,6 @@ function AutoUlt()
             knocked = knocked + 1
             if Settings.combo.autoult and SkillR.ready and not isRecalling then
                 if knocked >= Settings.combo.Ult3 then
-                    CastSpell(_R)
-                end
-            end
-        end
-    end
-end
-
-function AutoUltByAlly()
-    knocked = 0
-    for i, v in ipairs(GetEnemyHeroes()) do
-        if not v.canMove and v.y > 130 and ValidTarget(v) then
-            knocked = knocked + 1
-            if Settings.combo.autoult and SkillR.ready and not isRecalling then
-                if KnockedByAlly then
                     CastSpell(_R)
                 end
             end
@@ -1631,14 +1631,64 @@ function eEndPos(unit)
     end
 end
 
+function selectMinion()
+    enemyMinions:update()
+    JungleMinions:update()
+    local distance = SkillE.ready
+    for index, minion in pairs(enemyMinions.objects) do
+        if ValidTarget(minion) then
+            check = GetDistance(minion)
+            if check < distance then 
+                distance = check
+                farmMinion = minion 
+            end
+        end
+    end 
+    for index, minion in pairs(JungleMinions.objects) do
+        if ValidTarget(minion) then
+            check = GetDistance(minion)
+            if check < distance then 
+                distance = check
+                farmMinion = minion 
+            end
+        end
+    end 
+    return farmMinion
+end
+
+function minionCount(distance, pos)
+    if pos==nil then  pos = myHero end
+    local count=0
+    local check
+    enemyMinions:update()
+    JungleMinions:update()
+    for index, minion in pairs(enemyMinions.objects) do
+        if ValidTarget(minion) then
+            check = GetDistance(pos, minion)
+            if check < distance then 
+                count = count + 1
+            end
+        end
+    end 
+    for index, minion in pairs(JungleMinions.objects) do
+        if ValidTarget(minion) then
+            check = GetDistance(pos, minion)
+            if check < distance then 
+                count = count + 1
+            end
+        end
+    end 
+    return count
+end
+
 function getNearestMinion(unit)
 
     local closestMinion = nil
     local nearestDistance = 0
 
-        Minions:update()
+        enemyMinions:update()
         JungleMinions:update()
-        for index, minion in pairs(Minions.objects) do
+        for index, minion in pairs(enemyMinions.objects) do
             if minion ~= nil and minion.valid and string.find(minion.name,"Minion_") == 1 and minion.team ~= player.team and minion.dead == false then
                 if GetDistance(minion) <= SkillE.range then
                     --PrintChat(GetDistance(eEndPos(minion), unit) .. "  -  ".. GetDistance(unit))
@@ -1713,11 +1763,30 @@ function OnApplyBuff(source, unit, buff)
             counter = counter + 1 
             KnockedByAlly = true 
         end 
+    end
+    if unit.isMe and buff.name=="yasuodashscalar" then 
+        --PrintChat("E:" .. eStack)
+        dashed = (buff.endTime - buff.startTime)
+        eStack = 1
+    end
+    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and buff.type == 29 then
+        --unitknocked = unitknocked + 1
+        Knockups[unit.networkID] = os.clock() + (buff.endTime - buff.startTime)
+    end
+    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and  buff.name == "yasuoq3mis" then
+        currentknocked = os.clock() + (buff.endTime - buff.startTime) - 0.25
+        targetknocked = targetknocked + 1
+        TargetKnockedup[unit.networkID] = os.clock() + (buff.endTime - buff.startTime)
     end  
     if unit.isMe and Settings.misc.useqss then
         if buff.name and buff.type == 5 or buff.type == 12 or buff.type == 11 or buff.type == 25 or buff.type == 7 or buff.type == 22 or buff.type == 21 or buff.type == 8
-        or (buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))
-        or (buff.name:lower():find("summonerexhaust")) then
+        or buff.name == "MordekaiserChildrenOfTheGrave" or buff.name ==  "SkarnerImpale" or buff.name == "LuxLightBindingMis" or buff.name == "Wither" or buff.name == "SonaCrescendo" 
+        or buff.name == "DarkBindingMissile" or buff.name == "CurseoftheSadMummy" or buff.name == "EnchantedCrystalArrow" or buff.name == "BlindingDart" or buff.name == "LuluWTwo" 
+        or buff.name == "AhriSeduce" or buff.name == "CassiopeiaPetrifyingGaze" or buff.name == "Terrify" or buff.name == "HowlingGale" or buff.name == "JaxCounterStrike" or buff.name == "KennenShurikenStorm" 
+        or buff.name == "LeblancSoulShackle" or buff.name == "LeonaSolarFlare" or buff.name == "LissandraR" or buff.name == "AlZaharNetherGrasp" or buff.name == "MonkeyKingDecoy" 
+        or buff.name == "NamiQ" or buff.name == "OrianaDetonateCommand" or buff.name == "Pantheon_LeapBash" or buff.name == "PuncturingTaunt" or buff.name == "SejuaniGlacialPrisonStart"
+        or buff.name == "SwainShadowGrasp" or buff.name == "Imbue" or buff.name == "ThreshQ" or buff.name == "UrgotSwap2" or buff.name == "VarusR" or buff.name == "VeigarEventHorizon" 
+        or buff.name == "ViR" or buff.name == "InfiniteDuress" or buff.name == "ZyraGraspingRoots" or(buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))or (buff.name:lower():find("summonerexhaust")) then
             if buff.name and buff.name:lower():find("caitlynyor") and CountEnemiesNearUnitReg(myHero, 700) == 0   then
                 return false
             elseif not buff.name:lower():find("rocketgrab2") then
@@ -1740,7 +1809,23 @@ function OnRemoveBuff(unit, buff)
             KnockedByAlly = false 
             unitsknocked = unitsknocked -1
         end 
-    end  
+    end
+    if unit.isMe and buff.name=="yasuodashscalar" then 
+        --PrintChat("E:" .. eStack)
+        eStack = 0
+    end
+    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and buff.type == 29 then
+        if Knockups[unit.networkID] ~= nil then
+            --unitknocked = unitknocked - 1
+            Knockups[unit.networkID] = nil
+        end
+    end
+    if unit and unit.team == TEAM_ENEMY and unit.type == myHero.type and  buff.name == "yasuoq3mis" then
+        if TargetKnockedup[unit.networkID] ~= nil then
+            targetknocked = targetknocked - 1
+            TargetKnockedup[unit.networkID] = nil
+        end
+    end 
 end
 
 ------------------------------------------------------
@@ -1750,12 +1835,14 @@ end
 function Checks()
     SkillQ12.ready = (myHero:CanUseSpell(_Q) == READY and ( myHero:GetSpellData(_Q).name == "YasuoQW" or myHero:GetSpellData(_Q).name == "yasuoq2w"))
     SkillQ3.ready  = (myHero:CanUseSpell(_Q) == READY and myHero:GetSpellData(_Q).name == "yasuoq3w")
-    SkillQ.ready = (myHero:CanUseSpell(_Q) == READY)
     SkillW.ready = (myHero:CanUseSpell(_W) == READY)
     SkillE.ready = (myHero:CanUseSpell(_E) == READY)
     SkillR.ready = (myHero:CanUseSpell(_R) == READY)
     IREADY = (ignite ~= nil and myHero:CanUseSpell(ignite) == READY)
     
+    qBuffName = "Yasuo_Q_wind_ready_buff.troy"
+    dashed = nil
+
     TargetSelector:update()
     Target = GetCustomTarget()
     --SxOrb:ForceTarget(Target)
@@ -1772,6 +1859,8 @@ function Menu()
         Settings.combo:addParam("useQ12", "Use "..SkillQ12.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
         Settings.combo:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
@@ -1797,9 +1886,8 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - Lane Clear Settings", "lane")
         Settings.lane:addParam("laneKey", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
         Settings.lane:addParam("useQ", "LaneClear with "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
-        Settings.lane:addParam("useELH", "LastHit with "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
-        Settings.lane:addParam("useEalways", "Always use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
-        --Settings.lane:addParam("laneItems", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
+        Settings.lane:addParam("useE", "Use"..SkillE.name.." ", SCRIPT_PARAM_LIST, 1, {"LastHit", "Always"})
+        Settings.lane:addParam("laneItems", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
         
     Settings:addSubMenu("["..myHero.charName.."] - Jungle Clear Settings", "jungle")
         Settings.jungle:addParam("jungleKey", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
@@ -1812,7 +1900,7 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoR", "Auto-R KS", SCRIPT_PARAM_ONOFF, true)
-        Settings.ks:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 30, 1, 100, 0)
+        Settings.ks:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         --Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:permaShow("killSteal")
         Settings.ks:permaShow("autoR")
@@ -1875,26 +1963,26 @@ function Menu()
             Settings.drawing.lfc:addParam("Width", "Width", 4, 1, 1, 10, 0)
     
     Settings:addSubMenu("["..myHero.charName.."] - Misc Settings", "misc")
-       -- Settings.misc:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
+       Settings.misc:addParam("usePackets", "Use Packets", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         Settings.misc:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
-        --Settings.misc:permaShow("usePackets")
+        Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
 
     --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
         --SxOrb:LoadToMenu(Settings.Orbwalking)
     
-    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, SkillQ.range, DAMAGE_PHYSICAL, true)
+    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
     TargetSelector.name = "Gosu"
     Settings:addTS(TargetSelector)
 
 end
 
 function Variables()
-    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
-    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.25, speed = 1500, width = 90, radius = 90, ready = false }
+    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55 }
+    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.25, speed = 1500, width = 90, radius = 90 }
     SkillQ = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
     SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
@@ -2197,15 +2285,6 @@ function GetItemSlot()
     end
 end
 
---[[function Items()
-    if Config.sbtw and Config.SMsbtw.useitems and ValidTarget(Target) then
-        if Hydra and CanCast(Hydra) and GetDistance(Target) <= 200 then CastSpell(Hydra) end
-        if BORK and CanCast(BORK) then CastSpell(BORK, Target) end
-        if Ghostblade and CanCast(Ghostblade) then CastSpell(Ghostblade) end
-        if RAMEN and CanCast(RAMEN) and GetDistance(Target) <= 400 then CastSpell(RAMEN) end
-    end 
-end]]
-
 function UseQSS(unit, scary)
     if lastRemove > os.clock() - 1 then return end
     for i, Item in pairs(Items) do
@@ -2470,7 +2549,7 @@ function OnProcessSpell(object,spellProc)
                     end                    
                     if GetDistance(spellProc.startPos) <= range then
                         if GetDistance(spellProc.endPos) <= SkillW.range then
-                            if SkillW.ready and Settings.blocks[spellProc.name] == true then 
+                            if SkillW.ready and Settings.blocks[spellProc.name] then 
                                 CastSpell(_W, object.x, object.z)
                             end
                         end
@@ -2564,7 +2643,7 @@ function fuckedUpSpells()
                 CastSpell(_W, object, object)
             end            
         end 
-    elseif fuckedUpParticle ~= nil and GetDistance(fuckedUpParticle) < SkillW.range and (fuckedUpSpell.spellName == "EzrealTrueshotBarrage" or fuckedUpSpell.spellName == "EnchantedCrystalArrow" or fuckedUpSpell.spellName == "ZiggsR" or fuckedUpSpell.spellName == "CaitlynHeadshotMissile" or fuckedUpSpell.spellName == "RocketGrabMissile" or fuckedUpSpell.spellName == "DarkBindingMissile" or fuckedUpSpell.spellName == "GravesClusterShot" or fuckedUpSpell.spellName == "LuxLightBinding" or fuckedUpSpell.spellName == "AatroxE" or fuckedUpSpell.spellName == "AatroxQ" or fuckedUpSpell.spellName == "AhriOrbofDeception" or fuckedUpSpell.spellName == "AhriSeduce" or fuckedUpSpell.spellName == "BandageToss" or fuckedUpSpell.spellName == "FlashFrostSpell" or fuckedUpSpell.spellName == "Frostbite" or fuckedUpSpell.spellName == "AkaliQ" or fuckedUpSpell.spellName == "Volley" or fuckedUpSpell.spellName == "Disintegrate" or fuckedUpSpell.spellName == "Incinerate" or fuckedUpSpell.spellName == "BrandBlaze" or fuckedUpSpell.spellName == "BrandWildfire" or fuckedUpSpell.spellName == "CaitlynPiltoverPeacemaker" or fuckedUpSpell.spellName == "CassiopeiaTwinFang" or fuckedUpSpell.spellName == "PhosphorusBomb" or fuckedUpSpell.spellName == "MissileBarrageBig" or fuckedUpSpell.spellName == "DariusAxeGrabCone" or fuckedUpSpell.spellName == "DianaArc" or fuckedUpSpell.spellName == "DravenDoubleShot" or fuckedUpSpell.spellName == "DravenRCast" or fuckedUpSpell.spellName == "EliseHumanE" or fuckedUpSpell.spellName == "EliseHumanQ" or fuckedUpSpell.spellName == "EliseHumanW" or fuckedUpSpell.spellName == "EzrealMysticShot" or fuckedUpSpell.spellName == "EzrealEssenceFlux" or fuckedUpSpell.spellName == "EzrealMysticShotPulse" or fuckedUpSpell.spellName == "HextechMicroRockets" or fuckedUpSpell.spellName == "CH-2ElectronStormGrenade" or fuckedUpSpell.spellName == "DarkWind" or fuckedUpSpell.spellName == "FizzMarinerDoom" or fuckedUpSpell.spellName == "GalioResoluteSmite" or fuckedUpSpell.spellName == "GragasBarrelRoll" or fuckedUpSpell.spellName == "GravesChargeShot" or fuckedUpSpell.spellName == "SmokeScreen" or fuckedUpSpell.spellName == "HowlingGale" or fuckedUpSpell.spellName == "JayceToTheSkies" or fuckedUpSpell.spellName == "jayceshockblast" or fuckedUpSpell.spellName == "JinxWMissile" or fuckedUpSpell.spellName == "JinxRWrapper" or fuckedUpSpell.spellName == "KarmaQ" or fuckedUpSpell.spellName == "NullSphere" or fuckedUpSpell.spellName == "KatarinaQ" or fuckedUpSpell.spellName == "Reckoning" or fuckedUpSpell.spellName == "KennenShurikenHurlMissile1" or fuckedUpSpell.spellName == "KhazixW" or fuckedUpSpell.spellName == "khazixwlong" or fuckedUpSpell.spellName == "CausticSpittle" or fuckedUpSpell.spellName == "KogMawVoidOozeMissile" or fuckedUpSpell.spellName == "" or fuckedUpSpell.spellName == "SigilQ" or fuckedUpSpell.spellName == "LeblancChaosOrbM" or fuckedUpSpell.spellName == "LeblancSoulShackle" or fuckedUpSpell.spellName == "LeblancSoulShackleM" or fuckedUpSpell.spellName == "BlindMonkQOne" or fuckedUpSpell.spellName == "LissandraQ" or fuckedUpSpell.spellName == "LissandraE" or fuckedUpSpell.spellName == "LucianQ" or fuckedUpSpell.spellName == "LucianW" or fuckedUpSpell.spellName == "LuluQ" or fuckedUpSpell.spellName == "LuxLightStrikeKugel" or fuckedUpSpell.spellName == "LuxMaliceCannon" or fuckedUpSpell.spellName == "SeismicShard" or fuckedUpSpell.spellName == "MaokaiTrunkLine" or fuckedUpSpell.spellName == "InfectedCleaverMissile" or fuckedUpSpell.spellName == "NamiQ" or fuckedUpSpell.spellName == "NautilusAnchorDrag" or fuckedUpSpell.spellName == "JavelinToss" or fuckedUpSpell.spellName == "NocturneDuskbringer" or fuckedUpSpell.spellName == "OlafAxeThrow" or fuckedUpSpell.spellName == "SpearShot" or fuckedUpSpell.spellName == "QuinnQ" or fuckedUpSpell.spellName == "RumbleGrenade" or fuckedUpSpell.spellName == "RengarE" or fuckedUpSpell.spellName == "RivenR" or fuckedUpSpell.spellName == "Overload" or fuckedUpSpell.spellName == "SpellFlux" or fuckedUpSpell.spellName == "TwoShivPoison" or fuckedUpSpell.spellName == "ShyvanaFireball" or fuckedUpSpell.spellName == "Fracture" or fuckedUpSpell.spellName == "SivirQ" or fuckedUpSpell.spellName == "HymnofValor" or fuckedUpSpell.spellName == "SonaCrescendo" or fuckedUpSpell.spellName == "Decrepify" or fuckedUpSpell.spellName == "Torment" or fuckedUpSpell.spellName == "SyndraQ" or fuckedUpSpell.spellName == "Cutthroat" or fuckedUpSpell.spellName == "ShadowAssault" or fuckedUpSpell.spellName == "Dazzle" or fuckedUpSpell.spellName == "BlindingDart" or fuckedUpSpell.spellName == "ThreshQ" or fuckedUpSpell.spellName == "BusterShot" or fuckedUpSpell.spellName == "WildCards" or fuckedUpSpell.spellName == "goldcardlock" or fuckedUpSpell.spellName == "TwitchVenomCask" or fuckedUpSpell.spellName == "Expunge" or fuckedUpSpell.spellName == "UdyrPhoenixStance" or fuckedUpSpell.spellName == "UrgotHeatseekingLineMissile" or fuckedUpSpell.spellName == "UrgotPlasmaGrenade" or fuckedUpSpell.spellName == "VayneCondemn" or fuckedUpSpell.spellName == "BalefulStrike" or fuckedUpSpell.spellName == "XerathArcanopulseChargeUp2" or fuckedUpSpell.spellName == "XerathArcaneBarrage2" or fuckedUpSpell.spellName == "XerathLocusOfPower2" or fuckedUpSpell.spellName == "yasuoq3w" or fuckedUpSpell.spellName == "ZedShuriken" or fuckedUpSpell.spellName == "ZiggsQ" or fuckedUpSpell.spellName == "ZiggsW" or fuckedUpSpell.spellName == "ZiggsE" or fuckedUpSpell.spellName == "TimeBomb" or fuckedUpSpell.spellName == "ZyraGraspingRoots" or fuckedUpSpell.spellName == "zyrapassivedeathmanager") then 
+    elseif fuckedUpParticle ~= nil and GetDistance(fuckedUpParticle) < SkillW.range and (fuckedUpSpell.spellName == "EzrealTrueshotBarrage" or fuckedUpSpell.spellName == "EnchantedCrystalArrow" or fuckedUpSpell.spellName == "ZiggsR" or fuckedUpSpell.spellName == "CaitlynHeadshotMissile") then 
             if SkillW.ready and Settings.blocks[fuckedUpSpell.spellName] and fuckedUpParticle.x > 0 and fuckedUpParticle.z > 0 then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
