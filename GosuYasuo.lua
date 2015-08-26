@@ -933,7 +933,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.13
+    ToUpdate.Version = 1.131
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1060,10 +1060,10 @@ end
 function OnDraw()
     if not myHero.dead and not Settings.drawing.mDraw then
         if SkillQ12.ready and Settings.drawing.qDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ12.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
         end
         if SkillQ3.ready and Settings.drawing.qDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ3.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
         end
         if SkillW.ready and Settings.drawing.wDraw then 
             DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, RGB(Settings.drawing.wColor[2], Settings.drawing.wColor[3], Settings.drawing.wColor[4]))
@@ -1835,6 +1835,7 @@ end
 function Checks()
     SkillQ12.ready = (myHero:CanUseSpell(_Q) == READY and ( myHero:GetSpellData(_Q).name == "YasuoQW" or myHero:GetSpellData(_Q).name == "yasuoq2w"))
     SkillQ3.ready  = (myHero:CanUseSpell(_Q) == READY and myHero:GetSpellData(_Q).name == "yasuoq3w")
+    SkillQ.ready = (myHero:CanUseSpell(_Q) == READY)
     SkillW.ready = (myHero:CanUseSpell(_W) == READY)
     SkillE.ready = (myHero:CanUseSpell(_E) == READY)
     SkillR.ready = (myHero:CanUseSpell(_R) == READY)
@@ -1988,8 +1989,8 @@ function Variables()
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
     SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
 
-    enemyMinions = minionManager(MINION_ENEMY, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
-    JungleMinions = minionManager(MINION_JUNGLE, SkillQ.range, myHero, MINION_SORT_HEALTH_ASC)
+    enemyMinions = minionManager(MINION_ENEMY, SkillQ12.range, myHero, MINION_SORT_HEALTH_ASC)
+    JungleMinions = minionManager(MINION_JUNGLE, SkillQ12.range, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     
     VP = VPrediction()
@@ -2185,10 +2186,10 @@ end
 
 function GetJungleMob()
     for _, Mob in pairs(JungleFocusMobs) do
-        if ValidTarget(Mob, SkillQ.range) then return Mob end
+        if ValidTarget(Mob, 1300) then return Mob end
     end
     for _, Mob in pairs(JungleMobs) do
-        if ValidTarget(Mob, SkillQ.range) then return Mob end
+        if ValidTarget(Mob, 1300) then return Mob end
     end
 end
 
