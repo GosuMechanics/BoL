@@ -3,7 +3,7 @@ if myHero.charName ~= "Yasuo" then return end
 function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
     require 'VPrediction'
     require 'HPrediction'
-    require 'SPrediction'
+    require("SPrediction")
 
 ----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
@@ -947,7 +947,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.16
+    ToUpdate.Version = 1.17
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
