@@ -2849,7 +2849,7 @@ end
 function fuckedUpSpells()
     if fuckedUpSpell.spellName == "KatarinaR" and fuckedUpObject.charName == "Katarina" then
         local object = fuckedUpObject
-        if GetDistance(fuckedUpObject)- SkillW.range < fuckedUpSpell.range then
+        if GetDistance(fuckedUpObject)-SkillW.range < fuckedUpSpell.range then
             if SkillW.ready and Settings.blocks[fuckedUpSpell.spellName] then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
