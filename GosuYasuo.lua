@@ -1373,7 +1373,13 @@ function Combo(unit)
             if SkillE.ready and mPos then 
                 E(mPos)
             end
-        end               
+        end
+        if TargetDistance <= SkillE.range and Settings.combo.dash and Settings.combo.useEGap then
+            mPos = getNearestMinion(mousePos)
+            if SkillE.ready and mPos then 
+                E(mPos)
+            end
+        end                   
         if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
             E(Target)
         end
@@ -2017,6 +2023,7 @@ function Menu()
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
+        Settings.combo:addParam("dash", "Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Settings.combo:addSubMenu("["..myHero.charName.."] - Ult Settings", "ults")
         Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
