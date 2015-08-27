@@ -3,6 +3,7 @@ if myHero.charName ~= "Yasuo" then return end
 function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
     require 'VPrediction'
     require 'HPrediction'
+    require 'SPrediction'
 
 ----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
@@ -571,8 +572,8 @@ Champions = {
     ["Talon"] = {charName = "Talon", skillshots = {
     --unfinished
         ["Noxian Diplomacy"] = {spellKey = _Q, isSelfCast = true, isAutoReset = true, name = "Noxian Diplomacy", spellName = "TalonQ", spellDelay = 250, projectileName = "swain_shadowGrasp_transform.troy", range = 125, type = "CIRCULAR"},
-        ["Cutthroat"] = {spellKey = _E, isTargeted = true, name = "Cutthroat", spellName = "Cutthroat", spellDelay = 250, projectileName = "swain_shadowGrasp_transform.troy", range = 700, type = "CIRCULAR", fuckedUp = false, blockable = true, danger = 1},
-        ["Rake"] = {spellKey = _W, name = "Rake", spellName = "Rake", spellDelay = 250, projectileName = "Thresh_Q_whip_beam.troy", projectileSpeed = 2000, range = 600, radius = 200, type = "LINE"},
+        ["Cutthroat"] = {spellKey = _E, isTargeted = true, name = "Cutthroat", spellName = "Cutthroat", spellDelay = 250, projectileName = "swain_shadowGrasp_transform.troy", range = 700, type = "CIRCULAR"},
+        ["Rake"] = {spellKey = _W, name = "Rake", spellName = "Rake", spellDelay = 250, projectileName = "Thresh_Q_whip_beam.troy", projectileSpeed = 2000, range = 600, radius = 200, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["ShadowAssault"] = {spellKey = _R, isSelfCast = true, name = "Shadow Assault", spellName = "ShadowAssault", spellDelay = 250, projectileName = "swain_shadowGrasp_transform.troy", range = 500, type = "CIRCULAR", fuckedUp = false, blockable = true, danger = 1},
     }},
     ["Taric"] = {charName = "Taric", skillshots = {
@@ -946,7 +947,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.14
+    ToUpdate.Version = 1.15
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1014,7 +1015,7 @@ function OnTick()
         dashed = nil
     end
 
-    if Settings.drawing.drawDD and not Settings.drawing.mdraw then DmgCalc() end
+    if Settings.drawing.drawDD and not Settings.drawing.mDraw then DmgCalc() end
     
     if ComboKey then
         Combo(Target)
@@ -1066,8 +1067,6 @@ function OnTick()
     Checks()
 
     AutoUlt()
-
-    AutoUltKillable()
 
     GetItemSlot()
 end
@@ -1314,66 +1313,62 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    if Target ~= nil and Settings.misc.prediction == 1 then
+    TargetSelector:update()
+    if Target ~= nil then
 
         teamfight()
-        
-        if Settings.combo.comboItems then
-            UseItems(unit)
-        end
-        if Settings.combo.useQ12 then
-            CastQ12(unit)
-        end
-        if Settings.combo.useQ3 then
-            CastQ3(unit)
-        end
-        if Settings.combo.useR then    
-            sbtwR()
-        end
+    	if Settings.misc.prediction == 1 then
+    	    if Settings.combo.comboItems then
+    	        UseItems(unit)
+    	    end
+    	    if Settings.combo.useQ12 then
+    	        CastQ12(unit)
+    	    end
+    	    if Settings.combo.useQ3 and SkillE.ready then
+    	        CastQ3(unit)
+    	    end
+   	    	if Settings.combo.useR then    
+    	        sbtwR()
+    	    end
+    	end
+    	if Settings.misc.prediction == 2 then
+        	if Settings.combo.comboItems then
+        	    UseItems(unit)
+        	end
+        	if Settings.combo.useQ12 then
+        	    CastHPQ12(unit)
+        	end
+        	if Settings.combo.useQ3 and SkillE.ready then
+        	    CastHPQ3(unit)
+       		end
+   	    	if Settings.combo.useR then    
+    	        sbtwR()
+    	    end
+    	end
+    	if Settings.misc.prediction == 3 then
+        	if Settings.combo.comboItems then
+        	    UseItems(unit)
+        	end
+        	if Settings.combo.useQ12 then
+        	    CastSQ12(unit)
+        	end
+        	if Settings.combo.useQ3 and SkillE.ready then
+        	    CastSQ3(unit)
+        	end
+        	if Settings.combo.useR then    
+            	sbtwR()
+        	end
+    	end
         local TargetDistance = GetDistance(Target)
         if TargetDistance > SkillE.range and Settings.combo.useEGap then
             mPos = getNearestMinion(Target)
             if SkillE.ready and mPos then 
-                E(mPos) 
+                E(mPos)
+                local qDmg = myHero:CalcDamage(Target,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+            elseif qDmg >= Target.health and SkillE.ready and mPos then
+            	E(mPos) 
             end
-        end
-                
-        if SkillE.ready and Settings.combo.useE and TargetDistance <= SkillE.range and TargetDistance > Settings.combo.DistanceToE then
-            if eStack == 2 then
-                E(Target)
-            end
-            checkMinion = getNearestMinion(Target)
-            if eStack < 2 and checkMinion ~= nil and GetDistance(eEndPos(checkMinion)) < SkillQ.width then
-                E(checkMinion)
-            else
-                E(Target)
-            end
-        end
-    end
-    if Target ~= nil and Settings.misc.prediction == 2 then
-
-        teamfight()
-        
-        if Settings.combo.comboItems then
-            UseItems(unit)
-        end
-        if Settings.combo.useQ12 then
-            CastHPQ12(unit)
-        end
-        if Settings.combo.useQ3 then
-            CastHPQ3(unit)
-        end
-        if Settings.combo.useR then    
-            sbtwR()
-        end
-        local TargetDistance = GetDistance(Target)
-        if TargetDistance > SkillE.range and Settings.combo.useEGap then
-            mPos = getNearestMinion(Target)
-            if SkillE.ready and mPos then 
-                E(mPos) 
-            end
-        end
-                
+        end               
         if SkillE.ready and Settings.combo.useE and TargetDistance <= SkillE.range and TargetDistance > Settings.combo.DistanceToE then
             if eStack == 2 then
                 E(Target)
@@ -1491,7 +1486,7 @@ function CastQ12(unit, minion)
         local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.25, 55, 475, 1500, myHero, false)
         if HitChance >= 2 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-        elseif not  UsePacket then
+        elseif not  UsePacket and not IsDashing() then
             CastSpell(_Q, CastPosition.x, CastPosition.z)
         end
     end
@@ -1503,7 +1498,7 @@ function CastQ3(unit, minion)
         local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.4, 90, 1000, 2500, myHero, false)
         if MainTargetHitChance >= 2 and nTargets >= 1 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
-        elseif not  UsePacket then
+        elseif not  UsePacket and not IsDashing() then
             CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
         end     
     end
@@ -1515,7 +1510,7 @@ function CastHPQ12(unit, minion)
         local QPos, QHitChance = HPred:GetPredict(HPQ12, unit, myHero)
         if QHitChance >= 2 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()   
-        elseif not  UsePacket then
+        elseif not  UsePacket and not IsDashing() then
             CastSpell(_Q, QPos.x, QPos.z)
         end
     end
@@ -1527,8 +1522,32 @@ function CastHPQ3(unit, minion)
         local QPos, QHitChance = HPred:GetPredict(HPQ3, unit, myHero)
         if QHitChance >= 2 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()
-        elseif not  UsePacket then
+        elseif not  UsePacket and not IsDashing() then
             CastSpell(_Q, QPos.x, QPos.z)
+        end     
+    end
+end
+
+function CastSQ12(unit, minion)
+    local UsePacket = Settings.misc.usePackets
+    if SkillQ12.ready and ValidTarget(unit,500) then
+        local CastPosition, Chance, PredPos = SP:Predict(unit, 475, 1500, 0.25, 55, false, myHero)
+        if Chance >= 2 and UsePacket and not IsDashing() then
+            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+        elseif not  UsePacket and not IsDashing() then
+            CastSpell(_Q, CastPosition.x, CastPosition.z)
+        end
+    end
+end
+
+function CastSQ3(unit, minion)
+    local UsePacket = Settings.misc.usePackets
+    if SkillQ3.ready and ValidTarget(unit,1000) then  
+        local CastPosition, Chance, PredPos = SP:Predict(unit, 1000, 2500, 0.4, 90, false, myHero)
+        if Chance >= 2 and UsePacket and not IsDashing() then
+            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+        elseif not  UsePacket and not IsDashing() then
+            CastSpell(_Q, CastPosition.x, CastPosition.z)
         end     
     end
 end
@@ -1558,10 +1577,10 @@ function AutoQenemy()
     if not IsRecalling then
         if not Settings.harass.underTower then
 
-            if Settings.harass.useQ12 and SkillQ12.ready and not UnderTurret(myHero, true) then
+            if Settings.harass.useQ12 and SkillQ12.ready and not IsRecalling and not UnderTurret(myHero, true) then
                 CastQ12(Target)
             end
-            if Settings.harass.useQ3 and SkillQ3.ready and not UnderTurret(myHero, true) then
+            if Settings.harass.useQ3 and SkillQ3.ready and not IsRecalling and not UnderTurret(myHero, true) then
                 CastQ3(Target)
             end
         end
@@ -1569,7 +1588,7 @@ function AutoQenemy()
 end    
 
 function Rks(unit)
-    if unit.health <= (Settings.ks.autoRkillable/100*unit.maxHealth)*1.5 then
+    if unit.health <= ((Settings.combo.autoRkillable/100*unit.maxHealth)*1.5) then
         return true
     else
         return false
@@ -1587,17 +1606,6 @@ function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
         if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Rks(Target) then
-            DelayAction(function()
-                CastSpell(_R)
-            end, 0.5 - GetLatency() / 1000)
-        end
-    end
-end
-
-function AutoUltKillable()
-    for i = 1, heroManager.iCount, 1 do
-        local Target = heroManager:getHero(i)
-        if Settings.ks.autoR and ValidTarget(Target, SkillR.range) and Rks(Target) and not isRecalling then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
@@ -1627,29 +1635,30 @@ function KillSteal()
             if ValidTarget(eTarget, SkillE.range) then
                 local qDmg = myHero:CalcDamage(eTarget,(GetSpellData(_Q).level*20)+myHero.totalDamage)
                 local eDmg = getEDmg(eTarget)
-                if SkillQ12.ready then 
-                    damage = qDmg
+                local rDmg = myHero:CalcDamage(eTarget,(GetSpellData(_R).level*20)+myHero.totalDamage)
+                if SkillQ.ready then 
+                    if qDmg >= eTarget.health then
+                        CastSpell(_Q, eTarget)
+                    end
                 end
-                if SkillE.ready then 
-                    damage = damage + eDmg
-                end 
-                if damage > eTarget.health then
-                    ksTarget = eTarget
+                if SkillE.ready then
+                    if eDmg >= eTarget.health then
+                        E(eTarget)
+                    end
+                end
+                if SkillE.ready and SkillQ.ready then
+                    if (qDmg + eDmg) >= eTarget.health then
+                        CastSpell(_Q, eTarget)
+                        E(eTarget)
+                    end
+                end
+                if SkillR.ready and Settings.ks.autoR then
+                    if rDmg >= eTarget.health then
+                        CastSpell(_R, eTarget)
+                    end
                 end
             end
         end
-    end
-    if ksTarget and GetDistance(ksTarget)<SkillE.range then
-        if ValidTarget(ksTarget) then
-            E(ksTarget)
-        end
-        if ValidTarget(ksTarget) then
-            if dashed ~= nil and GetDistance(ksTarget) <= SkillQ12.width then
-                CastQ12(ksTarget)
-            end
-        end
-    else 
-      ksTarget = nil
     end
 end
 
@@ -1664,40 +1673,40 @@ function DmgCalc()
                 iDmg        = ((getDmg("IGNITE", enemy, myHero)) or 0)
 
 
-                    if enemy.health <= aaDmg
+                    if aaDmg >= enemy.health
                         then
                             KillText[i] = 1                           
 
-                    elseif enemy.health <= iDmg
+                    elseif iDmg >= enemy.health
                         then
                             KillText[i] = 2
 
-                    elseif enemy.health <= qDmg
+                    elseif qDmg >= enemy.health
                         then
                             KillText[i] = 3
 
-                    elseif enemy.health <= eDmg
+                    elseif eDmg >= enemy.health
                         then
                             KillText[i] = 4
                             
-                    elseif enemy.health <= rDmg
+                    elseif rDmg >= enemy.health
                         then
                             KillText[i] = 5
                             
-                    elseif enemy.health <= (qDmg + eDmg)
+                    elseif (qDmg + eDmg) >= enemy.health
                         then
                             KillText[i] = 6                         
 
-                    elseif enemy.health <= (rDmg + eDmg)
+                    elseif (rDmg + eDmg) >= enemy.health
                         then
                             KillText[i] = 7
                             
-                    elseif enemy.health <= (qDmg + eDmg + rDmg)
+                    elseif (qDmg + eDmg + rDmg) >= enemy.health
                         then
 
                             KillText[i] = 8     
 
-                    elseif enemy.health <= (qDmg + eDmg + rDmg + iDmg)
+                    elseif (qDmg + eDmg + rDmg + iDmg) >= enemy.health
                         then
 
                             KillText[i] = 9 
@@ -1726,15 +1735,15 @@ end
 function AutoIgnite()
     if Settings.ks.autoIgnite and ignite ~= nil and IREADY then
         local igniteDamage = 50 + 20 * myHero.level
-    for i = 1, heroManager.iCount, 1 do
-      local target = heroManager:getHero(i)
-      if ValidTarget(target, 600) and target.team ~= myHero.team then
-        if igniteDamage > (target.health - 25) then
-          CastSpell(ignite, target)
+        for i = 1, heroManager.iCount, 1 do
+            local target = heroManager:getHero(i)
+            if ValidTarget(target, 600) and target.team ~= myHero.team then
+                if igniteDamage > (target.health - 25) then
+                    CastSpell(ignite, target)
+                end
+            end
         end
-      end
     end
-  end
 end
 
 function teamfight()
@@ -1763,10 +1772,7 @@ function MoveToMouse()
 end
 
 function eEndPos(unit)
-    --[[local endPos = Point(unit.x-myHero.x, unit.z-myHero.z)
-    abs = math.sqrt(endPos.x*endPos.x + endPos.y*endPos.y)
-    endPos2 = Point(myHero.x + (eRange*(endPos.x/abs)), myHero.z + (eRange*(endPos.y/abs)))
-    return endPos2]]
+
     if unit ~= nil then
         if GetDistance(myHero,unit) < 410 then
            dashPointT = myHero + (Vector(unit) - myHero):normalized() * 485
@@ -1933,11 +1939,7 @@ function OnApplyBuff(source, unit, buff)
         or buff.name == "NamiQ" or buff.name == "OrianaDetonateCommand" or buff.name == "Pantheon_LeapBash" or buff.name == "PuncturingTaunt" or buff.name == "SejuaniGlacialPrisonStart"
         or buff.name == "SwainShadowGrasp" or buff.name == "Imbue" or buff.name == "ThreshQ" or buff.name == "UrgotSwap2" or buff.name == "VarusR" or buff.name == "VeigarEventHorizon" 
         or buff.name == "ViR" or buff.name == "InfiniteDuress" or buff.name == "ZyraGraspingRoots" or(buff.type == 10 and buff.name and buff.name:lower():find("fleeslow"))or (buff.name:lower():find("summonerexhaust")) then
-            if buff.name and buff.name:lower():find("caitlynyor") and CountEnemiesNearUnitReg(myHero, 700) == 0   then
-                return false
-            elseif not buff.name:lower():find("rocketgrab2") then
-                UseQSS(myHero, true)
-            end          
+            UseQSS(myHero, true)         
         end                    
     end 
 end
@@ -2008,11 +2010,13 @@ function Menu()
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
-        Settings.combo:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
-        Settings.combo:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
-        Settings.combo:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
-        Settings.combo:permaShow("autoult")
+    Settings.combo:addSubMenu("["..myHero.charName.."] - Ult Settings", "ults")
+        Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
+        Settings.combo.ults:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+        Settings.combo.ults:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
+        Settings.combo.ults:permaShow("autoult")
     
     Settings:addSubMenu("["..myHero.charName.."] - Harass Settings", "harass")
         Settings.harass:addParam("harassKey", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("C"))
@@ -2050,7 +2054,6 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoR", "Auto-R KS", SCRIPT_PARAM_ONOFF, true)
-        Settings.ks:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         --Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:permaShow("killSteal")
         Settings.ks:permaShow("autoR")
@@ -2120,14 +2123,15 @@ function Menu()
         Settings.misc:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         Settings.misc:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
-        Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction"})
+        Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"})
         Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
+        Settings.misc:permaShow("prediction")
 
     --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
         --SxOrb:LoadToMenu(Settings.Orbwalking)
     
-    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
+    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)
     TargetSelector.name = "Gosu"
     Settings:addTS(TargetSelector)
 
@@ -2144,12 +2148,13 @@ function Variables()
     HPQ12 = HPSkillshot({type = "PromptLine", delay = SkillQ12.delay, range = SkillQ12.range, width = SkillQ12.width})
     HPQ3 =  HPSkillshot({type = "DelayLine", delay = SkillQ3.delay, range = SkillQ3.range, width = SkillQ3.width, speed = SkillQ3.speed})
 
-    enemyMinions = minionManager(MINION_ENEMY, SkillQ12.range, myHero, MINION_SORT_HEALTH_ASC)
-    JungleMinions = minionManager(MINION_JUNGLE, SkillQ12.range, myHero, MINION_SORT_HEALTH_ASC)
+    enemyMinions = minionManager(MINION_ENEMY, 1300, myHero, MINION_SORT_HEALTH_ASC)
+    JungleMinions = minionManager(MINION_JUNGLE, 1300, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     
     VP = VPrediction()
     HPred = HPrediction()
+    SP = SPrediction()
     
     JungleMobs = {}
     JungleFocusMobs = {}
@@ -2844,8 +2849,8 @@ end
 function fuckedUpSpells()
     if fuckedUpSpell.spellName == "KatarinaR" and fuckedUpObject.charName == "Katarina" then
         local object = fuckedUpObject
-        if GetDistance(fuckedUpObject)-SkillW.range < fuckedUpSpell.range then
-            if SKillW.ready and Settings.blocks[fuckedUpSpell.spellName] then
+        if GetDistance(fuckedUpObject)- SkillW.range < fuckedUpSpell.range then
+            if SkillW.ready and Settings.blocks[fuckedUpSpell.spellName] then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
                 CastSpell(_W, object, object)
