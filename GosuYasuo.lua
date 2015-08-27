@@ -1626,7 +1626,7 @@ end
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and eTarget.health <= ((Settings.combo.autoRkillable/100*eTarget.maxHealth)*1.5) then
+        if ValidTarget(eTarget, SkillR.range) and eTarget.health <= (Settings.combo.autoRkillable/100*eTarget.maxHealth) then
             CastSpell(_R)
         end
     end
