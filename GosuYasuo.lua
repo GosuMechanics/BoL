@@ -1597,14 +1597,6 @@ function AutoQenemy()
     end
 end    
 
-function Rks(unit)
-    if unit.health <= ((Settings.combo.autoRkillable/100*unit.maxHealth)*1.5) then
-        return true
-    else
-        return false
-    end
-end
-
 function E(unit)
     posAfterE = eEndPos(unit)
     if VIP_USER and Settings.misc.usePackets then
@@ -1617,7 +1609,7 @@ end
 function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Rks(Target) then
+        if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Target.health <= ((Settings.combo.autoRkillable/100*Target.maxHealth)*1.5) then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
@@ -1628,7 +1620,7 @@ end
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and Rks(Target) then
+        if ValidTarget(eTarget, SkillR.range) and Target.health <= ((Settings.combo.autoRkillable/100*Target.maxHealth)*1.5) then
             CastSpell(_R)
         end
     end
