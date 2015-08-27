@@ -1364,9 +1364,6 @@ function Combo(unit)
             mPos = getNearestMinion(Target)
             if SkillE.ready and mPos then 
                 E(mPos)
-                local qDmg = myHero:CalcDamage(Target,(GetSpellData(_Q).level*20)+myHero.totalDamage)
-            elseif qDmg >= Target.health and SkillE.ready and mPos then
-            	E(mPos) 
             end
         end               
         if SkillE.ready and Settings.combo.useE and TargetDistance <= SkillE.range and TargetDistance > Settings.combo.DistanceToE then
