@@ -1604,10 +1604,13 @@ function AutoQenemy()
 end    
 
 function Rks(unit)
-    if unit.health <= ((Settings.combo.ults.autoRkillable/100*unit.maxHealth)*1.5) then
-        return true
-    else
-        return false
+    for i = 1, heroManager.iCount, 1 do
+    local enemy = heroManager:getHero(i)
+        if enemy.health <= ((Settings.combo.ults.autoRkillable/100*enemy.maxHealth)*1.5) then
+            return true
+        else
+            return false
+        end
     end
 end
 
