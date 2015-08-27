@@ -1324,7 +1324,7 @@ function Combo(unit)
     	    if Settings.combo.useQ12 then
     	        CastQ12(unit)
     	    end
-    	    if Settings.combo.useQ3 and SkillE.ready then
+    	    if Settings.combo.useQ3 then
     	        CastQ3(unit)
     	    end
    	    	if Settings.combo.useR then    
@@ -1338,7 +1338,7 @@ function Combo(unit)
         	if Settings.combo.useQ12 then
         	    CastHPQ12(unit)
         	end
-        	if Settings.combo.useQ3 and SkillE.ready then
+        	if Settings.combo.useQ3 then
         	    CastHPQ3(unit)
        		end
    	    	if Settings.combo.useR then    
@@ -1352,7 +1352,7 @@ function Combo(unit)
         	if Settings.combo.useQ12 then
         	    CastSQ12(unit)
         	end
-        	if Settings.combo.useQ3 and SkillE.ready then
+        	if Settings.combo.useQ3 then
         	    CastSQ3(unit)
         	end
         	if Settings.combo.useR then    
@@ -1594,7 +1594,9 @@ end
 
 function E(unit)
     posAfterE = eEndPos(unit)
-    if SkillE.ready then
+    if VIP_USER and Settings.misc.usePackets then
+        Packet("S_CAST", {spellId = _E, targetNetworkId = unit.networkID}):send()
+    else
         CastSpell(_E, unit) 
     end
 end
@@ -1651,7 +1653,7 @@ function KillSteal()
                 end
                 if SkillR.ready and Settings.ks.autoR then
                     if rDmg >= eTarget.health then
-                        CastSpell(_R, eTarget)
+                        CastSpell(_R)
                     end
                 end
             end
@@ -2850,7 +2852,7 @@ function fuckedUpSpells()
             if SkillW.ready and Settings.blocks[fuckedUpSpell.spellName] then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
-                CastSpell(_W, object, object)
+                CastSpell(_W, object.x, object.z)
             end            
         end 
     elseif fuckedUpParticle ~= nil and GetDistance(fuckedUpParticle) < SkillW.range and (fuckedUpSpell.spellName == "EzrealTrueshotBarrage" or fuckedUpSpell.spellName == "EnchantedCrystalArrow" or fuckedUpSpell.spellName == "ZiggsR" or fuckedUpSpell.spellName == "CaitlynHeadshotMissile") then 
