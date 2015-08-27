@@ -606,8 +606,10 @@ Champions = {
     }},
     ["TwistedFate"] = {charName = "TwistedFate", skillshots = {
         ["WildCards"] = {spellKey = _Q, name = "Loaded Dice", spellName = "WildCards", spellDelay = 250, projectileName = "Roulette_mis.troy", projectileSpeed = 1000, range = 1450, radius = 40, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
-        ["Pick A Card"] = {spellKey = _W, isSelfCast = true, checkName = true, name = "Pick A Card", spellName = "PickACard", spellDelay = 250, projectileName = "Thresh_Q_whip_beam.troy", projectileSpeed = 1500, range = 700, type = "LINE"},
-        ["Gold Card"] = {spellKey = _W, isSelfCast = true, checkName = true, name = "Gold Card", spellName = "goldcardlock", spellDelay = 250, projectileName = "Thresh_Q_whip_beam.troy", projectileSpeed = 1500, range = math.huge, type = "LINE"},
+        ["Pick A Card"] = {spellKey = _W, isSelfCast = true, checkName = true, name = "Pick A Card", spellName = "PickACard", spellDelay = 250, projectileName = "Thresh_Q_whip_beam.troy", projectileSpeed = 1500, range = 700, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
+        ["Gold Card"] = {spellKey = _W, isSelfCast = true, checkName = true, name = "Gold Card", spellName = "goldcardlock", spellDelay = 250, projectileName = "TwistedFate_Base_W_GoldCard.troy", projectileSpeed = 1500, range = math.huge, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
+        ["Blue Card"] = {spellKey = _W, isSelfCast = true, checkName = true, name = "Blue Card", spellName = "bluecardlock", spellDelay = 250, projectileName = "TwistedFate_Base_W_BlueCard.troy", projectileSpeed = 1500, range = math.huge, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
+        ["Red Card"] = {spellKey = _W, isSelfCast = true, checkName = true, name = "Red Card", spellName = "redcardlock", spellDelay = 250, projectileName = "TwistedFate_Base_W_RedCard.troy", projectileSpeed = 1500, range = math.huge, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
     }},
     ["Twitch"] = {charName = "Twitch", skillshots = {
         ["TwitchVenomCask"] = { spellKey = _W, type = "LINE", spellName = "TwitchVenomCask", name = "TwitchVenomCask", projectileName = "Twitch_Venom_Splash.troy", projectileSpeed = 1400, range = 900, radius = 200, fuckedUp = false, blockable = true, danger = 1},
@@ -947,7 +949,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.17
+    ToUpdate.Version = 1.18
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1063,10 +1065,16 @@ function OnTick()
     if Settings.esc.useQminion then
         AutoQenemyminion()
     end
+
+    if Settings.Egap.smartEgap then
+        smartEgap()
+    end
     
     Checks()
 
     AutoUlt()
+
+    autoRkillable()
 
     GetItemSlot()
 end
@@ -1366,16 +1374,8 @@ function Combo(unit)
                 E(mPos)
             end
         end               
-        if SkillE.ready and Settings.combo.useE and TargetDistance <= SkillE.range and TargetDistance > Settings.combo.DistanceToE then
-            if eStack == 2 then
-                E(Target)
-            end
-            checkMinion = getNearestMinion(Target)
-            if eStack < 2 and checkMinion ~= nil and GetDistance(eEndPos(checkMinion)) < SkillQ.width then
-                E(checkMinion)
-            else
-                E(Target)
-            end
+        if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
+            E(Target)
         end
     end
 end
@@ -1454,7 +1454,7 @@ function LaneClear()
 end
 
 function JungleClear()
-        if Settings.jungle.jungleKey then
+    if Settings.jungle.jungleKey then
         local JungleMob = GetJungleMob()
         
         if JungleMob ~= nil then
@@ -1472,6 +1472,19 @@ function flee()
     mPos = getNearestMinion(mousePos)
     if SkillE.ready and mPos then
         E(mPos) 
+    else 
+        myHero:MoveTo(mousePos.x, mousePos.z) 
+    end
+end
+
+function smartEgap()
+    mPos = getNearestMinion(mousePos)
+    if ValidTarget(Target) and GetDistance(Target) >= SkillE.range and SkillE.ready and mPos then
+        E(mPos)
+    end
+    if SkillQ12.ready and Settings.Egap.useQ and ValidTarget(Target) and GetDistance(Target) <= SkillQ12.range then
+        CastQ12(Target)
+        CastQ3(Target)
     else 
         myHero:MoveTo(mousePos.x, mousePos.z) 
     end
@@ -1574,10 +1587,10 @@ function AutoQenemy()
     if not IsRecalling then
         if not Settings.harass.underTower then
 
-            if Settings.harass.useQ12 and SkillQ12.ready and not IsRecalling and not UnderTurret(myHero, true) then
+            if Settings.harass.useQ12 and ValidTarget(Target, SkillQ12.range) and SkillQ12.ready and not IsRecalling and not UnderTurret(myHero, true) then
                 CastQ12(Target)
             end
-            if Settings.harass.useQ3 and SkillQ3.ready and not IsRecalling and not UnderTurret(myHero, true) then
+            if Settings.harass.useQ3 and ValidTarget(Target, SkillQ3.range) and SkillQ3.ready and not IsRecalling and not UnderTurret(myHero, true) then
                 CastQ3(Target)
             end
         end
@@ -1612,10 +1625,19 @@ function sbtwR()
     end
 end
 
+function autoRkillable()
+    for i = 1, heroManager.iCount, 1 do
+        local eTarget = heroManager:getHero(i)
+        if ValidTarget(eTarget, SkillR.range) and Rks(Target) then
+            CastSpell(_R)
+        end
+    end
+end
+
 function AutoUlt()
     knocked = 0
     for i, v in ipairs(GetEnemyHeroes()) do
-        if not v.canMove and v.y > 130 and ValidTarget(v) then
+        if ValidTarget(v, SkillR.range) then
             knocked = knocked + 1
             if Settings.combo.autoult and SkillR.ready and not isRecalling then
                 if knocked >= Settings.combo.Ult3 then
@@ -1634,7 +1656,6 @@ function KillSteal()
             if ValidTarget(eTarget, SkillE.range) then
                 local qDmg = myHero:CalcDamage(eTarget,(GetSpellData(_Q).level*20)+myHero.totalDamage)
                 local eDmg = getEDmg(eTarget)
-                local rDmg = myHero:CalcDamage(eTarget,(GetSpellData(_R).level*20)+myHero.totalDamage)
                 if SkillQ.ready then 
                     if qDmg >= eTarget.health then
                         CastSpell(_Q, eTarget)
@@ -1649,11 +1670,6 @@ function KillSteal()
                     if (qDmg + eDmg) >= eTarget.health then
                         CastSpell(_Q, eTarget)
                         E(eTarget)
-                    end
-                end
-                if SkillR.ready and Settings.ks.autoR then
-                    if rDmg >= eTarget.health then
-                        CastSpell(_R)
                     end
                 end
             end
@@ -2049,6 +2065,10 @@ function Menu()
         Settings.esc:addParam("useQjungle", "AutoQ JungleMob", SCRIPT_PARAM_ONOFF, true)
         Settings.esc:permaShow("useQminion")
         Settings.esc:permaShow("useQjungle")
+
+    Settings:addSubMenu("["..myHero.charName.."] - E GapClose Settings", "Egap")
+        Settings.Egap:addParam("smartEgap", "(Test) E Gap-Closer Key", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("E"))
+        Settings.Egap:addParam("useQ", "(Test) Q Harass", SCRIPT_PARAM_ONOFF, true)
 
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
