@@ -1374,7 +1374,7 @@ function Combo(unit)
                 E(mPos)
             end
         end
-        if TargetDistance >= SkillE.range and Settings.combo.dash and Settings.combo.useEGap then
+        if TargetDistance <= SkillE.range and Settings.combo.dash and Settings.combo.useEGap then
             mPos = getNearestMinion(mousePos)
             if SkillE.ready and mPos then 
                 E(mPos)
