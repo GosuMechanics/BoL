@@ -1374,12 +1374,12 @@ function Combo(unit)
                 E(mPos)
             end
         end
-        if TargetDistance <= SkillE.range and Settings.combo.dash and Settings.combo.useEGap then
+        if TargetDistance <= SkillE.range and Settings.combo.useEGap then
             mPos = getNearestMinion(mousePos)
-            if SkillE.ready and mPos then 
+            if SkillE.ready and Settings.combo.dash and mPos then 
                 E(mPos)
             end
-        end                   
+        end                    
         if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
             E(Target)
         end
@@ -1603,6 +1603,14 @@ function AutoQenemy()
     end
 end    
 
+function Rks(unit)
+    if unit.health <= ((Settings.combo.ults.autoRkillable/100*unit.maxHealth)*1.5) then
+        return true
+    else
+        return false
+    end
+end
+
 function E(unit)
     posAfterE = eEndPos(unit)
     if VIP_USER and Settings.misc.usePackets then
@@ -1615,7 +1623,7 @@ end
 function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Target.health <= ((Settings.combo.autoRkillable/100*Target.maxHealth)*1.5) then
+        if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Rks(Target) then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
@@ -1626,7 +1634,7 @@ end
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and eTarget.health <= (Settings.combo.autoRkillable/100*eTarget.maxHealth) then
+        if ValidTarget(eTarget, SkillR.range) and Rks(Target) then
             CastSpell(_R)
         end
     end
@@ -2022,8 +2030,8 @@ function Menu()
         Settings.combo:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("dash", "Use Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
-        Settings.combo:addParam("dash", "Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Settings.combo:addSubMenu("["..myHero.charName.."] - Ult Settings", "ults")
         Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
