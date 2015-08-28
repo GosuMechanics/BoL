@@ -1322,7 +1322,7 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    if Target ~= nil then
+    if ValidTarget(unit, 500) then
 
         teamfight()
 
