@@ -1347,7 +1347,7 @@ function Combo(unit)
             E(Target)
         end
         if TargetDistance <= SkillE.range then
-            mPos = getNearestMinion(mousePos)
+            mPos = getNearestMinion(Target)
             if SkillE.ready and Settings.combo.dash and mPos then 
                 E(mPos)
             end
@@ -1954,43 +1954,6 @@ function Menu()
         Settings.ks:permaShow("killSteal")
         Settings.ks:permaShow("autoR")
 
-    Settings:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
-        Settings.interrupt:addParam("r", "Interrupt with Yasuoq3w", SCRIPT_PARAM_ONOFF, true)
-        for i, a in pairs(GetEnemyHeroes()) do
-            if Interrupt[a.charName] ~= nil then
-                for i, spell in pairs(Interrupt[a.charName].stop) do
-                    Settings.interrupt:addParam(spell.spellName, a.charName.." - "..spell.name, SCRIPT_PARAM_ONOFF, true)
-                end
-            end
-        end
-    Settings:addSubMenu("[" .. myHero.charName.. "] - Anti Gap-Closer", "gapClose")
-        for _, enemy in pairs(GetEnemyHeroes()) do
-            if isAGapcloserUnit[enemy.charName] ~= nil then
-                Settings.gapClose:addParam(enemy.charName, enemy.charName .. " - " .. enemy:GetSpellData(isAGapcloserUnit[enemy.charName].spell).name, SCRIPT_PARAM_ONOFF, true)
-            end
-        end
-
-    Settings:addSubMenu("["..myHero.charName.."] - WindWall Settings", "blocks")
-        Settings.blocks:addParam("autoW", " Auto "..SkillW.name.." ", SCRIPT_PARAM_ONOFF, true)
-
-    for i = 1, heroManager.iCount,1 do
-        local hero = heroManager:getHero(i)
-        if hero.team ~= player.team then
-            if Champions[hero.charName] ~= nil then
-                for index, skillshot in pairs(Champions[hero.charName].skillshots) do
-                    if skillshot.blockable == true then
-                        Settings.blocks:addParam(skillshot.spellName, hero.charName .. " - " .. skillshot.name, SCRIPT_PARAM_ONOFF, true)
-                    end
-                    --[[
-                    if skillshot.blockable == true then
-                        Config.SMevade:addParam(skillshot.spellName, hero.charName .. " - " .. skillshot.name, SCRIPT_PARAM_ONOFF, true)
-                    end
-                    ]]
-                end
-            end
-        end
-    end
-
     Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")   
         Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
         Settings.drawing:addParam("Target", "Draw Circle on Target", SCRIPT_PARAM_ONOFF, true)
@@ -2023,6 +1986,42 @@ function Menu()
         Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
        --Settings.misc:permaShow("prediction")
+         Settings.misc:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+        Settings.misc.interrupt:addParam("r", "Interrupt with Yasuoq3w", SCRIPT_PARAM_ONOFF, true)
+        for i, a in pairs(GetEnemyHeroes()) do
+            if Interrupt[a.charName] ~= nil then
+                for i, spell in pairs(Interrupt[a.charName].stop) do
+                    Settings.misc.interrupt:addParam(spell.spellName, a.charName.." - "..spell.name, SCRIPT_PARAM_ONOFF, true)
+                end
+            end
+        end
+    Settings.misc:addSubMenu("[" .. myHero.charName.. "] - Anti Gap-Closer", "gapClose")
+        for _, enemy in pairs(GetEnemyHeroes()) do
+            if isAGapcloserUnit[enemy.charName] ~= nil then
+                Settings.misc.gapClose:addParam(enemy.charName, enemy.charName .. " - " .. enemy:GetSpellData(isAGapcloserUnit[enemy.charName].spell).name, SCRIPT_PARAM_ONOFF, true)
+            end
+        end
+
+    Settings.misc:addSubMenu("["..myHero.charName.."] - WindWall Settings", "blocks")
+        Settings.misc.blocks:addParam("autoW", "Use Auto "..SkillW.name.." ", SCRIPT_PARAM_ONOFF, true)
+
+    for i = 1, heroManager.iCount,1 do
+        local hero = heroManager:getHero(i)
+        if hero.team ~= player.team then
+            if Champions[hero.charName] ~= nil then
+                for index, skillshot in pairs(Champions[hero.charName].skillshots) do
+                    if skillshot.blockable == true then
+                        Settings.misc.blocks:addParam(skillshot.spellName, hero.charName .. " - " .. skillshot.name, SCRIPT_PARAM_ONOFF, true)
+                    end
+                    --[[
+                    if skillshot.blockable == true then
+                        Config.SMevade:addParam(skillshot.spellName, hero.charName .. " - " .. skillshot.name, SCRIPT_PARAM_ONOFF, true)
+                    end
+                    ]]
+                end
+            end
+        end
+    end
 
     --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
         --SxOrb:LoadToMenu(Settings.Orbwalking)
@@ -2642,7 +2641,7 @@ function OnProcessSpell(object,spellProc)
         ResetAA()
     end
 
-    if Settings.blocks.autoW then 
+    if Settings.misc.blocks.autoW then 
         if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
             if Champions[object.charName] ~= nil then
                 skillshot = Champions[object.charName].skillshots[spellProc.name]
@@ -2654,7 +2653,7 @@ function OnProcessSpell(object,spellProc)
                     end                    
                     if GetDistance(spellProc.startPos) <= range then
                         if GetDistance(spellProc.endPos) <= SkillW.range then
-                            if SkillW.ready and Settings.blocks[spellProc.name] then 
+                            if SkillW.ready and Settings.misc.blocks[spellProc.name] then 
                                 CastSpell(_W, object.x, object.z)
                             end
                         end
@@ -2675,8 +2674,8 @@ function OnProcessSpell(object,spellProc)
     if Interrupt[object.charName] ~= nil then
         spell = Interrupt[object.charName].stop[spellProc.name]
         if spell ~= nil then
-            if Settings.interrupt[spellProc.name] then
-                if ValidTarget(unit) and GetDistance(object) < SkillQ3.range and SkillQ3.ready and Settings.interrupt.r then
+            if Settings.misc.interrupt[spellProc.name] then
+                if ValidTarget(unit) and GetDistance(object) < SkillQ3.range and SkillQ3.ready and Settings.misc.interrupt.r then
                     CastQ3(unit)
                 end
             end
@@ -2687,7 +2686,7 @@ function OnProcessSpell(object,spellProc)
     local spell = spellProc
     
     if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
-        if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Settings.gapClose[unit.charName] then
+        if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Settings.misc.gapClose[unit.charName] then
             if spell.target ~= nil and spell.target and spell.target.networkID == myHero.networkID or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
                CastQ3(object)
             elseif not spell.target then
@@ -2742,14 +2741,14 @@ function fuckedUpSpells()
     if fuckedUpSpell.spellName == "KatarinaR" and fuckedUpObject.charName == "Katarina" then
         local object = fuckedUpObject
         if GetDistance(fuckedUpObject)-SkillW.range < fuckedUpSpell.range then
-            if SkillW.ready and Settings.blocks[fuckedUpSpell.spellName] then
+            if SkillW.ready and Settings.misc.blocks[fuckedUpSpell.spellName] then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
                 CastSpell(_W, object.x, object.z)
             end            
         end 
     elseif fuckedUpParticle ~= nil and GetDistance(fuckedUpParticle) < SkillW.range and (fuckedUpSpell.spellName == "EzrealTrueshotBarrage" or fuckedUpSpell.spellName == "EnchantedCrystalArrow" or fuckedUpSpell.spellName == "ZiggsR" or fuckedUpSpell.spellName == "CaitlynHeadshotMissile") then 
-            if SkillW.ready and Settings.blocks[fuckedUpSpell.spellName] and fuckedUpParticle.x > 0 and fuckedUpParticle.z > 0 then
+            if SkillW.ready and Settings.misc.blocks[fuckedUpSpell.spellName] and fuckedUpParticle.x > 0 and fuckedUpParticle.z > 0 then
                 fuckedUpSpell = nil
                 fuckedUpObject = nil
                 object = fuckedUpParticle
