@@ -1347,7 +1347,7 @@ function Combo(unit)
             E(Target)
         end
         if TargetDistance <= SkillE.range then
-            mPos = getNearestMinion(Target)
+            mPos = getNearestMinion(mousePos)
             if SkillE.ready and Settings.combo.dash and mPos then 
                 E(mPos)
             end
@@ -1456,8 +1456,16 @@ function smartEgap()
     mPos = getNearestMinion(mousePos)
     if ValidTarget(Target) and GetDistance(Target) >= SkillE.range and SkillE.ready and mPos then
         E(mPos)
-    else
-        myHero:MoveTo(mousePos.x, mousePos.z) 
+    else 
+        myHero:MoveTo(mousePos.x, mousePos.z)
+    end
+    if not SkillQ.ready then
+        mPos = getNearestMinion(mousePos)
+        if SkillE.ready and mPos then
+            E(mPos) 
+        else 
+            myHero:MoveTo(mousePos.x, mousePos.z) 
+        end
     end
 end
 
@@ -1479,7 +1487,7 @@ function CastQ3(unit, minion)
     if SkillQ3.ready and ValidTarget(unit,1000) then  
 
             local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
-            if MainTargetHitChance >= 2 and nTargets >= 1 and UsePacket and not IsDashing() then
+            if MainTargetHitChance >= 1 and nTargets >= 1 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
@@ -1532,7 +1540,7 @@ function E(unit)
 end
 
 function Low(unit)
-    if unit ~= nil and unit.visible and unit.type == myHero.type and unit.health <= (Settings.combo.ults.autoRPercent/100*unit.maxHealth) then
+    if unit ~= nil and unit.type == myHero.type and SkillR.range and unit.health <= ((Settings.combo.ults.autoRPercent/100*unit.maxHealth)*1.5) then
         return true
     else
         return false
@@ -1944,7 +1952,7 @@ function Menu()
         Settings.esc:permaShow("useQjungle")
 
     Settings:addSubMenu("["..myHero.charName.."] - E GapClose Settings", "Egap")
-        Settings.Egap:addParam("smartEgap", "(Test) E Gap-Closer Key", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("E"))
+        Settings.Egap:addParam("smartEgap", "(Test) EGap/Cheese Strat", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("E"))
         --Settings.Egap:addParam("useQ", "(Test) Q Harass", SCRIPT_PARAM_ONOFF, true)
 
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
