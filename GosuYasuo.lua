@@ -1459,7 +1459,7 @@ function CastQ12(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit,500) then
 
-            local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.75, 55, 475, 1500, myHero, false)
+            local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.25, 55, 475, 1500, myHero, false)
             if HitChance >= 2 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
             elseif not  UsePacket and not IsDashing() then
@@ -2027,9 +2027,9 @@ function Menu()
 end
 
 function Variables()
-    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.75, speed = 1500, width = 55 }
+    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1500, width = 55 }
     SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.75, speed = 1500, width = 90, radius = 90 }
-    SkillQ = { name = "Steel Tempest", range = 475, delay = 0.75, speed = 1500, width = 55, ready = false }
+    SkillQ = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1500, width = 55, ready = false }
     SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
     SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
