@@ -1322,52 +1322,23 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    TargetSelector:update()
     if Target ~= nil then
 
         teamfight()
-    	if Settings.misc.prediction == 1 then
+
     	    if Settings.combo.comboItems then
     	        UseItems(unit)
     	    end
     	    if Settings.combo.useQ12 then
-    	        CastQ12(unit)
+    	        CastQ12(Target)
     	    end
     	    if Settings.combo.useQ3 then
-    	        CastQ3(unit)
+    	        CastQ3(Target)
     	    end
    	    	if Settings.combo.ults.useR then    
     	        sbtwR()
     	    end
-    	end
-    	if Settings.misc.prediction == 2 then
-        	if Settings.combo.comboItems then
-        	    UseItems(unit)
-        	end
-        	if Settings.combo.useQ12 then
-        	    CastHPQ12(unit)
-        	end
-        	if Settings.combo.useQ3 then
-        	    CastHPQ3(unit)
-       		end
-   	    	if Settings.combo.ults.useR then    
-    	        sbtwR()
-    	    end
-    	end
-    	if Settings.misc.prediction == 3 then
-        	if Settings.combo.comboItems then
-        	    UseItems(unit)
-        	end
-        	if Settings.combo.useQ12 then
-        	    CastSQ12(unit)
-        	end
-        	if Settings.combo.useQ3 then
-        	    CastSQ3(unit)
-        	end
-        	if Settings.combo.ults.useR then    
-            	sbtwR()
-        	end
-    	end
+
         local TargetDistance = GetDistance(Target)
         if TargetDistance > SkillE.range and Settings.combo.useEGap then
             mPos = getNearestMinion(Target)
@@ -1490,11 +1461,27 @@ end
 function CastQ12(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit,500) then
-        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.75, 55, 475, 1500, myHero, false)
-        if HitChance >= 2 and UsePacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-        elseif not  UsePacket and not IsDashing() then
-            CastSpell(_Q, CastPosition.x, CastPosition.z)
+        if Settings.misc.prediction == 1 then
+            local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.75, 55, 475, 1500, myHero, false)
+            if HitChance >= 1 and UsePacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+            elseif not  UsePacket and not IsDashing() then
+                CastSpell(_Q, CastPosition.x, CastPosition.z)
+            end
+        elseif Settings.misc.prediction == 2 then
+            local QPos, QHitChance = HPred:GetPredict(HPQ12, unit, myHero)
+            if QHitChance >= 1 and UsePacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()   
+            elseif not  UsePacket and not IsDashing() then
+                CastSpell(_Q, QPos.x, QPos.z)
+            end
+        elseif Settings.misc.prediction == 3 then
+            local CastPosition, Chance, PredPos = SP:Predict(unit, 475, 1500, 0.75, 55, false, myHero)
+            if Chance >= 1 and UsePacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+            elseif not  UsePacket and not IsDashing() then
+                CastSpell(_Q, CastPosition.x, CastPosition.z)
+            end
         end
     end
 end
@@ -1502,60 +1489,28 @@ end
 function CastQ3(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ3.ready and ValidTarget(unit,1000) then  
-        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
-        if MainTargetHitChance >= 2 and nTargets >= 1 and UsePacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
-        elseif not  UsePacket and not IsDashing() then
-            CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
-        end     
-    end
-end
-
-function CastHPQ12(unit, minion)
-    local UsePacket = Settings.misc.usePackets
-    if SkillQ12.ready and ValidTarget(unit,500) then
-        local QPos, QHitChance = HPred:GetPredict(HPQ12, unit, myHero)
-        if QHitChance >= 2 and UsePacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()   
-        elseif not  UsePacket and not IsDashing() then
-            CastSpell(_Q, QPos.x, QPos.z)
-        end
-    end
-end
-
-function CastHPQ3(unit, minion)
-    local UsePacket = Settings.misc.usePackets
-    if SkillQ3.ready and ValidTarget(unit,1000) then  
-        local QPos, QHitChance = HPred:GetPredict(HPQ3, unit, myHero)
-        if QHitChance >= 2 and UsePacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()
-        elseif not  UsePacket and not IsDashing() then
-            CastSpell(_Q, QPos.x, QPos.z)
-        end     
-    end
-end
-
-function CastSQ12(unit, minion)
-    local UsePacket = Settings.misc.usePackets
-    if SkillQ12.ready and ValidTarget(unit,500) then
-        local CastPosition, Chance, PredPos = SP:Predict(unit, 475, 1500, 0.75, 55, false, myHero)
-        if Chance >= 2 and UsePacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-        elseif not  UsePacket and not IsDashing() then
-            CastSpell(_Q, CastPosition.x, CastPosition.z)
-        end
-    end
-end
-
-function CastSQ3(unit, minion)
-    local UsePacket = Settings.misc.usePackets
-    if SkillQ3.ready and ValidTarget(unit,1000) then  
-        local CastPosition, Chance, PredPos = SP:Predict(unit, 1000, 1500, 0.75, 90, false, myHero)
-        if Chance >= 2 and UsePacket and not IsDashing() then
-            Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-        elseif not  UsePacket and not IsDashing() then
-            CastSpell(_Q, CastPosition.x, CastPosition.z)
-        end     
+        if Settings.misc.prediction == 1 then
+            local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
+            if MainTargetHitChance >= 1 and nTargets >= 1 and UsePacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
+            elseif not  UsePacket and not IsDashing() then
+                CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
+            end     
+        elseif Settings.misc.prediction == 2 then
+            local QPos, QHitChance = HPred:GetPredict(HPQ3, unit, myHero)
+            if QHitChance >= 1 and UsePacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()
+            elseif not  UsePacket and not IsDashing() then
+                CastSpell(_Q, QPos.x, QPos.z)
+            end     
+        elseif Settings.misc.prediction == 3 then
+            local CastPosition, Chance, PredPos = SP:Predict(unit, 1000, 1500, 0.75, 90, false, myHero)
+            if Chance >= 1 and UsePacket and not IsDashing() then
+                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
+            elseif not  UsePacket and not IsDashing() then
+                CastSpell(_Q, CastPosition.x, CastPosition.z)
+            end 
+        end 
     end
 end
 
@@ -1604,7 +1559,7 @@ function E(unit)
 end
 
 function Low(unit)
-    if unit.health <= (Settings.combo.ults.autoRPercent/100*unit.maxHealth) then
+    if unit ~= nil and unit.type == myHero.type and unit.health <= (Settings.combo.ults.autoRPercent/100*unit.maxHealth) then
         return true
     else
         return false
@@ -1793,56 +1748,6 @@ function eEndPos(unit)
         end
         return dashPointT
     end
-end
-
-function selectMinion()
-    enemyMinions:update()
-    JungleMinions:update()
-    local distance = SkillE.ready
-    for index, minion in pairs(enemyMinions.objects) do
-        if ValidTarget(minion) then
-            check = GetDistance(minion)
-            if check < distance then 
-                distance = check
-                farmMinion = minion 
-            end
-        end
-    end 
-    for index, minion in pairs(JungleMinions.objects) do
-        if ValidTarget(minion) then
-            check = GetDistance(minion)
-            if check < distance then 
-                distance = check
-                farmMinion = minion 
-            end
-        end
-    end 
-    return farmMinion
-end
-
-function minionCount(distance, pos)
-    if pos==nil then  pos = myHero end
-    local count=0
-    local check
-    enemyMinions:update()
-    JungleMinions:update()
-    for index, minion in pairs(enemyMinions.objects) do
-        if ValidTarget(minion) then
-            check = GetDistance(pos, minion)
-            if check < distance then 
-                count = count + 1
-            end
-        end
-    end 
-    for index, minion in pairs(JungleMinions.objects) do
-        if ValidTarget(minion) then
-            check = GetDistance(pos, minion)
-            if check < distance then 
-                count = count + 1
-            end
-        end
-    end 
-    return count
 end
 
 function getNearestMinion(unit)
