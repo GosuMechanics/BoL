@@ -1322,6 +1322,7 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
+    TargetSelector:update()
     if ValidTarget(unit, 500) then
 
         teamfight()
