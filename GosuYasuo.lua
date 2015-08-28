@@ -2,8 +2,6 @@ if myHero.charName ~= "Yasuo" then return end
     
 function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
     require 'VPrediction'
-    require 'HPrediction'
-    require("SPrediction")
 
 ----------------------------------------------------------------------------------------------------
 if _G.BuffFix then
@@ -949,7 +947,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.19
+    ToUpdate.Version = 1.2
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1323,22 +1321,20 @@ end
 
 function Combo(unit)
     TargetSelector:update()
-    if ValidTarget(unit, 500) then
+    if ValidTarget(unit, 1000) then
 
-        teamfight()
-
-    	    if Settings.combo.comboItems then
-    	        UseItems(unit)
-    	    end
-    	    if Settings.combo.useQ12 then
-    	        CastQ12(unit)
-    	    end
-    	    if Settings.combo.useQ3 then
-    	        CastQ3(unit)
-    	    end
-   	    	if Settings.combo.ults.useR then    
-    	        sbtwR()
-    	    end
+            if Settings.combo.comboItems then
+                UseItems(unit)
+            end
+            if Settings.combo.useQ12 then
+                CastQ12(unit)
+            end
+            if Settings.combo.useQ3 then
+                CastQ3(unit)
+            end
+            if Settings.combo.ults.useR then    
+                sbtwR()
+            end
 
         local TargetDistance = GetDistance(Target)
         if TargetDistance > SkillE.range and Settings.combo.useEGap then
@@ -1462,56 +1458,26 @@ end
 function CastQ12(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit,500) then
-        --if Settings.misc.prediction == 1 then
+
             local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.75, 55, 475, 1500, myHero, false)
-            if HitChance >= 1 and UsePacket and not IsDashing() then
+            if HitChance >= 2 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, CastPosition.x, CastPosition.z)
             end
-        --[[elseif Settings.misc.prediction == 2 then
-            local QPos, QHitChance = HPred:GetPredict(HPQ12, unit, myHero)
-            if QHitChance >= 1 and UsePacket and not IsDashing() then
-                Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()   
-            elseif not  UsePacket and not IsDashing() then
-                CastSpell(_Q, QPos.x, QPos.z)
-            end
-        elseif Settings.misc.prediction == 3 then
-            local CastPosition, Chance, PredPos = SP:Predict(unit, 475, 1500, 0.75, 55, false, myHero)
-            if Chance >= 1 and UsePacket and not IsDashing() then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-            elseif not  UsePacket and not IsDashing() then
-                CastSpell(_Q, CastPosition.x, CastPosition.z)
-            end
-        end]]
     end
 end
 
 function CastQ3(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ3.ready and ValidTarget(unit,1000) then  
-        --if Settings.misc.prediction == 1 then
+
             local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
-            if MainTargetHitChance >= 1 and nTargets >= 1 and UsePacket and not IsDashing() then
+            if MainTargetHitChance >= 2 and nTargets >= 1 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
             end     
-        --[[elseif Settings.misc.prediction == 2 then
-            local QPos, QHitChance = HPred:GetPredict(HPQ3, unit, myHero)
-            if QHitChance >= 1 and UsePacket and not IsDashing() then
-                Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()
-            elseif not  UsePacket and not IsDashing() then
-                CastSpell(_Q, QPos.x, QPos.z)
-            end     
-        elseif Settings.misc.prediction == 3 then
-            local CastPosition, Chance, PredPos = SP:Predict(unit, 1000, 1500, 0.75, 90, false, myHero)
-            if Chance >= 1 and UsePacket and not IsDashing() then
-                Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
-            elseif not  UsePacket and not IsDashing() then
-                CastSpell(_Q, CastPosition.x, CastPosition.z)
-            end 
-        end ]]
     end
 end
 
@@ -2049,12 +2015,12 @@ function Menu()
        -- Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"})
         Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
-        Settings.misc:permaShow("prediction")
+       --Settings.misc:permaShow("prediction")
 
     --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
         --SxOrb:LoadToMenu(Settings.Orbwalking)
     
-    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)
+    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
     TargetSelector.name = "Gosu"
     Settings:addTS(TargetSelector)
 
@@ -2068,17 +2034,12 @@ function Variables()
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
     SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
 
-    HPQ12 = HPSkillshot({type = "PromptLine", delay = SkillQ12.delay, range = SkillQ12.range, width = SkillQ12.width})
-    HPQ3 =  HPSkillshot({type = "DelayLine", delay = SkillQ3.delay, range = SkillQ3.range, width = SkillQ3.width, speed = SkillQ3.speed})
-
     enemyMinions = minionManager(MINION_ENEMY, 1300, myHero, MINION_SORT_HEALTH_ASC)
     JungleMinions = minionManager(MINION_JUNGLE, 1300, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     
     VP = VPrediction()
-    HPred = HPrediction()
-    SP = SPrediction()
-    
+
     JungleMobs = {}
     JungleFocusMobs = {}
 
