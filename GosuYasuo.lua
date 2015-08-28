@@ -1461,14 +1461,14 @@ end
 function CastQ12(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit,500) then
-        if Settings.misc.prediction == 1 then
+        --if Settings.misc.prediction == 1 then
             local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.75, 55, 475, 1500, myHero, false)
             if HitChance >= 1 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, CastPosition.x, CastPosition.z)
             end
-        elseif Settings.misc.prediction == 2 then
+        --[[elseif Settings.misc.prediction == 2 then
             local QPos, QHitChance = HPred:GetPredict(HPQ12, unit, myHero)
             if QHitChance >= 1 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()   
@@ -1482,21 +1482,21 @@ function CastQ12(unit, minion)
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, CastPosition.x, CastPosition.z)
             end
-        end
+        end]]
     end
 end
 
 function CastQ3(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ3.ready and ValidTarget(unit,1000) then  
-        if Settings.misc.prediction == 1 then
+        --if Settings.misc.prediction == 1 then
             local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
             if MainTargetHitChance >= 1 and nTargets >= 1 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
             end     
-        elseif Settings.misc.prediction == 2 then
+        --[[elseif Settings.misc.prediction == 2 then
             local QPos, QHitChance = HPred:GetPredict(HPQ3, unit, myHero)
             if QHitChance >= 1 and UsePacket and not IsDashing() then
                 Packet("S_CAST", {spellId = _Q, toX=QPos.x, toY=QPos.z, fromX=QPos.x, fromY=QPos.z}):send()
@@ -1510,7 +1510,7 @@ function CastQ3(unit, minion)
             elseif not  UsePacket and not IsDashing() then
                 CastSpell(_Q, CastPosition.x, CastPosition.z)
             end 
-        end 
+        end ]]
     end
 end
 
@@ -2045,7 +2045,7 @@ function Menu()
         Settings.misc:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         Settings.misc:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
-        Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"})
+       -- Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"})
         Settings.misc:permaShow("usePackets")
         Settings.misc:permaShow("useqss")
         Settings.misc:permaShow("prediction")
