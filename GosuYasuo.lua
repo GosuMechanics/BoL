@@ -1330,10 +1330,10 @@ function Combo(unit)
     	        UseItems(unit)
     	    end
     	    if Settings.combo.useQ12 then
-    	        CastQ12(Target)
+    	        CastQ12(unit)
     	    end
     	    if Settings.combo.useQ3 then
-    	        CastQ3(Target)
+    	        CastQ3(unit)
     	    end
    	    	if Settings.combo.ults.useR then    
     	        sbtwR()
