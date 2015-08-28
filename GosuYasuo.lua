@@ -949,7 +949,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.18
+    ToUpdate.Version = 1.19
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1040,7 +1040,10 @@ function OnTick()
     
     if Settings.ks.killSteal then
         KillSteal()
-    end 
+    end
+    if Settings.ks.autoR then
+        autoRkillable()
+    end
 
     if Settings.ks.autoIgnite then
         AutoIgnite()
@@ -1073,8 +1076,6 @@ function OnTick()
     Checks()
 
     AutoUlt()
-
-    autoRkillable()
 
     GetItemSlot()
 end
@@ -1335,7 +1336,7 @@ function Combo(unit)
     	    if Settings.combo.useQ3 then
     	        CastQ3(unit)
     	    end
-   	    	if Settings.combo.useR then    
+   	    	if Settings.combo.ults.useR then    
     	        sbtwR()
     	    end
     	end
@@ -1349,7 +1350,7 @@ function Combo(unit)
         	if Settings.combo.useQ3 then
         	    CastHPQ3(unit)
        		end
-   	    	if Settings.combo.useR then    
+   	    	if Settings.combo.ults.useR then    
     	        sbtwR()
     	    end
     	end
@@ -1363,7 +1364,7 @@ function Combo(unit)
         	if Settings.combo.useQ3 then
         	    CastSQ3(unit)
         	end
-        	if Settings.combo.useR then    
+        	if Settings.combo.ults.useR then    
             	sbtwR()
         	end
     	end
@@ -1373,13 +1374,7 @@ function Combo(unit)
             if SkillE.ready and mPos then 
                 E(mPos)
             end
-        end
-        if TargetDistance <= SkillE.range and Settings.combo.useEGap then
-            mPos = getNearestMinion(mousePos)
-            if SkillE.ready and Settings.combo.dash and mPos then 
-                E(mPos)
-            end
-        end                    
+        end             
         if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
             E(Target)
         end
@@ -1487,11 +1482,7 @@ function smartEgap()
     mPos = getNearestMinion(mousePos)
     if ValidTarget(Target) and GetDistance(Target) >= SkillE.range and SkillE.ready and mPos then
         E(mPos)
-    end
-    if SkillQ12.ready and Settings.Egap.useQ and ValidTarget(Target) and GetDistance(Target) <= SkillQ12.range then
-        CastQ12(Target)
-        CastQ3(Target)
-    else 
+    else
         myHero:MoveTo(mousePos.x, mousePos.z) 
     end
 end
@@ -1499,7 +1490,7 @@ end
 function CastQ12(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit,500) then
-        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.25, 55, 475, 1500, myHero, false)
+        local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.75, 55, 475, 1500, myHero, false)
         if HitChance >= 2 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
         elseif not  UsePacket and not IsDashing() then
@@ -1511,7 +1502,7 @@ end
 function CastQ3(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ3.ready and ValidTarget(unit,1000) then  
-        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.4, 90, 1000, 2500, myHero, false)
+        local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
         if MainTargetHitChance >= 2 and nTargets >= 1 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=AOECastPosition.x, toY=AOECastPosition.z, fromX=AOECastPosition.x, fromY=AOECastPosition.z}):send()
         elseif not  UsePacket and not IsDashing() then
@@ -1547,7 +1538,7 @@ end
 function CastSQ12(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ12.ready and ValidTarget(unit,500) then
-        local CastPosition, Chance, PredPos = SP:Predict(unit, 475, 1500, 0.25, 55, false, myHero)
+        local CastPosition, Chance, PredPos = SP:Predict(unit, 475, 1500, 0.75, 55, false, myHero)
         if Chance >= 2 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
         elseif not  UsePacket and not IsDashing() then
@@ -1559,7 +1550,7 @@ end
 function CastSQ3(unit, minion)
     local UsePacket = Settings.misc.usePackets
     if SkillQ3.ready and ValidTarget(unit,1000) then  
-        local CastPosition, Chance, PredPos = SP:Predict(unit, 1000, 2500, 0.4, 90, false, myHero)
+        local CastPosition, Chance, PredPos = SP:Predict(unit, 1000, 1500, 0.75, 90, false, myHero)
         if Chance >= 2 and UsePacket and not IsDashing() then
             Packet("S_CAST", {spellId = _Q, toX=CastPosition.x, toY=CastPosition.z, fromX=CastPosition.x, fromY=CastPosition.z}):send()   
         elseif not  UsePacket and not IsDashing() then
@@ -1603,17 +1594,6 @@ function AutoQenemy()
     end
 end    
 
-function Rks(unit)
-    for i = 1, heroManager.iCount, 1 do
-    local enemy = heroManager:getHero(i)
-        if enemy.health <= ((Settings.combo.ults.autoRkillable/100*enemy.maxHealth)*1.5) then
-            return true
-        else
-            return false
-        end
-    end
-end
-
 function E(unit)
     posAfterE = eEndPos(unit)
     if VIP_USER and Settings.misc.usePackets then
@@ -1623,10 +1603,18 @@ function E(unit)
     end
 end
 
+function Low(unit)
+    if unit.health <= (Settings.combo.ults.autoRPercent/100*unit.maxHealth) then
+        return true
+    else
+        return false
+    end
+end
+
 function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if Settings.combo.useR and ValidTarget(Target, SkillR.range) and Rks(Target) then
+        if ValidTarget(Target, SkillR.range) and Settings.combo.ults.useR and Low(Target) then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
@@ -1637,7 +1625,7 @@ end
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and Rks(Target) then
+        if ValidTarget(eTarget, SkillR.range) and Low(Target) then
             CastSpell(_R)
         end
     end
@@ -1648,8 +1636,8 @@ function AutoUlt()
     for i, v in ipairs(GetEnemyHeroes()) do
         if ValidTarget(v, SkillR.range) then
             knocked = knocked + 1
-            if Settings.combo.autoult and SkillR.ready and not isRecalling then
-                if knocked >= Settings.combo.Ult3 then
+            if Settings.combo.ults.autoult and SkillR.ready and not isRecalling then
+                if knocked >= Settings.combo.ults.Ult3 then
                     CastSpell(_R)
                 end
             end
@@ -2033,12 +2021,12 @@ function Menu()
         Settings.combo:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
-        Settings.combo:addParam("dash", "Use Dash Always", SCRIPT_PARAM_ONOFF, true)
+        --Settings.combo:addParam("dash", "Use Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Settings.combo:addSubMenu("["..myHero.charName.."] - Ult Settings", "ults")
         Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
-        Settings.combo.ults:addParam("autoRkillable", "when at % Health",SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+        Settings.combo.ults:addParam("autoRPercent", "when at % Health",SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         Settings.combo.ults:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
         Settings.combo.ults:permaShow("autoult")
@@ -2078,7 +2066,7 @@ function Menu()
 
     Settings:addSubMenu("["..myHero.charName.."] - E GapClose Settings", "Egap")
         Settings.Egap:addParam("smartEgap", "(Test) E Gap-Closer Key", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("E"))
-        Settings.Egap:addParam("useQ", "(Test) Q Harass", SCRIPT_PARAM_ONOFF, true)
+        --Settings.Egap:addParam("useQ", "(Test) Q Harass", SCRIPT_PARAM_ONOFF, true)
 
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
@@ -2167,9 +2155,9 @@ function Menu()
 end
 
 function Variables()
-    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55 }
-    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.25, speed = 1500, width = 90, radius = 90 }
-    SkillQ = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1200, width = 55, ready = false }
+    SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.75, speed = 1500, width = 55 }
+    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.75, speed = 1500, width = 90, radius = 90 }
+    SkillQ = { name = "Steel Tempest", range = 475, delay = 0.75, speed = 1500, width = 55, ready = false }
     SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
     SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
