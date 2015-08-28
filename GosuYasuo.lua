@@ -947,7 +947,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.2
+    ToUpdate.Version = 1.21
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1320,19 +1320,19 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    TargetSelector:update()
-    if ValidTarget(unit, 1000) then
+    ts:update()
+    if unit ~= nil and unit.type == myHero.type then
 
             if Settings.combo.comboItems then
                 UseItems(unit)
             end
-            if Settings.combo.useQ12 then
+            if Settings.combo.useQ12 and ValidTarget(unit, 500) and SkillQ12.ready then
                 CastQ12(unit)
             end
-            if Settings.combo.useQ3 then
+            if Settings.combo.useQ3 and ValidTarget(unit, 1000) and SkillQ3.ready then
                 CastQ3(unit)
             end
-            if Settings.combo.ults.useR then    
+            if Settings.combo.ults.useR and ValidTarget(unit, 1200) and SkillR.ready then    
                 sbtwR()
             end
 
@@ -1346,6 +1346,12 @@ function Combo(unit)
         if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
             E(Target)
         end
+        if TargetDistance <= SkillE.range then
+            mPos = getNearestMinion(mousePos)
+            if SkillE.ready and Settings.combo.dash and mPos then 
+                E(mPos)
+            end
+        end        
     end
 end
 
@@ -1526,7 +1532,7 @@ function E(unit)
 end
 
 function Low(unit)
-    if unit ~= nil and unit.type == myHero.type and unit.health <= (Settings.combo.ults.autoRPercent/100*unit.maxHealth) then
+    if unit ~= nil and unit.visible and unit.type == myHero.type and unit.health <= (Settings.combo.ults.autoRPercent/100*unit.maxHealth) then
         return true
     else
         return false
@@ -1876,9 +1882,9 @@ function Checks()
     qBuffName = "Yasuo_Q_wind_ready_buff.troy"
     dashed = nil
 
-    TargetSelector:update()
+    ts:update()
     Target = GetCustomTarget()
-    --SxOrb:ForceTarget(Target)
+    if isSx then SxOrb:ForceTarget(Target) end
     
     if Settings.drawing.lfc.lfc then _G.DrawCircle = DrawCircle2 else _G.DrawCircle = _G.oldDrawCircle end
 end
@@ -1893,6 +1899,7 @@ function Menu()
         Settings.combo:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("dash", "Dash Always(enemy<=E-Range)", SCRIPT_PARAM_ONOFF, true)
         --Settings.combo:addParam("dash", "Use Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
@@ -2020,9 +2027,8 @@ function Menu()
     --Settings:addSubMenu("["..myHero.charName.."] - Orbwalking Settings", "Orbwalking")
         --SxOrb:LoadToMenu(Settings.Orbwalking)
     
-    TargetSelector = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
-    TargetSelector.name = "Gosu"
-    Settings:addTS(TargetSelector)
+    ts.name = "Gosu"
+    Settings:addTS(ts)
 
 end
 
@@ -2038,6 +2044,8 @@ function Variables()
     JungleMinions = minionManager(MINION_JUNGLE, 1300, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     
+    ts = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
+
     VP = VPrediction()
 
     JungleMobs = {}
@@ -2437,10 +2445,10 @@ end
 
 -- Trees
 function GetCustomTarget()
-    TargetSelector:update()     
+    ts:update()     
     if _G.MMA_Target and _G.MMA_Target.type == myHero.type then return _G.MMA_Target end
     if _G.AutoCarry and _G.AutoCarry.Crosshair and _G.AutoCarry.Attack_Crosshair and _G.AutoCarry.Attack_Crosshair.target and _G.AutoCarry.Attack_Crosshair.target.type == myHero.type then return _G.AutoCarry.Attack_Crosshair.target end
-    return TargetSelector.target
+    return ts.target
 end
 
 function ResetAA()
