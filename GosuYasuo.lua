@@ -1666,13 +1666,6 @@ function Menu()
         _Circle({Menu = Settings.TS, Name = "Draw", Text = "Draw circle on Target", Source = function() return ts.target end, Range = 120, Condition = function() return ValidTarget(ts.target, ts.range) end, Color = {255, 255, 0, 0}, Width = 4})
         _Circle({Menu = Settings.TS, Name = "Range", Text = "Draw circle for Range", Range = function() return ts.range end, Color = {255, 255, 0, 0}, Enable = true})
 
-    Settings:addSubMenu("["..myHero.charName.."] - Draw Range", "draw")
-        _Circle({Menu = Settings.draw, Name = "drawQ", Text = "Draw Q Range", Source = function() return myHero end, Range = 475, Color = {255, 255, 0, 0}, Width = 2})
-        _Circle({Menu = Settings.draw, Name = "drawW", Text = "Draw W Range", Source = function() return myHero end, Range = 500, Color = {255, 255, 0, 0}, Width = 2})
-        _Circle({Menu = Settings.draw, Name = "drawE", Text = "Draw E Range", Source = function() return myHero end, Range = 450, Color = {255, 255, 0, 0}, Width = 2})
-        _Circle({Menu = Settings.draw, Name = "drawR", Text = "Draw R Range", Source = function() return myHero end, Range = 1000, Color = {255, 255, 0, 0}, Width = 2})
-
-
     Settings:addSubMenu("["..myHero.charName.."] - Misc Settings", "misc")
         Settings.misc:addParam("autoPot", "Auto-Pots", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
