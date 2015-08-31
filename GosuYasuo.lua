@@ -1196,8 +1196,8 @@ function LastHit(unit)
 end
 
 function Harass(unit)
-    if Settings.harass.useQ12 then CastQ12(unit) end
-    if Settings.harass.useQ3 then CastQ3(unit) end
+    if Settings.harass.useQ12 then QSpell:Cast(ts.target) end
+    if Settings.harass.useQ3 then Q3pell:Cast(ts.target) end
 end
 
 function LaneClear()
