@@ -1317,9 +1317,6 @@ function AutoQenemy()
             if Settings.harass.useQ12 and ValidTarget(Target, SkillQ12.range) and SkillQ12.ready and not IsRecalling and not UnderTurret(underTower, true) then
                 CastQ12(Target)
             end
-            if Settings.harass.useQ3 and ValidTarget(Target, SkillQ3.range) and SkillQ3.ready and not IsRecalling and not UnderTurret(underTower, true) then
-                CastQ3(Target)
-            end
         end
     end
 end    
