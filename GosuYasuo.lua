@@ -865,6 +865,26 @@ end
 
 function OnTick()
 
+            if IsDashing then
+                QSpell.Type = SPELL_TYPE.SELF
+                QSpell.Range = 270
+                QSpell.Width = 270
+                QSpell.Delay = 0--0.147
+                QSpell.Speed = math.huge
+            elseif QState == 3 then
+                QSpell.Type = SPELL_TYPE.LINEAR
+                QSpell.Range = 1100
+                QSpell.Width = 90
+                QSpell.Delay = 0.25
+                QSpell.Speed = 1200
+            else
+                QSpell.Type = SPELL_TYPE.LINEAR
+                QSpell.Range = 475
+                QSpell.Width = 20
+                QSpell.Delay = 0.35
+                QSpell.Speed = 8700
+            end
+
     ComboKey = Settings.combo.comboKey
     HarassKey = Settings.harass.harassKey
     HarassToggle = Settings.harass.harassToggle
@@ -1196,8 +1216,8 @@ function LastHit(unit)
 end
 
 function Harass(unit)
-    if Settings.harass.useQ12 then QSpell:Cast(ts.target) end
-    if Settings.harass.useQ3 then Q3Spell:Cast(ts.target) end
+    if Settings.harass.useQ12 and ValidTarget(ts.target, 500) then CastQ12(ts.target) end
+    if Settings.harass.useQ3 and ValidTarget(ts.target, 1000) then CastQ3(ts.target) end
 end
 
 function LaneClear()
@@ -1286,7 +1306,9 @@ function CastQ12(unit, minion)
 end
 
 function CastQ3(unit, minion)
-    Q3Spell:Cast(unit)
+    if QState == 3 then
+        Q3Spell:Cast(unit)
+    end
 end
 
 function AutoQminion(unit, minion)
@@ -1967,6 +1989,14 @@ function OnCreateObj(obj)
     if GetDistance(myHero, obj) < 50 and obj.name:lower():find("teleporthome") then
         isRecalling = true
     end
+    if obj and obj.name and obj.valid then
+        if obj.name:lower():find("yasuo_base_e_dash_hit") and IsDashing then
+            IsDashing = true
+        end
+        if obj.name:lower():find("q_wind_ready_buff") and GetDistanceSqr(myHero, obj) < 80 * 80 then
+        QState = 3
+        end
+    end
 end
 
 function OnDeleteObj(obj)
@@ -1991,6 +2021,14 @@ function OnDeleteObj(obj)
     end
     if GetDistance(myHero, obj) < 50 and obj.name:lower():find("teleporthome") then
         DelayAction(function() isRecalling = false end, 0.5)
+    end
+    if obj and obj.name and obj.valid then
+        if obj.name:lower():find("yasuo_base_e_dash_hit") and IsDashing then
+            IsDashing = true
+        end
+        if obj.name:lower():find("q_wind_ready_buff") and GetDistanceSqr(myHero, obj) < 80 * 80 then
+        QState = 1
+        end
     end
 end
 
