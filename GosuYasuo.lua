@@ -1719,7 +1719,7 @@ function Menu()
                     if IsValidTarget(object) then
                         if object.networkID ~= target.networkID then
                             CastSpell(ESpell.Slot, object)
-                            print("E-vaded")
+                            print("E-vade Test")
                         end
                     end
                 end
