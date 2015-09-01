@@ -9,12 +9,11 @@ local RefreshTime = 0.4
 local UsingPot = false
 local lastRemove = 0
 
-
 function OnLoad()
 
     require 'SimpleLib'
 
-    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1100, DAMAGE_PHYSICAL)
+    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
 
     ScriptName = "GosuMechanics"
     champName = "Yasuo"
@@ -118,7 +117,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.25
+    ToUpdate.Version = 1.26
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -359,13 +358,27 @@ function LoadMenu()
         Menu.Combo:addParam("MinERange", "Min E Range", SCRIPT_PARAM_SLICE, 300, 150, 475, 0)
         Menu.Combo:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_LIST, 1, {"Never", "If Killable" , "Always"})
         Menu.Combo:addParam("Items","Use Items", SCRIPT_PARAM_ONOFF, true)
+
+    Menu.Combo:addSubMenu("["..myHero.charName.."] - Wombo Combo Ult", "WC")
+        _Initiator(Menu.Combo.WC):CheckGapcloserSpells():AddCallback(
+            function(target)
+                if RSpell:IsReady() then
+                    RSpell:Cast()
+                    --print("Initiator Test")
+                end
+            end
+        )
+
     Menu.Combo:addSubMenu("["..myHero.charName.."] - Combo Ult Settings", "ults")
         Menu.Combo.ults:addParam("R1", "Use LastBreath when Killable", SCRIPT_PARAM_ONOFF, true)
         --Menu.Combo.ults:addParam("RL", "at x enemy hp ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
         Menu.Combo.ults:addParam("R2", "when x enemy in air ", SCRIPT_PARAM_SLICE, 2, 0, 5)
+        Menu.Combo.ults:addParam("ultR", "Auto R Toggle", SCRIPT_PARAM_ONOFF, true)
+        Menu.Combo.ults:addParam("R", "when x enemy in air ", SCRIPT_PARAM_SLICE, 3, 0, 5)
 
     Menu:addSubMenu("["..myHero.charName.."] - Harass Settings", "Harass")
         Menu.Harass:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
+        Menu.Harass:addParam("QUT", "Use SteelTempest UnderTower", SCRIPT_PARAM_ONOFF, true)
         
     Menu:addSubMenu("["..myHero.charName.."] - LaneClear Settings", "LaneClear")
         Menu.LaneClear:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
@@ -381,12 +394,12 @@ function LoadMenu()
 
     Menu:addSubMenu("["..myHero.charName.."] - Misc Settings", "Misc")
         Menu.Misc:addParam("Overkill", "Overkill % Checks", SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
+        Menu.Misc:addParam("Avoid", "Avoid dive turret", SCRIPT_PARAM_LIST, 2, {"Never", "If not Killable", "Always"})
+        Menu.Misc:addParam("dmgCalc", "DrawPredictedDamage", SCRIPT_PARAM_ONOFF, true)
         Menu.Misc:addParam("useqss", "Use QSS", SCRIPT_PARAM_ONOFF, true)
         Menu.Misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
         Menu.Misc:addParam("autoPots", "Use HP Pots", SCRIPT_PARAM_ONOFF, true)
         Menu.Misc:addParam("usePots", "Use when x HP", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
-        Menu.Misc:addParam("ultR", "Auto R Toggle", SCRIPT_PARAM_ONOFF, true)
-        Menu.Misc:addParam("R", "when x enemy in air ", SCRIPT_PARAM_SLICE, 3, 0, 5)
     Menu.Misc:addSubMenu("Use WindWall", "W")
             _Evader(Menu.Misc.W):CheckCC():AddCallback(
                 function(target) 
@@ -399,27 +412,27 @@ function LoadMenu()
             )
     Menu.Misc:addSubMenu("Interrupt w/ EmpoweredTempest", "Q3")
             _Interrupter(Menu.Misc.Q3):CheckChannelingSpells():CheckGapcloserSpells():AddCallback(
-                function(target, spell)
+                function(target)
                     if Q3Spell:IsReady() and QState == 3 then
                         Q3Spell:Cast(target)
                         --print("Interrupt Test")
                     end
                 end
             )
-    Menu.Misc:addSubMenu("Use E-vade", "E")
-        _Evader(Menu.Misc.E):CheckCC():AddCallback(
-            function(target)
-                if ESpell:IsReady() and IsValidTarget(target) then
-                    local object = SearchEObject(mousePos)
-                    if IsValidTarget(object) then
-                        if object.networkID ~= target.networkID then
-                            CastE(object)
-                            --print("E-vade Test")
+            Menu.Misc:addSubMenu("Use E-vade", "E")
+                _Evader(Menu.Misc.E):CheckCC():AddCallback(
+                    function(target)
+                        if ESpell:IsReady() and IsValidTarget(target) then
+                            local object = SearchEObject(mousePos)
+                            if IsValidTarget(object) then
+                                if object.networkID ~= target.networkID then
+                                    CastE(object)
+                                    --print("E-vade Test")
+                                end
+                            end
                         end
                     end
-                end
-            end
-        )
+                )
 
     Menu:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "KillSteal")
         Menu.KillSteal:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
@@ -450,7 +463,7 @@ function OnTick()
     if Menu == nil then return end
     TS:update()
     target = TS.target
-    if Menu.Misc.ultR then AutoR() end
+    if Menu.Combo.ults.ultR then AutoR() end
     if Menu.Misc.autoPots then AutoPots() end
     if Menu.Keys.esc then Escape() end
     if Menu.Keys.egap then EgapCloser() end
@@ -565,7 +578,9 @@ end
 function Harass()
     local target = TS.target
     if IsValidTarget(target) then
-        if Menu.Harass.Q then
+        if Menu.Harass.Q and Menu.Harass.QUT then
+            QSpell:Cast(target)
+        elseif not Menu.Harass.QUT and not UnderTurret(enemy) then
             QSpell:Cast(target)
         end
         if Menu.Harass.Q and QState == 3 then
@@ -581,7 +596,7 @@ function CastR(target)
 end
 
 function AutoR()
-    if Menu.Misc.R > 0 and #EnemiesKnocked() >= Menu.Misc.R then
+    if Menu.Combo.ults.R > 0 and #EnemiesKnocked() >= Menu.Combo.ults.R then
         RSpell:Cast(TS.target)
     end
 end
@@ -754,11 +769,40 @@ end
 
 function CastE(target)
     if ESpell:IsReady() and IsValidTarget(target) and not HaveEBuff(target) then
-        if (not UnderTurret(EEndPos(minion),true)) then
-            ESpell:Cast(target)
+        if Menu.Misc.Avoid > 1 and not Menu.Keys.Run then
+            local endPos = EEndPos(target)
+            for name, turret in pairs(GetTurrets()) do
+                if turret ~= nil and GetDistance(myHero, turret) < 2000 then
+                    if turret.team ~= myHero.team and GetDistanceSqr(endPos, turret) < math.pow(turret.range, 2) and GetDistanceSqr(myHero, turret) > math.pow(turret.range, 2)  then
+                        if IsValidTarget(TS.target) then
+                            if Menu.Misc.Avoid == 2 then
+                                local q, w, e, r, dmg = GetBestCombo(TS.target)
+                                if dmg < TS.target.health then
+                                    return
+                                end
+                            elseif Menu.Misc.Avoid == 3 then
+                                return
+                            end
+                        else
+                            local counter = 0
+                            EnemyMinions:update()
+                            for i, object in ipairs(EnemyMinions.objects) do
+                                if IsValidTarget(object) and GetDistanceSqr(object, turret) < math.pow(turret.range, 2) then
+                                    counter = counter + 1
+                                    break
+                                end
+                            end
+                            if counter == 0 then return end
+                        end
+                    end
+                end
+            end
+            
         end
+        ESpell:Cast(target)
     end
 end
+
 
 function AutoQminion(unit, minion)
     JungleMinions:update()
