@@ -1,8 +1,6 @@
 if myHero.charName ~= "Yasuo" then return end
     
     function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
- 
-    require 'SimpleLib'
 
 local Q, W, E, R, Ignite = nil, nil, nil, nil, nil
 local TS, Menu = nil, nil
@@ -10,9 +8,13 @@ local PredictedDamage = {}
 local RefreshTime = 0.4
 local UsingPot = false
 local lastRemove = 0
-local TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1100, DAMAGE_PHYSICAL)
+
 
 function OnLoad()
+
+    require 'SimpleLib'
+
+    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1100, DAMAGE_PHYSICAL)
 
     ScriptName = "GosuMechanics"
     champName = "Yasuo"
@@ -116,7 +118,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.24
+    ToUpdate.Version = 1.25
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -388,9 +390,9 @@ function LoadMenu()
     Menu.Misc:addSubMenu("Use WindWall", "W")
             _Evader(Menu.Misc.W):CheckCC():AddCallback(
                 function(target) 
-                    if WSpell:IsReady() then
-                        local FixedPos = Vector(myHero) + Vector(Vector(target) - Vector(myHero)):normalized() * WSpell.Range
-                        CastSpell(WSpell.Slot, FixedPos.x, FixedPos.z)
+                    if WSpell:IsReady() and IsValidTarget(target) then
+                        local Position = Vector(myHero) + Vector(Vector(target) - Vector(myHero)):normalized() * WSpell.Range
+                        WSpell:CastToVector(Position)
                         --print("Block Test")
                     end
                 end
@@ -426,7 +428,6 @@ function LoadMenu()
         Menu.KillSteal:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_ONOFF, true)
 
     Menu:addSubMenu("["..myHero.charName.."] - Key Settings", "Keys")
-        OrbwalkManager:LoadCommonKeys(Menu.Keys)
         Menu.Keys:addParam("StackQM", "Auto-Q EnemyMinions", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("L"))
         Menu.Keys.StackQM = false
         Menu.Keys:permaShow("StackQM")
@@ -988,4 +989,3 @@ function GetSlotItem(id, unit)
         end
     end
 end
-
