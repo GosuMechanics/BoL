@@ -391,7 +391,7 @@ function LoadMenu()
                     if WSpell:IsReady() then
                         local FixedPos = Vector(myHero) + Vector(Vector(target) - Vector(myHero)):normalized() * WSpell.Range
                         CastSpell(WSpell.Slot, FixedPos.x, FixedPos.z)
-                        print("Block Test")
+                        --print("Block Test")
                     end
                 end
             )
@@ -400,7 +400,7 @@ function LoadMenu()
                 function(target, spell)
                     if Q3Spell:IsReady() and QState == 3 then
                         Q3Spell:Cast(target)
-                        print("Interrupt Test")
+                        --print("Interrupt Test")
                     end
                 end
             )
@@ -412,7 +412,7 @@ function LoadMenu()
                     if IsValidTarget(object) then
                         if object.networkID ~= target.networkID then
                             CastE(object)
-                            print("E-vade Test")
+                            --print("E-vade Test")
                         end
                     end
                 end
