@@ -1,5 +1,7 @@
 if myHero.charName ~= "Yasuo" then return end
     
+    function Print(message) print("<font color=\"#F20000\"><b>GosuMechanics:Yasuo :</font> </b><font color=\"#FFFFFF\">".. message.."</font>") end
+ 
     require 'SimpleLib'
 
 local Q, W, E, R, Ignite = nil, nil, nil, nil, nil
