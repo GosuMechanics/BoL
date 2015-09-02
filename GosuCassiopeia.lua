@@ -231,11 +231,8 @@ function Combo()
                     --DelayAction(function()
                             QSpell:Cast(target)
                         --end, Menu.Combo.delayQ)
-                    end
-                    if Menu.Combo.Q and Menu.Combo.QP and TargetPoisoned(target) then
-                        --DelayAction(function()
-                            QSpell:Cast(target)
-                        --end, Menu.Combo.delayQ)
+                    elseif Menu.Combo.QP then
+                        QSpell:Cast(target)
                     end
                     if Menu.Combo.W and not Menu.Combo.WP then
                         --DelayAction(function()
