@@ -8,11 +8,67 @@ local UsingPot = false
 local UsingMPot = false
 local lastRemove = 0
 
+Interrupt = {
+    ["Katarina"] = {charName = "Katarina", stop = {["KatarinaR"] = {name = "Death lotus", spellName = "KatarinaR", ult = true }}},
+    ["Nunu"] = {charName = "Nunu", stop = {["AbsoluteZero"] = {name = "Absolute Zero", spellName = "AbsoluteZero", ult = true }}},
+    ["Malzahar"] = {charName = "Malzahar", stop = {["AlZaharNetherGrasp"] = {name = "Nether Grasp", spellName = "AlZaharNetherGrasp", ult = true}}},
+    ["Caitlyn"] = {charName = "Caitlyn", stop = {["CaitlynAceintheHole"] = {name = "Ace in the hole", spellName = "CaitlynAceintheHole", ult = true, projectileName = "caitlyn_ult_mis.troy"}}},
+    ["FiddleSticks"] = {charName = "FiddleSticks", stop = {["Crowstorm"] = {name = "Crowstorm", spellName = "Crowstorm", ult = true}}},
+    ["Galio"] = {charName = "Galio", stop = {["GalioIdolOfDurand"] = {name = "Idole of Durand", spellName = "GalioIdolOfDurand", ult = true}}},
+    ["Janna"] = {charName = "Janna", stop = {["ReapTheWhirlwind"] = {name = "Monsoon", spellName = "ReapTheWhirlwind", ult = true}}},
+    ["MissFortune"] = {charName = "MissFortune", stop = {["MissFortune"] = {name = "Bullet time", spellName = "MissFortuneBulletTime", ult = true}}},
+    ["MasterYi"] = {charName = "MasterYi", stop = {["MasterYi"] = {name = "Meditate", spellName = "Meditate", ult = false}}},
+    ["Pantheon"] = {charName = "Pantheon", stop = {["PantheonRJump"] = {name = "Skyfall", spellName = "PantheonRJump", ult = true}}},
+    ["Shen"] = {charName = "Shen", stop = {["ShenStandUnited"] = {name = "Stand united", spellName = "ShenStandUnited", ult = true}}},
+    ["Urgot"] = {charName = "Urgot", stop = {["UrgotSwap2"] = {name = "Position Reverser", spellName = "UrgotSwap2", ult = true}}},
+    ["Varus"] = {charName = "Varus", stop = {["VarusQ"] = {name = "Piercing Arrow", spellName = "Varus", ult = false}}},
+    ["Warwick"] = {charName = "Warwick", stop = {["InfiniteDuress"] = {name = "Infinite Duress", spellName = "InfiniteDuress", ult = true}}},
+}
+
+isAGapcloserUnit = {
+    ['Ahri']        = {true, spell = _R,                  range = 450,   projSpeed = 2200, },
+    ['Aatrox']      = {true, spell = _Q,                  range = 1000,  projSpeed = 1200, },
+    ['Akali']       = {true, spell = _R,                  range = 800,   projSpeed = 2200, },
+    ['Alistar']     = {true, spell = _W,                  range = 650,   projSpeed = 2000, },
+    ['Amumu']       = {true, spell = _Q,                  range = 1100,  projSpeed = 1800, },
+    ['Corki']       = {true, spell = _W,                  range = 800,   projSpeed = 650,  },
+    ['Diana']       = {true, spell = _R,                  range = 825,   projSpeed = 2000, },
+    ['Darius']      = {true, spell = _R,                  range = 460,   projSpeed = math.huge, },
+    ['Fiora']       = {true, spell = _Q,                  range = 600,   projSpeed = 2000, },
+    ['Fizz']        = {true, spell = _Q,                  range = 550,   projSpeed = 2000, },
+    ['Gragas']      = {true, spell = _E,                  range = 600,   projSpeed = 2000, },
+    ['Graves']      = {true, spell = _E,                  range = 425,   projSpeed = 2000, exeption = true },
+    ['Hecarim']     = {true, spell = _R,                  range = 1000,  projSpeed = 1200, },
+    ['Irelia']      = {true, spell = _Q,                  range = 650,   projSpeed = 2200, },
+    ['JarvanIV']    = {true, spell = _Q,                  range = 770,   projSpeed = 2000, },
+    ['Jax']         = {true, spell = _Q,                  range = 700,   projSpeed = 2000, },
+    ['Jayce']       = {true, spell = 'JayceToTheSkies',   range = 600,   projSpeed = 2000, },
+    ['Khazix']      = {true, spell = _E,                  range = 900,   projSpeed = 2000, },
+    ['Leblanc']     = {true, spell = _W,                  range = 600,   projSpeed = 2000, },
+    --['LeeSin']      = {true, spell = 'blindmonkqtwo',     range = 1300,  projSpeed = 1800, },
+    ['Leona']       = {true, spell = _E,                  range = 900,   projSpeed = 2000, },
+    ['Lucian']      = {true, spell = _E,                  range = 425,   projSpeed = 2000, },
+    ['Malphite']    = {true, spell = _R,                  range = 1000,  projSpeed = 1500, },
+    ['Maokai']      = {true, spell = _W,                  range = 525,   projSpeed = 2000, },
+    ['MonkeyKing']  = {true, spell = _E,                  range = 650,   projSpeed = 2200, },
+    ['Pantheon']    = {true, spell = _W,                  range = 600,   projSpeed = 2000, },
+    ['Poppy']       = {true, spell = _E,                  range = 525,   projSpeed = 2000, },
+    ['Riven']       = {true, spell = _E,                  range = 150,   projSpeed = 2000, },
+    ['Renekton']    = {true, spell = _E,                  range = 450,   projSpeed = 2000, },
+    ['Sejuani']     = {true, spell = _Q,                  range = 650,   projSpeed = 2000, },
+    ['Shen']        = {true, spell = _E,                  range = 575,   projSpeed = 2000, },
+    ['Shyvana']     = {true, spell = _R,                  range = 1000,  projSpeed = 2000, },
+    ['Tristana']    = {true, spell = _W,                  range = 900,   projSpeed = 2000, },
+    ['Tryndamere']  = {true, spell = 'Slash',             range = 650,   projSpeed = 1450, },
+    ['XinZhao']     = {true, spell = _E,                  range = 650,   projSpeed = 2000, },
+    ['Yasuo']       = {true, spell = _E,                  range = 475,   projSpeed = 1000, },
+    ['Vayne']       = {true, spell = _Q,                  range = 300,   projSpeed = 1000, },
+}
+
+
 function OnLoad()
 
     require 'SimpleLib'
-
-    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 900, DAMAGE_MAGIC)
 
     ScriptName = "GosuMechanics"
     champName = "Cassiopeia"
@@ -119,8 +175,8 @@ end
 
 function LoadVariables()
     --TS = TargetSelector(TARGET_LESS_CAST_PRIORITY, 1100, DAMAGE_PHYSICAL)
-    EnemyMinions = minionManager(MINION_ENEMY, 1100, myHero, MINION_SORT_MAXHEALTH_DEC)
-    JungleMinions = minionManager(MINION_JUNGLE, 1100, myHero, MINION_SORT_MAXHEALTH_DEC)
+    EnemyMinions = minionManager(MINION_ENEMY, 700, myHero, MINION_SORT_MAXHEALTH_DEC)
+    JungleMinions = minionManager(MINION_JUNGLE, 700, myHero, MINION_SORT_MAXHEALTH_DEC)
     Menu = scriptConfig(ScriptName.." "..champName, ScriptName.."29082015")
     AA = {            Range = function(target) return 620 end, Damage = function(target) return getDmg("AD", target, myHero) end }
     QSpell  = _Spell({ Slot = _Q, DamageName = "Q", Range = 800, Width = 100, Delay = 0.25, Speed = math.huge, Type = SPELL_TYPE.CIRCULAR, LastCastTime = 0, Collision = false, Aoe = true, IsReady = function() return myHero:CanUseSpell(_Q) == READY end, Mana = function() return myHero:GetSpellData(_Q).mana end, Damage = function(target) return getDmg("Q", target, myHero) end}):AddDraw()
@@ -128,6 +184,8 @@ function LoadVariables()
     ESpell  = _Spell({ Slot = _E, DamageName = "E", Range = 700, Width = nil, Delay = nil, Speed = 1500, Type = SPELL_TYPE.TARGETTED, LastCastTime = 0, Collision = false, Aoe = false, IsReady = function() return myHero:CanUseSpell(_E) == READY end, Mana = function() return myHero:GetSpellData(_E).mana end, Damage = function(target) return getDmg("E", target, myHero) end, Missile = true}):AddDraw()
     RSpell  = _Spell({ Slot = _R, DamageName = "R", Range = 850, Width = 410, Delay = 0.5, Speed = math.huge, Type = SPELL_TYPE.CONE, LastCastTime = 0, Collision = false, Aoe = true, IsReady = function() return myHero:CanUseSpell(_E) == READY end, Mana = function() return myHero:GetSpellData(_R).mana end, Damage = function(target) return getDmg("R", target, myHero) end}):AddDraw()
     Ignite = _Spell({Slot = FindSummonerSlot("summonerdot"), DamageName = "IGNITE", Range = 600, Type = SPELL_TYPE.TARGETTED}):AddDraw()
+
+    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, QSpell.Range + QSpell.Width, DAMAGE_MAGIC)
 
 end
 
@@ -147,6 +205,7 @@ function LoadMenu()
         Menu.Combo.ults:addParam("R", "Use R", SCRIPT_PARAM_ONOFF, true)
         --Menu.Combo.ults:addParam("RL", "at x enemy hp ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
         Menu.Combo.ults:addParam("R1", "when will Hit x enemy", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+        Menu.Combo.ults:addParam("R2", "Use R Killable", SCRIPT_PARAM_ONOFF, true)
 
     Menu:addSubMenu("["..myHero.charName.."] - Harass Settings", "Harass")
         Menu.Harass:addParam("Q", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -175,16 +234,24 @@ function LoadMenu()
         Menu.Misc:addParam("autoMPots", "Use Mana Pots", SCRIPT_PARAM_ONOFF, true)
         Menu.Misc:addParam("useMPots", "Use when x mana", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
 
-    Menu.Combo:addSubMenu("Interrupt w/ PetrifyingGaze", "R")
-            _Interrupter(Menu.Combo.R):CheckChannelingSpells():CheckGapcloserSpells():AddCallback(
-                function(target)
-                    local Position = Vector(myHero) + Vector(Vector(target) - Vector(myHero)):normalized() * RSpell.Range
-                    if RSpell:IsReady() and IsValidTarget(target, RSpell.Range) then
-                        CastSpell(RSpell.Slot, Position.x, Position.z)
-                        --print("Interrupt Test")
-                    end
+     Menu.Misc:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+         Menu.Misc.interrupt:addParam("r", "Interrupt with R", SCRIPT_PARAM_ONOFF, true)
+        for i, a in pairs(GetEnemyHeroes()) do
+            if Interrupt[a.charName] ~= nil then
+                for i, spell in pairs(Interrupt[a.charName].stop) do
+                     Menu.Misc.interrupt:addParam(spell.spellName, a.charName.." - "..spell.name, SCRIPT_PARAM_ONOFF, true)
                 end
-            )
+            end
+        end
+
+     Menu.Misc:addSubMenu("[" .. myHero.charName.. "] - Anti Gap-Closer", "gapClose")
+        for _, enemy in pairs(GetEnemyHeroes()) do
+            if isAGapcloserUnit[enemy.charName] ~= nil then
+                 Menu.Misc.gapClose:addParam(enemy.charName, enemy.charName .. " - " .. enemy:GetSpellData(isAGapcloserUnit[enemy.charName].spell).name, SCRIPT_PARAM_ONOFF, true)
+            end
+        end
+
+
     Menu:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "KillSteal")
         Menu.KillSteal:addParam("Q", "Use Q", SCRIPT_PARAM_ONOFF, true)
         Menu.KillSteal:addParam("W", "Use W", SCRIPT_PARAM_ONOFF, true)
@@ -244,12 +311,11 @@ function Combo()
                                     ESpell:Cast(target)
                                 end, Menu.Combo.delayE)
                             end
-                            --if Menu.Combo.Items and lowHp(myHero) and CountEnemyHeroInRange(300) >= 2 and GetInventoryItemIsCastable(3157)then
-                                    --CastItem(3157)
-                                --end
-                                ---if Menu.Combo.Items and myHero.health <= (50/100*myHero.maxHealth) and GetInventoryItemIsCastable(3048) then
-                                        ---CastItem(3048)
-                                    ---end
+                            if Menu.Combo.ults.R2 then
+                                    if dmg > target.health and GetDistance(target) <= ESpell.Range then
+                                                RSpell:Cast(target)
+                                            end
+                                    end
                                     if Menu.Combo.ults.R and Menu.Combo.ults.R1 > 0 then
                                         if RSpell:IsReady() then
                                             for i, enemy in ipairs(GetEnemyHeroes()) do
@@ -269,17 +335,16 @@ function Clear()
     if Menu.LaneClear.E then
         EnemyMinions:update()
         for i, minion in pairs(EnemyMinions.objects) do
-            if ESpell:IsReady() and TargetPoisoned(minion) then
+            if Menu.LaneClear.E and ESpell:IsReady() and ESpell:Damage(minion) >= minion.health and TargetPoisoned(minion) then
+                ESpell:Cast(minion)
+            elseif TargetPoisoned(minion) then
                 ESpell:Cast(minion)
             end
-            if Menu.LaneClear.Q then
+            if Menu.LaneClear.Q and not TargetPoisoned(minion) then
                 QSpell:LaneClear({ NumberOfHits = Menu.LaneClear.Q})
             end
             if Menu.LaneClear.W then
                 WSpell:LaneClear({ NumberOfHits = Menu.LaneClear.W})
-            end
-            if Menu.LaneClear.E and ESpell:IsReady() and ESpell:Damage(minion) >= minion.health and TargetPoisoned(minion) then
-                ESpell:Cast(minion)
             end
         end
     end
@@ -289,7 +354,7 @@ function Clear()
             if ESpell:IsReady() and TargetPoisoned(minion) then
                 ESpell:Cast(minion)
             end
-            if Menu.JungleClear.Q then
+            if Menu.JungleClear.Q and not TargetPoisoned(minion) then
                 QSpell:JungleClear()
             end
             if Menu.JungleClear.W then
@@ -604,4 +669,37 @@ function CountEnemyHeroInRange(range)
             end
         end
     return enemyinRrange
+end
+
+function OnProcessSpell(object, spellProc)
+    if myHero.dead then return end
+    if object.team == myHero.team then return end
+    
+    if Interrupt[object.charName] ~= nil then
+        spell = Interrupt[object.charName].stop[spellProc.name]
+        if spell ~= nil then
+            if Menu.Misc.interrupt[spellProc.name] then
+                if ValidTarget(unit) and GetDistance(object) < RSpell.Range and RSpell:IsReady() and Menu.Misc.interrupt.r then
+                    RSpell:Cast(unit)
+                end
+            end
+        end
+    end
+        
+    local unit = object
+    local spell = spellProc
+    
+    if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
+        if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Menu.Misc.gapClose[unit.charName] then
+            if spell.target ~= nil and spell.target and spell.target.networkID == myHero.networkID or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
+                RSpell:Cast(unit)
+            elseif not spell.target then
+                local startPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                local startPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
+                    CastSpell(RSpell.Slot, startPos1.x, startPos2.z)
+                end
+            end
+        end
+    end
 end
