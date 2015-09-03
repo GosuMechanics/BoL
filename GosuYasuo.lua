@@ -8,12 +8,11 @@ local PredictedDamage = {}
 local RefreshTime = 0.4
 local UsingPot = false
 local lastRemove = 0
+local eStack = 0
 
 function OnLoad()
 
     require 'SimpleLib'
-
-    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
 
     ScriptName = "GosuMechanics"
     champName = "Yasuo"
@@ -117,7 +116,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.26
+    ToUpdate.Version = 1.27
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -330,11 +329,11 @@ function LoadVariables()
     EnemyMinions = minionManager(MINION_ENEMY, 1100, myHero, MINION_SORT_MAXHEALTH_DEC)
     JungleMinions = minionManager(MINION_JUNGLE, 1100, myHero, MINION_SORT_MAXHEALTH_DEC)
     Menu = scriptConfig(ScriptName.." "..champName, ScriptName.."29082015")
-    QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Aoe = true, IsForEnemies = true, Type = SPELL_TYPE.LINEAR}):AddDraw():SetAccuracy(50)
+    QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 475, Width = 55, Delay = 0.25, Speed = math.huge, Aoe = true, Damage = function(target) return myHero:CalcDamage(target,(GetSpellData(_Q).level*20)+myHero.totalDamage) end, Type = SPELL_TYPE.LINEAR}):AddDraw():SetAccuracy(50)
     Q3Spell = _Spell({Slot = _Q, DamageName = "Q3", Range = 900, Width = 90, Delay = 0.75, Speed = 1500, Aoe = true, IsForEnemies = true, Type = SPELL_TYPE.LINEAR}):AddDraw():SetAccuracy(50)
     WSpell = _Spell({Slot = _W, DamageName = "W", Range = 400, Delay = 0, IsForEnemies = false, Type = SPELL_TYPE.SELF}):AddDraw()
-    ESpell = _Spell({Slot = _E, DamageName = "E", Range = 475, Delay = 0, Speed = 1600, IsForEnemies = true, Type = SPELL_TYPE.TARGETTED}):AddDraw()
-    RSpell = _Spell({Slot = _R, DamageName = "R", Range = 2500, IsForEnemies = true, Type = SPELL_TYPE.SELF}):AddDraw()
+    ESpell = _Spell({Slot = _E, DamageName = "E", Range = 475, Delay = 0, Speed = 1600, Damage = function(target) return myHero:CalcMagicDamage(target,((GetSpellData(_E).level*20)+50)*(1+0.25*eStack)+(myHero.ap*0.6)) end, Type = SPELL_TYPE.TARGETTED}):AddDraw()
+    RSpell = _Spell({Slot = _R, DamageName = "R", Range = 2500, Damage = function(target) return myHero:CalcDamage(target,(GetSpellData(_R).level*20)+myHero.totalDamage) end, Type = SPELL_TYPE.SELF}):AddDraw()
     Ignite = _Spell({Slot = FindSummonerSlot("summonerdot"), DamageName = "IGNITE", Range = 600, Type = SPELL_TYPE.TARGETTED}):AddDraw()
      
     Q = { IsReady = function() return QSpell:IsReady() end}
@@ -348,6 +347,8 @@ function LoadVariables()
     DashedUnits = {}
     KnockedUnits = {}
 
+    TS = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
+
 end
 
 function LoadMenu()
@@ -356,6 +357,7 @@ function LoadMenu()
         Menu.Combo:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
         Menu.Combo:addParam("E", "Use SweepingBlade", SCRIPT_PARAM_ONOFF, true)
         Menu.Combo:addParam("MinERange", "Min E Range", SCRIPT_PARAM_SLICE, 300, 150, 475, 0)
+        Menu.Combo:addParam("EA", "Use SweepingBlade Always", SCRIPT_PARAM_ONOFF, true)
         Menu.Combo:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_LIST, 1, {"Never", "If Killable" , "Always"})
         Menu.Combo:addParam("Items","Use Items", SCRIPT_PARAM_ONOFF, true)
 
@@ -368,13 +370,11 @@ function LoadMenu()
                 end
             end
         )
-
-    Menu.Combo:addSubMenu("["..myHero.charName.."] - Combo Ult Settings", "ults")
-        Menu.Combo.ults:addParam("R1", "Use LastBreath when Killable", SCRIPT_PARAM_ONOFF, true)
+        Menu.Combo.WC:addParam("R1", "Use LastBreath when Killable", SCRIPT_PARAM_ONOFF, true)
         --Menu.Combo.ults:addParam("RL", "at x enemy hp ", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
-        Menu.Combo.ults:addParam("R2", "when x enemy in air ", SCRIPT_PARAM_SLICE, 2, 0, 5)
-        Menu.Combo.ults:addParam("ultR", "Auto R Toggle", SCRIPT_PARAM_ONOFF, true)
-        Menu.Combo.ults:addParam("R", "when x enemy in air ", SCRIPT_PARAM_SLICE, 3, 0, 5)
+        Menu.Combo.WC:addParam("R2", "Use when x enemy in air ", SCRIPT_PARAM_SLICE, 2, 0, 5)
+        Menu.Combo.WC:addParam("ultR", "Auto R Toggle", SCRIPT_PARAM_ONOFF, true)
+        Menu.Combo.WC:addParam("R", "when x enemy in air ", SCRIPT_PARAM_SLICE, 3, 0, 5)
 
     Menu:addSubMenu("["..myHero.charName.."] - Harass Settings", "Harass")
         Menu.Harass:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
@@ -389,8 +389,8 @@ function LoadMenu()
         Menu.JungleClear:addParam("E", "Use SweepingBlade", SCRIPT_PARAM_ONOFF, true)
 
     Menu:addSubMenu("["..myHero.charName.."] - LastHit Settings", "LastHit")
-        Menu.LastHit:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_LIST, 3, {"Never", "Smart", "Always"})
-        Menu.LastHit:addParam("E", "Use SweepingBlade", SCRIPT_PARAM_LIST, 2, {"Never", "Smart", "Always"})
+        Menu.LastHit:addParam("E", "Use SweepingBlade", SCRIPT_PARAM_ONOFF, true)
+        Menu.LastHit:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
 
     Menu:addSubMenu("["..myHero.charName.."] - Misc Settings", "Misc")
         Menu.Misc:addParam("Overkill", "Overkill % Checks", SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
@@ -400,7 +400,8 @@ function LoadMenu()
         Menu.Misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
         Menu.Misc:addParam("autoPots", "Use HP Pots", SCRIPT_PARAM_ONOFF, true)
         Menu.Misc:addParam("usePots", "Use when x HP", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
-    Menu.Misc:addSubMenu("Use WindWall", "W")
+
+            Menu.Misc:addSubMenu("Use WindWall", "W")
             _Evader(Menu.Misc.W):CheckCC():AddCallback(
                 function(target) 
                     if WSpell:IsReady() and IsValidTarget(target) then
@@ -410,7 +411,7 @@ function LoadMenu()
                     end
                 end
             )
-    Menu.Misc:addSubMenu("Interrupt w/ EmpoweredTempest", "Q3")
+            Menu.Misc:addSubMenu("Interrupt w/ EmpoweredTempest", "Q3")
             _Interrupter(Menu.Misc.Q3):CheckChannelingSpells():CheckGapcloserSpells():AddCallback(
                 function(target)
                     if Q3Spell:IsReady() and QState == 3 then
@@ -419,21 +420,19 @@ function LoadMenu()
                     end
                 end
             )
+
             Menu.Misc:addSubMenu("Use E-vade", "E")
-                _Evader(Menu.Misc.E):CheckCC():AddCallback(
-                    function(target)
-                        if ESpell:IsReady() and IsValidTarget(target) then
-                            local object = SearchEObject(mousePos)
-                            if IsValidTarget(object) then
-                                if object.networkID ~= target.networkID then
-                                    CastE(object)
-                                    --print("E-vade Test")
-                                end
-                            end
+            _Evader(Menu.Misc.E):CheckCC():AddCallback(
+                function(target)
+                    if ESpell:IsReady() and IsValidTarget(target) then
+                        local object = SearchEObject(mousePos)
+                         if IsValidTarget(object) then
+                             CastE(object)
+                            --print("E-vade Test")
                         end
                     end
+                end
                 )
-
     Menu:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "KillSteal")
         Menu.KillSteal:addParam("Q", "Use SteelTempest", SCRIPT_PARAM_ONOFF, true)
         Menu.KillSteal:addParam("E", "Use SweepingBlade", SCRIPT_PARAM_ONOFF, true)
@@ -456,14 +455,13 @@ function LoadMenu()
         Menu.Keys.egap = false
 
         TS:AddToMenu(Menu)
-
 end
 
 function OnTick()
     if Menu == nil then return end
     TS:update()
     target = TS.target
-    if Menu.Combo.ults.ultR then AutoR() end
+    if Menu.Combo.WC.ultR then AutoR() end
     if Menu.Misc.autoPots then AutoPots() end
     if Menu.Keys.esc then Escape() end
     if Menu.Keys.egap then EgapCloser() end
@@ -515,11 +513,11 @@ function Combo()
                         Ignite:Cast(target)
                     end
                 end
-                if Menu.Combo.ults.R2 > 0 and #EnemiesKnocked() >= Menu.Combo.ults.R2 then
+                if Menu.Combo.WC.R2 > 0 and #EnemiesKnocked() >= Menu.Combo.WC.R2 then
                     RSpell:Cast(TS.target)
                     myHero:Attack(target)
                 end
-                if Menu.Combo.ults.R1 and dmg >= target.health then
+                if Menu.Combo.WC.R1 and dmg >= target.health then
                     CastR(target)
                     myHero:Attack(target)
                 end
@@ -539,6 +537,10 @@ function Combo()
                         elseif GetDistanceSqr(myHero, target) > math.pow(Menu.Combo.MinERange, 2) then
                             CastE(object)
                         end
+                        local object = SearchEObject(mousePos)
+                        if GetDistanceSqr(myHero, target) < math.pow(ESpell.Range, 2) and Menu.Combo.EA then
+                            CastE(object)
+                        end
                     end
             end
     end
@@ -549,11 +551,15 @@ function Clear()
     if Menu.LaneClear.E then
         EnemyMinions:update()
         for i, minion in pairs(EnemyMinions.objects) do
-            if ESpell:IsReady() and ESpell:Damage(minion) >= minion.health then
+            local eDmg = getEDmg(minion)
+            if ESpell:IsReady() and eDmg >= minion.health and (not UnderTurret(EEndPos(minion),true)) then
                 CastE(minion)
             end
-            if Menu.LaneClear.Q then
-                QSpell:LaneClear()
+            local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+            if Menu.LaneClear.Q and QSpell:IsReady() and qDmg >= minion.health then
+                QSpell:Cast(minion)
+            else
+                QSpell:Cast(minion)
             end
         end
     end
@@ -571,8 +577,21 @@ function Clear()
 end
 
 function LastHit()
-    QSpell:LastHit({Mode = Menu.LastHit.Q})
-    ESpell:LastHit({Mode = Menu.LastHit.E})
+    if Menu.LastHit.Q and QSpell:IsReady() then
+        EnemyMinions:update()
+        for i, minion in pairs(EnemyMinions.objects) do
+            local eDmg = getEDmg(minion)
+            if Menu.LastHit.E and ESpell:IsReady() then
+                if eDmg >= minion.health and (not UnderTurret(EEndPos(minion),true)) then
+                    ESpell:Cast(minion)
+                end
+            end
+            local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+            if qDmg >= minion.health then
+                QSpell:Cast(minion)
+            end
+        end
+    end
 end
 
 function Harass()
@@ -596,8 +615,8 @@ function CastR(target)
 end
 
 function AutoR()
-    if Menu.Combo.ults.R > 0 and #EnemiesKnocked() >= Menu.Combo.ults.R then
-        RSpell:Cast(TS.target)
+    if Menu.Combo.WC.R > 0 and #EnemiesKnocked() >= Menu.Combo.WC.R then
+        RSpell:Cast(target)
     end
 end
 
@@ -731,6 +750,10 @@ function GetComboDamage(target, q, w, e, r)
     return comboDamage, currentManaWasted
 end
 
+function getEDmg(minion)      
+        return myHero:CalcMagicDamage(minion,((GetSpellData(_E).level*20)+50)*(1+0.25*eStack)+(myHero.ap*0.6))
+end
+
 function EnemiesKnocked()
     local Knockeds = {}
     for i, enemy in ipairs(GetEnemyHeroes()) do
@@ -822,7 +845,7 @@ function AutoQEnemyMinion(unit, minion)
     end
 end
 
-function SearchEObject(vector)
+--[[function SearchEObject(vector)
     if vector ~= nil and ESpell:IsReady() then
         local best = nil
         EnemyMinions:update()
@@ -856,7 +879,50 @@ function SearchEObject(vector)
         end
     end
     return nil
+end]]
+
+function SearchEObject(unit)
+
+    local closestMinion = nil
+    local nearestDistance = 0
+
+        EnemyMinions:update()
+        JungleMinions:update()
+        for index, minion in pairs(EnemyMinions.objects) do
+            if minion ~= nil and minion.valid and string.find(minion.name,"Minion_") == 1 and minion.team ~= player.team and minion.dead == false then
+                if GetDistance(minion) <= ESpell.Range then
+                    --PrintChat(GetDistance(eEndPos(minion), unit) .. "  -  ".. GetDistance(unit))
+                    if GetDistance(EEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
+                        nearestDistance = GetDistance(minion)
+                        closestMinion = minion
+                    end
+                end
+            end
+        end
+        for index, minion in pairs(JungleMinions.objects) do
+            if minion ~= nil and minion.valid and minion.dead == false then
+                if GetDistance(minion) <= ESpell.Range then
+                    if GetDistance(EEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
+                        nearestDistance = GetDistance(minion)
+                        closestMinion = minion
+                    end
+                end
+            end
+        end
+        for i = 1, heroManager.iCount, 1 do
+            local minion = heroManager:getHero(i)
+            if ValidTarget(minion, ESpell.Range) then
+                if GetDistance(minion) <= ESpell.Range then
+                    if GetDistance(EEndPos(minion), unit) < GetDistance(unit) and nearestDistance < GetDistance(minion) then
+                        nearestDistance = GetDistance(minion)
+                        closestMinion = minion
+                    end
+                end
+            end
+        end
+    return closestMinion
 end
+
 
 function EEndPos(target)
     return Vector(myHero) + Vector(Vector(target) - Vector(myHero)):normalized() * ESpell.Range
@@ -894,6 +960,11 @@ function OnApplyBuff(source, unit, buff)
     if unit and unit.isMe and buff.name == "recall" then
         isRecalling = true
     end
+        if unit.isMe and buff.name=="yasuodashscalar" then 
+        --PrintChat("E:" .. eStack)
+        dashed = (buff.endTime - buff.startTime)
+        eStack = 1
+    end
 
     if not unit or not buff then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
@@ -925,6 +996,11 @@ function OnRemoveBuff(unit, buff)
         end
     if unit and unit.isMe and buff.name == "recall" then
         isRecalling = false
+    end
+    if unit.isMe and buff.name=="yasuodashscalar" then 
+        --PrintChat("E:" .. eStack)
+        dashed = (buff.endTime - buff.startTime)
+        eStack = 0
     end
     if unit and source and buff and buff.name and unit.team and buff.type then
         if buff.type == 29 and unit.team ~= myHero.team then
