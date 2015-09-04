@@ -116,7 +116,7 @@ Champions = {
     ["Ezreal"] = {charName = "Ezreal", skillshots = {
         ["EzrealMysticShot"]             = {spellKey = _Q, isCollision = true, name = "Mystic Shot",      spellName = "EzrealMysticShot", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1100, radius = 80, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["EzrealEssenceFlux"]            = {spellKey = _W, name = "Essence Flux",     spellName = "EzrealEssenceFlux",     spellDelay = 250, projectileName = "Ezreal_essenceflux_mis.troy", projectileSpeed = 1500, range = 900,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
-        ["EzrealMysticShotPulse"] = {name = "Mystic Shot",      spellName = "EzrealMysticShotPulse", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1200,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
+        ["EzrealMysticShotPulse"] = {name = "Mystic ShotPulse(E)",      spellName = "EzrealMysticShotPulse", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1200,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["EzrealTrueshotBarrage"]        = {spellKey = _R, isExecute = true, name = "Trueshot Barrage", spellName = "EzrealTrueshotBarrage", spellDelay = 1000, projectileName = "Ezreal_TrueShot_mis.troy", projectileSpeed = 2000, range = 20000, radius = 160, type = "LINE", fuckedUp = true, blockable = true, danger = 1},
     }},
     ["Evelynn"] = {charName = "Evelynn", skillshots = {
@@ -840,7 +840,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.28
+    ToUpdate.Version = 1.29
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -958,7 +958,7 @@ function OnTick()
         AutoQminion()
     end
 
-    if Settings.esc.useQminion then
+    if Settings.esc.run and Settings.esc.useQminion then
         AutoQenemyminion()
     end
 
@@ -1417,7 +1417,7 @@ end
 function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if ValidTarget(Target, SkillR.range) and Settings.combo.ults.useR and Low(Target) then
+        if ValidTarget(Target, SkillR.range) and Settings.combo.ults.useR and Low(Target) and #EnemiesKnocked() >= 1 then
             DelayAction(function()
                 CastSpell(_R)
             end, 0.5 - GetLatency() / 1000)
@@ -1428,7 +1428,7 @@ end
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and Low(eTarget) then
+        if ValidTarget(eTarget, SkillR.range) and Low(eTarget) and #EnemiesKnocked() >= 1 then
             CastSpell(_R)
         end
     end
@@ -1738,7 +1738,7 @@ function Menu()
        -- Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"})
         Settings.misc:permaShow("useqss")
        --Settings.misc:permaShow("prediction")
-         Settings.misc:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+        Settings.misc:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
         Settings.misc.interrupt:addParam("r", "Interrupt with Yasuoq3w", SCRIPT_PARAM_ONOFF, true)
         for i, a in pairs(GetEnemyHeroes()) do
             if Interrupt[a.charName] ~= nil then
@@ -2602,7 +2602,7 @@ local KNOCKUP_SPELLS = {
     ["Malphite"]                    = "R",
     ["MonkeyKing"]                  = "R",
     ["Nautilus"]                    = "Q",
-    ["Orianna"]                          = "R",
+    ["Orianna"]                     = "R",
     ["Pantheon"]                    = "R",
     ["Poppy"]                       = "E",
     ["RekSai"]                      = "E",
