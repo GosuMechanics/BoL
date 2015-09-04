@@ -1417,9 +1417,9 @@ end
 function sbtwR()
     for i = 1, heroManager.iCount, 1 do
         local Target = heroManager:getHero(i)
-        if ValidTarget(Target, SkillR.range) and Settings.combo.ults.useR and Low(Target) and #EnemiesKnocked() >= 1 then
+        if ValidTarget(Target, SkillR.range) and Settings.combo.ults.useR and Low(Target) then
             DelayAction(function()
-                CastSpell(_R)
+                CastR(Target)
             end, 0.5 - GetLatency() / 1000)
         end
     end
@@ -1428,15 +1428,21 @@ end
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and Low(eTarget) and #EnemiesKnocked() >= 1 then
-            CastSpell(_R)
+        if ValidTarget(eTarget, SkillR.range) and Low(eTarget) then
+            CastR(eTarget)
         end
     end
 end
 
 function AutoUlt()
      if Settings.combo.ults.Ult3 > 0 and #EnemiesKnocked() >= Settings.combo.ults.Ult3 then
-        CastSpell(_R)
+        CastR(target)
+    end
+end
+
+function CastR(target)
+    if SkillR.ready and ValidTarget(target) and KnockedUnits[target.networkID] ~= nil then
+        CastSpell(_R, target)
     end
 end
 
