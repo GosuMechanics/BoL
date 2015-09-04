@@ -1203,9 +1203,11 @@ function Combo(unit)
         end
         if Settings.combo.useQ12 and ValidTarget(unit, 500) and SkillQ12.ready then
                 CastQ12(unit)
+                myHero:Attack(target)
         end
         if Settings.combo.useQ3 and ValidTarget(unit, 1000) and SkillQ3.ready then
                 CastQ3(unit)
+                myHero:Attack(target)
         end
         if Settings.combo.ults.useR and ValidTarget(unit, 1200) and SkillR.ready then    
                 sbtwR()
@@ -1220,6 +1222,7 @@ function Combo(unit)
         end             
         if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
             E(unit)
+            myHero:Attack(target)
         end
         if TargetDistance <= SkillE.range then
             mPos = getNearestMinion(mousePos)
