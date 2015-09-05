@@ -840,7 +840,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.30
+    ToUpdate.Version = 1.31
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -912,8 +912,6 @@ function OnTick()
         posAfterE = nil
         dashed = nil
     end
-
-    if Settings.drawing.drawDD and not Settings.drawing.mDraw then DmgCalc() end
     
     if ComboKey then
         Combo()
@@ -957,6 +955,8 @@ function OnTick()
         AutoQenemy()
     end
 
+    if Settings.esc.qminion then AutoQenemyminion() end
+
     if Settings.esc.useQjungle then
         AutoQminion()
     end
@@ -969,7 +969,7 @@ function OnTick()
         smartEgap()
     end
 
-    AutoUlt()
+    if Settings.combo.ults.autoult then AutoUlt() end
 
     GetItemSlot()
 end
@@ -1197,23 +1197,28 @@ end
 --           Functions              
 ------------------------------------------------------
 
-function Combo(unit)
-
+function Combo()
+    local target = ts.target
     if target ~= nil and target.type == myHero.type and target.visible and not target.dead then
 
         if Settings.combo.comboItems then
                 UseItems(target)
         end
-        if Settings.combo.useQ12 and ValidTarget(target, 500) and SkillQ12.ready then
+        if Settings.combo.useQ12 and SkillQ12.ready then
                 CastQ12(target)
                 myHero:Attack(target)
         end
-        if Settings.combo.useQ3 and ValidTarget(target, 1000) and SkillQ3.ready then
+        if Settings.combo.useQ3 and SkillQ3.ready then
                 CastQ3(target)
                 myHero:Attack(target)
         end
-        if Settings.combo.ults.useR and ValidTarget(target, 1200) and SkillR.ready then    
-                sbtwR()
+        if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
+            local dmg = (getDmg("Q", target, myHero)*50+getEDmg(target)+getDmg("R", target, myHero))
+            if dmg >= target.health then
+                DelayAction(function()
+                    CastSpell(_R, target)
+                end, 2 - GetLatency()/1000)
+            end
         end
 
         local TargetDistance = GetDistance(target)
@@ -1227,10 +1232,12 @@ function Combo(unit)
             E(target)
             myHero:Attack(target)
         end
-        if TargetDistance <= Settings.combo.DistanceToE then
-            mPos = getNearestMinion(mousePos)
-            if SkillE.ready and Settings.combo.dash and mPos then 
-                E(mPos)
+        if TargetDistance >= Settings.combo.DistanceToE then
+            object = getNearestMinion(mousePos)
+            if SkillE.ready and Settings.combo.dash and object then
+                if object.networkID ~= target.networkID then
+                    E(object)
+                end
             end
         end        
     end
@@ -1265,8 +1272,8 @@ function LastHit(unit)
 end
 
 function Harass(unit)
-    if Settings.harass.useQ12 then CastQ12(unit) end
-    if Settings.harass.useQ3 then CastQ3(unit) end
+    if Settings.harass.useQ12 then CastQ12(target) end
+    if Settings.harass.useQ3 then CastQ3(target) end
 end
 
 function LaneClear()
@@ -1403,8 +1410,7 @@ function AutoQenemy()
                 CastQ3(target)
             elseif not Settings.harass.underTower and not UnderTurret(enemy) then
                 CastQ3(target)
-
-    end
+        end
 end    
 
 function E(unit)
@@ -1412,36 +1418,21 @@ function E(unit)
     CastSpell(_E, unit) 
 end
 
-function Low(unit)
-    if unit ~= nil and unit.type == myHero.type and SkillR.range and unit.health <= ((Settings.combo.ults.autoRPercent/100*unit.maxHealth)*1.5) then
-        return true
-    else
-        return false
-    end
-end
-
-function sbtwR()
-    for i = 1, heroManager.iCount, 1 do
-        local Target = heroManager:getHero(i)
-        if ValidTarget(Target, SkillR.range) and Settings.combo.ults.useR and Low(Target) then
-            DelayAction(function()
-                CastR(Target)
-            end, 0.5 - GetLatency() / 1000)
-        end
-    end
-end
-
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
-        if ValidTarget(eTarget, SkillR.range) and Low(eTarget) then
-            CastR(eTarget)
+        if Settings.ks.autoR then
+            if ValidTarget(eTarget, SkillR.range) and eTarget.health <= (Settings.combo.ults.autoRPercent/100*eTarget.maxHealth) then
+                DelayAction(function()
+                    CastSpell(_R, eTarget)
+                end, 2 - GetLatency()/1000)
+            end
         end
     end
 end
 
 function AutoUlt()
-     if Settings.combo.ults.Ult3 > 0 and #EnemiesKnocked() >= Settings.combo.ults.Ult3 then
+     if Settings.combo.ults.autoult and Settings.combo.ults.Ult3 > 0 and #EnemiesKnocked() >= Settings.combo.ults.Ult3 then
         CastR(target)
     end
 end
@@ -1450,6 +1441,14 @@ function CastR(target)
     if SkillR.ready and ValidTarget(target) and KnockedUnits[target.networkID] ~= nil then
         CastSpell(_R, target)
     end
+end
+
+function EnemiesKnocked()
+    local Knockeds = {}
+    for i, enemy in ipairs(GetEnemyHeroes()) do
+        if ValidTarget(enemy) and KnockedUnits[enemy.networkID] ~= nil then table.insert(Knockeds, enemy) end
+    end
+    return Knockeds
 end
 
 function KillSteal()
@@ -1466,7 +1465,7 @@ function KillSteal()
                     end
                 end
                 if SkillE.ready then
-                    if eDmg >= eTarget.health then
+                    if eDmg >= eTarget.health and (not UnderTurret(eEndPos(eTarget),true)) or towerUnit~=nil then
                         E(eTarget)
                     end
                 end
@@ -1514,12 +1513,6 @@ end
 
 function getEDmg(minion)      
         return myHero:CalcMagicDamage(minion,((GetSpellData(_E).level*20)+50)*(1+0.25*eStack)+(myHero.ap*0.6))
-end
-
-function MoveToMouse()
-        local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
-        local Position = myHero + (Vector(MousePos) - myHero):normalized()*300
-        myHero:MoveTo(mousePos.x, mousePos.z)
 end
 
 function eEndPos(unit)
@@ -1653,14 +1646,12 @@ function Menu()
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("dash", "Dash Always", SCRIPT_PARAM_ONOFF, true)
-        --Settings.combo:addParam("dash", "Use Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Settings.combo:addSubMenu("["..myHero.charName.."] - Ult Settings", "ults")
-        Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." ",  SCRIPT_PARAM_ONOFF, true)
-        Settings.combo.ults:addParam("autoRPercent", "when at % Health",SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
+        Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." if Killable ",  SCRIPT_PARAM_ONOFF, true)
         Settings.combo.ults:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
-        Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
+        Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3, 0, 5, 0)
         Settings.combo.ults:permaShow("autoult")
 
     Settings.combo:addSubMenu("["..myHero.charName.."] - Wombo Combo Ult", "WC")
@@ -1702,13 +1693,14 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - Escape Settings", "esc")
         Settings.esc:addParam("run", "Escape Key", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("Z"))
         Settings.esc:addParam("useQminion", "AutoQ EnemyMinion", SCRIPT_PARAM_ONOFF, true)
-        Settings.esc:addParam("useQjungle", "AutoQ JungleMob", SCRIPT_PARAM_ONOFF, true)
-        Settings.esc:permaShow("useQminion")
+        Settings.esc:addParam("qminion", "AutoQ EnemyMinion Toggle", SCRIPT_PARAM_ONKEYTOGGLE, false, GetKey("K"))
+        Settings.esc:addParam("useQjungle", "AutoQ JungleMob Toggle", SCRIPT_PARAM_ONKEYTOGGLE, true, GetKey("J"))
+        Settings.esc:permaShow("qminion")
         Settings.esc:permaShow("useQjungle")
+        
 
     Settings:addSubMenu("["..myHero.charName.."] - E GapClose Settings", "Egap")
         Settings.Egap:addParam("smartEgap", "(Test) EGap/Cheese Strat", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("E"))
-        --Settings.Egap:addParam("useQ", "(Test) Q Harass", SCRIPT_PARAM_ONOFF, true)
 
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
@@ -1767,7 +1759,7 @@ function Menu()
                 function(target)
                     if SkillE.ready and ValidTarget(target) then
                         local object = getNearestMinion(mousePos)
-                         if ValidTarget(object) then
+                         if ValidTarget(object) and object.networkID ~= target.networkID then
                             E(object)
                             --print("E-vade Test")
                         end
@@ -1789,12 +1781,10 @@ function Menu()
                 end
             end
         end
-        Settings.misc.blocks:addParam("Humanizer",  "% of Humanizer", SCRIPT_PARAM_SLICE, 0, 0, 5, .1)
 
     ts:AddToMenu(Menu)
 
 end
-
 
 class "Draw"
 function Draw:__init()
@@ -1809,9 +1799,8 @@ end
 
 function Draw:OnDraw()
     if myHero.dead then return end
-    if self.Settings.dmg then self:DrawDamageCalculation()  end
+    if self.Settings.dmg then self:DrawDamageCalculation() end
 end
-
 
 function Draw:DrawDamageCalculation() 
     for idx, enemy in ipairs(GetEnemyHeroes()) do
@@ -2245,15 +2234,6 @@ function UseItems(unit, scary)
     end
 end
 
-function EnemiesKnocked()
-    local Knockeds = {}
-    for i, enemy in ipairs(GetEnemyHeroes()) do
-        if ValidTarget(enemy) and KnockedUnits[enemy.networkID] ~= nil then table.insert(Knockeds, enemy) end
-    end
-    return Knockeds
-end
-
-
 function CountEnemyHeroInRange(range, object)
     object = object or myHero
     range = range and range * range or myHero.range * myHero.range
@@ -2423,9 +2403,7 @@ function OnProcessSpell(object,spellProc)
                     if GetDistance(spellProc.startPos) <= range then
                         if GetDistance(spellProc.endPos) <= SkillW.range then
                             if SkillW.ready and Settings.misc.blocks[spellProc.name] then 
-                                DelayAction(function()
-                                    CastSpell(_W, object.x, object.z)
-                                end,Settings.misc.blocks.Humanizer-GetLatency()/1000)
+                                CastSpell(_W, object.x, object.z)
                             end
                         end
                     end
