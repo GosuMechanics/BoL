@@ -887,6 +887,9 @@ end
 
 function OnTick()
 
+    ts:update()
+    target = ts.target
+
     Checks()
 
     if fuckedUpSpell ~= nil then fuckedUpSpells() end
@@ -913,7 +916,7 @@ function OnTick()
     if Settings.drawing.drawDD and not Settings.drawing.mDraw then DmgCalc() end
     
     if ComboKey then
-        Combo(target)
+        Combo()
     end
     
     if HarassKey then
@@ -1195,36 +1198,36 @@ end
 ------------------------------------------------------
 
 function Combo(unit)
-    ts:update()
-    if unit ~= nil and unit.type == myHero.type then
+
+    if target ~= nil and target.type == myHero.type and target.visible and not target.dead then
 
         if Settings.combo.comboItems then
-                UseItems(unit)
+                UseItems(target)
         end
-        if Settings.combo.useQ12 and ValidTarget(unit, 500) and SkillQ12.ready then
-                CastQ12(unit)
+        if Settings.combo.useQ12 and ValidTarget(target, 500) and SkillQ12.ready then
+                CastQ12(target)
                 myHero:Attack(target)
         end
-        if Settings.combo.useQ3 and ValidTarget(unit, 1000) and SkillQ3.ready then
-                CastQ3(unit)
+        if Settings.combo.useQ3 and ValidTarget(target, 1000) and SkillQ3.ready then
+                CastQ3(target)
                 myHero:Attack(target)
         end
-        if Settings.combo.ults.useR and ValidTarget(unit, 1200) and SkillR.ready then    
+        if Settings.combo.ults.useR and ValidTarget(target, 1200) and SkillR.ready then    
                 sbtwR()
         end
 
-        local TargetDistance = GetDistance(unit)
+        local TargetDistance = GetDistance(target)
         if TargetDistance > SkillE.range and Settings.combo.useEGap then
-            mPos = getNearestMinion(unit)
+            mPos = getNearestMinion(target)
             if SkillE.ready and mPos then 
                 E(mPos)
             end
         end             
         if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
-            E(unit)
+            E(target)
             myHero:Attack(target)
         end
-        if TargetDistance <= SkillE.range then
+        if TargetDistance <= Settings.combo.DistanceToE then
             mPos = getNearestMinion(mousePos)
             if SkillE.ready and Settings.combo.dash and mPos then 
                 E(mPos)
@@ -1635,9 +1638,6 @@ function Checks()
     
     qBuffName = "Yasuo_Q_wind_ready_buff.troy"
     dashed = nil
-
-    ts:update()
-    target = ts.target
     
     if Settings.drawing.lfc.lfc then _G.DrawCircle = DrawCircle2 else _G.DrawCircle = _G.oldDrawCircle end
 end
@@ -1652,7 +1652,7 @@ function Menu()
         Settings.combo:addParam("useQ3", "Use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useE", "Use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("useEGap", "Use E as Gap Closer", SCRIPT_PARAM_ONOFF, true)
-        Settings.combo:addParam("dash", "Dash Always(enemy<=E-Range)", SCRIPT_PARAM_ONOFF, true)
+        Settings.combo:addParam("dash", "Dash Always", SCRIPT_PARAM_ONOFF, true)
         --Settings.combo:addParam("dash", "Use Dash Always", SCRIPT_PARAM_ONOFF, true)
         Settings.combo:addParam("DistanceToE", "min Distance for GapClose",SCRIPT_PARAM_SLICE, 300, 0, 475, 0)
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
@@ -1662,6 +1662,7 @@ function Menu()
         Settings.combo.ults:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3,0,5,0)
         Settings.combo.ults:permaShow("autoult")
+
     Settings.combo:addSubMenu("["..myHero.charName.."] - Wombo Combo Ult", "WC")
         _Initiator(Settings.combo.WC):CheckGapcloserSpells():AddCallback(
             function(target)
@@ -1682,7 +1683,7 @@ function Menu()
         Settings.harass:permaShow("harassToggle")
         
     Settings:addSubMenu("["..myHero.charName.."] - LastHit", "farm")
-        Settings.farm:addParam("farmKey", "KastHit", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("A"))
+        Settings.farm:addParam("farmKey", "LastHit", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("A"))
         Settings.farm:addParam("useQ12", "use "..SkillQ12.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.farm:addParam("useQ3", "use "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.farm:addParam("useE", "use "..SkillE.name.." ", SCRIPT_PARAM_ONOFF, true)
@@ -1712,7 +1713,6 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - KillSteal Settings", "ks")
         Settings.ks:addParam("killSteal", "Use Smart Kill Steal", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:addParam("autoR", "Auto-R KS", SCRIPT_PARAM_ONOFF, true)
-        --Settings.ks:addParam("autoIgnite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
         Settings.ks:permaShow("killSteal")
         Settings.ks:permaShow("autoR")
 
@@ -1744,10 +1744,9 @@ function Menu()
         Settings.misc:addParam("usePots", "use when at % hp", SCRIPT_PARAM_SLICE, 50, 1, 100, 0)
         Settings.misc:addParam("useqss", "Auto-QSS", SCRIPT_PARAM_ONOFF, true)
         Settings.misc:addParam("delay", "Activation delay", SCRIPT_PARAM_SLICE, 0, 0, 250, 0)
-       -- Settings.misc:addParam("prediction", "Choose Prediction", SCRIPT_PARAM_LIST, 1, {"VPrediction", "HPrediction", "SPrediction"})
         Settings.misc:permaShow("useqss")
-       --Settings.misc:permaShow("prediction")
-        Settings.misc:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
+
+    Settings.misc:addSubMenu("[" .. myHero.charName.. "] - Auto-Interrupt", "interrupt")
         Settings.misc.interrupt:addParam("r", "Interrupt with Yasuoq3w", SCRIPT_PARAM_ONOFF, true)
         for i, a in pairs(GetEnemyHeroes()) do
             if Interrupt[a.charName] ~= nil then
@@ -1778,18 +1777,19 @@ function Menu()
     Settings.misc:addSubMenu("["..myHero.charName.."] - WindWall Settings", "blocks")
         Settings.misc.blocks:addParam("autoW", "Use Auto "..SkillW.name.." ", SCRIPT_PARAM_ONOFF, true)
 
-    for i = 1, heroManager.iCount,1 do
-        local hero = heroManager:getHero(i)
-        if hero.team ~= player.team then
-            if Champions[hero.charName] ~= nil then
-                for index, skillshot in pairs(Champions[hero.charName].skillshots) do
-                    if skillshot.blockable == true then
-                        Settings.misc.blocks:addParam(skillshot.spellName, hero.charName .. " - " .. skillshot.name, SCRIPT_PARAM_ONOFF, true)
+        for i = 1, heroManager.iCount,1 do
+            local hero = heroManager:getHero(i)
+            if hero.team ~= player.team then
+                if Champions[hero.charName] ~= nil then
+                    for index, skillshot in pairs(Champions[hero.charName].skillshots) do
+                        if skillshot.blockable == true then
+                            Settings.misc.blocks:addParam(skillshot.spellName, hero.charName .. " - " .. skillshot.name, SCRIPT_PARAM_ONOFF, true)
+                        end
                     end
                 end
             end
         end
-    end
+        Settings.misc.blocks:addParam("Humanizer",  "% of Humanizer", SCRIPT_PARAM_SLICE, 0, 0, 5, .1)
 
     ts:AddToMenu(Menu)
 
@@ -2423,7 +2423,9 @@ function OnProcessSpell(object,spellProc)
                     if GetDistance(spellProc.startPos) <= range then
                         if GetDistance(spellProc.endPos) <= SkillW.range then
                             if SkillW.ready and Settings.misc.blocks[spellProc.name] then 
-                                CastSpell(_W, object.x, object.z)
+                                DelayAction(function()
+                                    CastSpell(_W, object.x, object.z)
+                                end,Settings.misc.blocks.Humanizer-GetLatency()/1000)
                             end
                         end
                     end
@@ -2562,6 +2564,41 @@ function _SimpleTargetSelector:AddToMenu(Menu)
         self.Settings = Settings.TS
         self.Settings:addTS(self.TS)
     end
+end
+
+local EnemiesInGame = {}--ICreative's SimpleLib
+
+function IsGapclose(enemy, spelltype)--ICreative's SimpleLib
+    if IsValidTarget(enemy) and GAPCLOSER_SPELLS[enemy.charName] ~= nil then
+        for champ, spell in pairs(GAPCLOSER_SPELLS) do
+            if enemy.charName == champ and spell == spelltype then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function IsChanelling(enemy, spelltype)--ICreative's SimpleLib
+    if IsValidTarget(enemy) and CHANELLING_SPELLS[enemy.charName] ~= nil then
+        for champ, spell in pairs(CHANELLING_SPELLS) do
+            if enemy.charName == champ and spell == spelltype then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function IsCC(enemy, spelltype)--ICreative's SimpleLib
+    if IsValidTarget(enemy) and CC_SPELLS[enemy.charName] ~= nil then
+        for champ, spell in pairs(CC_SPELLS) do
+            if enemy.charName == champ and spell == spelltype then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function ExtraTime()--ICreative's SimpleLib
@@ -2734,17 +2771,20 @@ local EVADE_SPELLS = {
     ["Draven"]                      = "E",
     ["DrMundo"]                     = "Q",
     ["Ekko"]                        = "W",
+    ["Elise"]                       = "Q",
     ["Elise"]                       = "E",
     ["Evelynn"]                     = "R",
     ["Ezreal"]                      = "Q",
     ["Ezreal"]                      = "W",
     ["Ezreal"]                      = "R",
+    ["Fizz"]                        = "E",
     ["Fizz"]                        = "R",
     ["Galio"]                       = "R",
     ["Gnar"]                        = "R",
     ["Gragas"]                      = "R",
     ["Graves"]                      = "R",
     ["Graves"]                      = "Q",
+    ["Janna"]                       = "Q",
     ["Jinx"]                        = "W",
     ["Jinx"]                        = "R",
     ["KhaZix"]                      = "W",
@@ -2761,6 +2801,7 @@ local EVADE_SPELLS = {
     ["Nidalee"]                     = "Q",
     ["Orianna"]                     = "R",
     ["Rengar"]                      = "E",
+    ["Riven"]                       = "W",
     ["Riven"]                       = "R",
     ["Sejuani"]                     = "R",
     ["Sion"]                        = "E",
