@@ -708,11 +708,6 @@ local attacked = false
 local isattacking = 0
 local animTime = 0
 local IsRecalling = false
-local knockedUp = 0
-local Knockups = {}
-local TargetKnockedup = {}
-local unitknocked = 0
-local targetknocked = 0
 --local animTime = 0
 local Tower = nil
 local towerUnit = nil
@@ -720,8 +715,6 @@ local Tdashing = false
 local Tdashing2 = false
 local UsingPot = false
 local lastRemove = 0
-local TornadoReady = false
-local unitsknocked = 0
 ------------------------------------------------------
 --           Callbacks              
 ------------------------------------------------------
@@ -840,7 +833,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.31
+    ToUpdate.Version = 1.32
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -977,27 +970,27 @@ end
 function OnDraw()
     if not myHero.dead and not Settings.drawing.mDraw then
         if SkillQ12.ready and Settings.drawing.qDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ12.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillQ12.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
         end
         if SkillQ3.ready and Settings.drawing.qDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillQ3.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillQ3.range, RGB(Settings.drawing.qColor[2], Settings.drawing.qColor[3], Settings.drawing.qColor[4]))
         end
         if SkillW.ready and Settings.drawing.wDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillW.range, RGB(Settings.drawing.wColor[2], Settings.drawing.wColor[3], Settings.drawing.wColor[4]))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillW.range, RGB(Settings.drawing.wColor[2], Settings.drawing.wColor[3], Settings.drawing.wColor[4]))
         end
         if SkillE.ready and Settings.drawing.eDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillE.range, RGB(Settings.drawing.eColor[2], Settings.drawing.eColor[3], Settings.drawing.eColor[4]))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillE.range, RGB(Settings.drawing.eColor[2], Settings.drawing.eColor[3], Settings.drawing.eColor[4]))
         end
         if SkillR.ready and Settings.drawing.rDraw then 
-            DrawCircle(myHero.x, myHero.y, myHero.z, SkillR.range, RGB(Settings.drawing.rColor[2], Settings.drawing.rColor[3], Settings.drawing.rColor[4]))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, SkillR.range, RGB(Settings.drawing.rColor[2], Settings.drawing.rColor[3], Settings.drawing.rColor[4]))
         end
         
         if Settings.drawing.myHero then
-            DrawCircle(myHero.x, myHero.y, myHero.z, TrueRange(), RGB(Settings.drawing.myColor[2], Settings.drawing.myColor[3], Settings.drawing.myColor[4]))
+            DrawCircle2(myHero.x, myHero.y, myHero.z, TrueRange(), RGB(Settings.drawing.myColor[2], Settings.drawing.myColor[3], Settings.drawing.myColor[4]))
         end
         
-        if Settings.drawing.Target and Target ~= nil then
-            DrawCircle(Target.x, Target.y, Target.z, 80, ARGB(255, 10, 255, 10))
+        if Settings.drawing.Target and target ~= nil then
+            DrawCircle2(target.x, target.y, target.z, 80, ARGB(255, 10, 255, 10))
         end
     end
 end
@@ -1213,11 +1206,8 @@ function Combo()
                 myHero:Attack(target)
         end
         if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
-            local dmg = (getDmg("Q", target, myHero)*50+getEDmg(target)+getDmg("R", target, myHero))
-            if dmg >= target.health then
-                DelayAction(function()
-                    CastSpell(_R, target)
-                end, 2 - GetLatency()/1000)
+            if ValidTarget(target) and Low(target) then
+                CastSpell(_R)
             end
         end
 
@@ -1240,6 +1230,17 @@ function Combo()
                 end
             end
         end        
+    end
+end
+
+function Low(unit)
+    local target = ts.target
+    if unit and unit ~= nil and unit.type == myHero.type then
+        if unit.health <= ((50/100*unit.maxHealth)*1.5) and unit.networkID == target.networkID and GetDistance(unit) <= SkillR.range then
+            return true
+        else
+            return false
+        end
     end
 end
 
@@ -1422,9 +1423,9 @@ function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
         if Settings.ks.autoR then
-            if ValidTarget(eTarget, SkillR.range) and eTarget.health <= (Settings.combo.ults.autoRPercent/100*eTarget.maxHealth) then
+            if ValidTarget(eTarget, SkillR.range) and Low(eTarget) then
                 DelayAction(function()
-                    CastSpell(_R, eTarget)
+                    CastSpell(_R)
                 end, 2 - GetLatency()/1000)
             end
         end
@@ -1439,7 +1440,7 @@ end
 
 function CastR(target)
     if SkillR.ready and ValidTarget(target) and KnockedUnits[target.networkID] ~= nil then
-        CastSpell(_R, target)
+        CastSpell(_R)
     end
 end
 
@@ -1571,7 +1572,7 @@ end
 
 function OnApplyBuff(source, unit, buff)
 
-    --if buff and unit == myHero then print(buff.name) end
+    --if buff and unit ~= myHero then print(buff.name) end
 
     if not unit or not buff then return end
         if unit and unit.isMe and buff.name == "RegenerationPotion" then
@@ -1632,7 +1633,6 @@ function Checks()
     qBuffName = "Yasuo_Q_wind_ready_buff.troy"
     dashed = nil
     
-    if Settings.drawing.lfc.lfc then _G.DrawCircle = DrawCircle2 else _G.DrawCircle = _G.oldDrawCircle end
 end
 
 
@@ -1711,7 +1711,6 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - Draw Settings", "drawing")   
         Settings.drawing:addParam("mDraw", "Disable All Range Draws", SCRIPT_PARAM_ONOFF, false)
         Settings.drawing:addParam("Target", "Draw Circle on Target", SCRIPT_PARAM_ONOFF, true)
-        Settings.drawing:addParam("Text", "Draw Text on Target", SCRIPT_PARAM_ONOFF, true)
         Settings.drawing:addParam("myHero", "Draw My Range", SCRIPT_PARAM_ONOFF, true)
         Settings.drawing:addParam("myColor", "Draw My Range Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
         Settings.drawing:addParam("qDraw", "Draw "..SkillQ.name.." Range", SCRIPT_PARAM_ONOFF, true)
@@ -1723,11 +1722,6 @@ function Menu()
         Settings.drawing:addParam("rDraw", "Draw "..SkillR.name.." Range", SCRIPT_PARAM_ONOFF, true)
         Settings.drawing:addParam("rColor", "Draw "..SkillR.name.." Color", SCRIPT_PARAM_COLOR, {255, 74, 26, 255})
 
-        Settings.drawing:addSubMenu("Lag Free Circles", "lfc")  
-            Settings.drawing.lfc:addParam("lfc", "Lag Free Circles", SCRIPT_PARAM_ONOFF, false)
-            Settings.drawing.lfc:addParam("CL", "Quality", 4, 75, 75, 2000, 0)
-            Settings.drawing.lfc:addParam("Width", "Width", 4, 1, 1, 10, 0)
-    
         draw = Draw()
         draw:LoadMenu(Settings.drawing)
 
@@ -1781,9 +1775,48 @@ function Menu()
                 end
             end
         end
-
     ts:AddToMenu(Menu)
+end
 
+-- Barasia, vadash, viseversa
+function DrawCircleNextLvl(x, y, z, radius, width, color, chordlength)
+  radius = radius or 300
+  quality = math.max(8,round(180/math.deg((math.asin((chordlength/(2*radius)))))))
+  quality = 2 * math.pi / quality
+  radius = radius*.92
+  
+  local points = {}
+  for theta = 0, 2 * math.pi + quality, quality do
+    local c = WorldToScreen(D3DXVECTOR3(x + radius * math.cos(theta), y, z - radius * math.sin(theta)))
+    points[#points + 1] = D3DXVECTOR2(c.x, c.y)
+  end
+  
+  DrawLines2(points, width or 1, color or 4294967295)
+end
+
+function round(num) 
+  if num >= 0 then return math.floor(num+.5) else return math.ceil(num-.5) end
+end
+
+function DrawCircle(x, y, z, radius, color)
+    local vPos1 = Vector(x, y, z)
+    local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+    local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+    local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+        
+    if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+        DrawCircleNextLvl(x, y, z, radius, 1, color, 300) 
+    end
+end
+
+function DrawCircle2(x, y, z, radius, color)
+    local vPos1 = Vector(x, y, z)
+    local vPos2 = Vector(cameraPos.x, cameraPos.y, cameraPos.z)
+    local tPos = vPos1 - (vPos1 - vPos2):normalized() * radius
+    local sPos = WorldToScreen(D3DXVECTOR3(tPos.x, tPos.y, tPos.z))
+    if OnScreen({ x = sPos.x, y = sPos.y }, { x = sPos.x, y = sPos.y }) then
+        DrawCircleNextLvl(x, y, z, radius, 1, color, 75)    
+    end
 end
 
 class "Draw"
