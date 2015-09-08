@@ -237,10 +237,10 @@ function ComboWQER()
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
-            elseif not ESpell:IsReady() and WSpell:IsReady() then
-                WSpell:Cast(target)
             elseif not ESpell:IsReady() and RSpell:IsReady() then
                 RSpell:Cast()
+            elseif not RSpell:IsReady() and WSpell:IsReady() then
+                WSpell:Cast(target)
             end
     end                
 end
@@ -355,7 +355,7 @@ function ComboQEQ()
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
-            elseif not QSpell:IsReady() and QSpell:IsReady() then
+            elseif not ESpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and WSpell:IsReady() then
                 WSpell:Cast(target)
@@ -510,10 +510,10 @@ function Clear()
                 QSpell:Cast(minion)
             elseif not QSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(minion)
-            elseif not ESpell:IsReady() and WSpell:IsReady() then
-                WSpell:Cast(minion)
-            elseif not WSpell:IsReady() and RSpell:IsReady() and Menu.JungleClear.R then
+            elseif not ESpell:IsReady() and RSpell:IsReady() and Menu.JungleClear.R then
                 RSpell:Cast()
+            elseif not RSpell:IsReady() and WSpell:IsReady() then
+                WSpell:Cast(minion)
             end
     end
 end
