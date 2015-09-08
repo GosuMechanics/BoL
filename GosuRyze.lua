@@ -4,7 +4,6 @@ local Q, W, E, R, Ignite = nil, nil, nil, nil, nil
 local TS, Menu = nil, nil
 local PredictedDamage = {}
 local RefreshTime = 0.4
-local Stacks5 = false
 
 function OnLoad()
 
@@ -41,7 +40,7 @@ function LoadMenu()
 
     Menu:addSubMenu("["..myHero.charName.."] - Combo Settings", "Combo")
         Menu.Combo:addParam("R5", "Use R in ComboWQEQ",SCRIPT_PARAM_ONOFF, true)
-        Menu.Combo:addParam("R", "and x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+        Menu.Combo:addParam("R", "when x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
         Menu.Combo:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_LIST, 1, {"Never", "If Killable" , "Always"})
 
         Menu.Combo:addSubMenu("["..myHero.charName.."] - Ryze Combos", "combo")
@@ -114,16 +113,22 @@ function OnTick()
     if Menu.KillSteal.Q or Menu.KillSteal.E or Menu.KillSteal.R or Menu.KillSteal.Ignite then KillSteal() end         
     if Menu.Combo.combo.ComboWQEQ then
         ComboWQEQ()
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     elseif Menu.Combo.combo.ComboWQER then
         ComboWQER()
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     elseif Menu.Combo.combo.ComboQEWR then
         ComboQEWR()
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     elseif Menu.Combo.combo.ComboQEW then
         ComboQEW()
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     elseif Menu.Combo.adv.ComboQEQ then
         ComboQEQ()
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     elseif Menu.Combo.adv.ComboWQRE then
         ComboWQRE()
+        myHero:MoveTo(mousePos.x, mousePos.z) 
     elseif Menu.Keys.LastHit then
         LastHit()
     elseif Menu.Keys.Clear then
@@ -176,7 +181,7 @@ function ComboWQEQ()
                 WSpell:Cast(target)
             end
 
-            if Menu.Combo.R5 and Menu.Combo.R >0 and CountEnemyHeroInRange(WSpell.Range) >= Menu.Combo.R and Stacks5 then
+            if Menu.Combo.R5 and Menu.Combo.R >0 and CountEnemyHeroInRange(WSpell.Range) >= Menu.Combo.R then
                 RSpell:Cast()
             end
     end                
@@ -361,7 +366,7 @@ function ComboQEQ()
             elseif not ESpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast(target)
+                RSpell:Cast()
             elseif not RSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and ESpell:IsReady() then
@@ -399,7 +404,7 @@ function ComboWQRE()
             elseif not WSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast(target)
+                RSpell:Cast()
             elseif not RSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
             elseif not ESpell:IsReady() and QSpell:IsReady() then
@@ -409,7 +414,7 @@ function ComboWQRE()
             elseif not WSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast(target)
+                RSpell:Cast()
             elseif not RSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
             elseif not ESpell:IsReady() and QSpell:IsReady() then
@@ -419,7 +424,7 @@ function ComboWQRE()
             elseif not WSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast(target)
+                RSpell:Cast()
             elseif not RSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
             elseif not ESpell:IsReady() and QSpell:IsReady() then
@@ -429,14 +434,14 @@ function ComboWQRE()
             elseif not WSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast(target)
+                RSpell:Cast()
             elseif not RSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
             elseif not ESpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
             elseif not QSpell:IsReady() and WSpell:IsReady() then
                 WSpell:Cast(target)
-            end          
+            end     
     end                
 end
 
@@ -507,7 +512,7 @@ function Clear()
                 ESpell:Cast(minion)
             elseif not ESpell:IsReady() and WSpell:IsReady() then
                 WSpell:Cast(minion)
-            elseif not ESpell:IsReady() and RSpell:IsReady() and Menu.JungleClear.R then
+            elseif not WSpell:IsReady() and RSpell:IsReady() and Menu.JungleClear.R then
                 RSpell:Cast()
             end
     end
@@ -552,6 +557,11 @@ function Harass()
     end
 end
 
+function MoveToMouse()
+    local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
+    local Position = myHero + (Vector(MousePos) - myHero):normalized()*300
+    myHero:MoveTo(Position.x, Position.z)
+end
 
 class "Draw"
 function Draw:__init()
@@ -767,7 +777,7 @@ end
 
 function KillSteal()
     for idx, enemy in ipairs(GetEnemyHeroes()) do
-        if enemy.health/enemy.maxHealth < 0.3 and ValidTarget(enemy, QSpell.Range) and enemy.visible then
+        if enemy.health/enemy.maxHealth < 0.3 and ValidTarget(enemy, WSpell.Range) and enemy.visible then
             local q, w, e, r, dmg = GetBestCombo(enemy)
             if dmg >= enemy.health then
                 if Menu.KillSteal.Q and ( q or QSpell:Damage(enemy) > enemy.health) then 
@@ -783,29 +793,6 @@ function KillSteal()
             if Menu.KillSteal.Ignite and Ignite:IsReady() and Ignite:Damage(enemy) >= enemy.health and not enemy.dead then Ignite:Cast(enemy) end
         end
     end
-end
-
-function OnApplyBuff(source, unit, buff)
-
-    if not unit or not buff or unit.type ~= myHero.type then return end
-        if unit and unit.isMe and buff.name == "ryzepassivecharged" then
-            Stacks5 = true
-        end
-        if unit and unit.isMe and buff.name == "ryzepassivestack" then
-            Stack = true
-        end
-end
-
-
-function OnRemoveBuff(unit, buff)
-
-    if not unit or not buff or unit.type ~= myHero.type then return end
-        if unit and unit.isMe and buff.name == "ryzepassivecharged" then
-            Stacks5 = false
-        end
-        if unit and unit.isMe and buff.name == "ryzepassivestack" then
-            Stack = false
-        end
 end
 
 function CountEnemyHeroInRange(range)
