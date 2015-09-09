@@ -1234,9 +1234,9 @@ function Combo()
 end
 
 function Low(unit)
-    local target = ts.target
+
     if unit and unit ~= nil and unit.type == myHero.type then
-        if unit.health <= ((50/100*unit.maxHealth)*1.5) and unit.networkID == target.networkID and GetDistance(unit) <= SkillR.range then
+        if unit.health <= ((50/100*unit.maxHealth)*1.5) and GetDistance(unit) <= SkillR.range then
             return true
         else
             return false
