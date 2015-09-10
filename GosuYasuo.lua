@@ -833,7 +833,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.33
+    ToUpdate.Version = 1.34
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1210,7 +1210,7 @@ function Combo()
             CastSpell(_E, target)
         end
         if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
-            if ValidTarget(target) and Low(target) then
+            if ValidTarget(target, SkillR.range) and Low(target) then
                 CastSpell(_R)
             end
         end
@@ -1401,14 +1401,14 @@ end
 
 function AutoQenemy()
 
-        if Settings.harass.useQ12 and Settings.harass.underTower then
+        if ValidTarget(target, SkillQ.range) and Settings.harass.useQ12 and Settings.harass.underTower then
                 CastQ12(target)
             elseif not Settings.harass.underTower and not UnderTurret(enemy) then
                 CastQ12(target)
         end
-        if Settings.harass.useQ3 and Settings.harass.underTower  then
+        if ValidTarget(target, SkillQ3.range) and Settings.harass.useQ3 and Settings.harass.underTower  then
                 CastQ3(target)
-            elseif not Settings.harass.underTower and not UnderTurret(enemy) then
+            elseif not Settings.harass.underTower and not UnderTurret(enemy) and ValidTarget(target, SkillQ3.range) then
                 CastQ3(target)
         end
 end    
@@ -1433,7 +1433,7 @@ function AutoUlt()
 end
 
 function CastR(target)
-    if SkillR.ready and ValidTarget(target) and KnockedUnits[target.networkID] ~= nil then
+    if SkillR.ready and ValidTarget(target, SkillR.range) and KnockedUnits[target.networkID] ~= nil then
         CastSpell(_R)
     end
 end
@@ -1441,14 +1441,14 @@ end
 function EnemiesKnocked()
     local Knockeds = {}
     for i, enemy in ipairs(GetEnemyHeroes()) do
-        if ValidTarget(enemy) and KnockedUnits[enemy.networkID] ~= nil then table.insert(Knockeds, enemy) end
+        if ValidTarget(enemy, SkillR.range) and KnockedUnits[enemy.networkID] ~= nil then table.insert(Knockeds, enemy) end
     end
     return Knockeds
 end
 
 function KillSteal()
     for idx, enemy in ipairs(GetEnemyHeroes()) do
-            if ValidTarget(enemy) and GetDistance(enemy) <= SkillQ.range then
+        if ValidTarget(enemy, SkillQ.range) then
             local qDmg = myHero:CalcDamage(enemy,(GetSpellData(_Q).level*20)+myHero.totalDamage)
             local eDmg = getEDmg(enemy)
             if SkillQ.ready then 
@@ -2635,6 +2635,7 @@ local KNOCKUP_SPELLS = {
     ["Chogath"]                     = "Q",
     ["Corki"]                       = "W",
     ["Diana"]                       = "R",
+    ["Fizz"]                        = "R",
     ["Gnar"]                        = "E",
     ["Gragas"]                      = "E",
     ["Hecarim"]                     = "R",
