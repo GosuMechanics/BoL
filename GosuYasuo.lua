@@ -833,7 +833,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.32
+    ToUpdate.Version = 1.33
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1194,6 +1194,7 @@ function Combo()
     local target = ts.target
     if target ~= nil and target.type == myHero.type and target.visible and not target.dead then
 
+    if ValidTarget(target) and GetDistance(target) <= SkillQ.range then
         if Settings.combo.comboItems then
                 UseItems(target)
         end
@@ -1201,32 +1202,31 @@ function Combo()
                 CastQ12(target)
                 myHero:Attack(target)
         end
-        if Settings.combo.useQ3 and SkillQ3.ready then
+        if Settings.combo.useQ3 and SkillQ3.ready and SkillE.ready then
                 CastQ3(target)
                 myHero:Attack(target)
+        end
+        if SkillE.ready and Settings.combo.useE and GetDistance(target) >= Settings.combo.DistanceToE then
+            CastSpell(_E, target)
         end
         if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
             if ValidTarget(target) and Low(target) then
                 CastSpell(_R)
             end
         end
-
-        local TargetDistance = GetDistance(target)
-        if TargetDistance > SkillE.range and Settings.combo.useEGap then
+    end
+    local TargetDistance = GetDistance(target)
+    if TargetDistance > SkillE.range and Settings.combo.useEGap then
             mPos = getNearestMinion(target)
             if SkillE.ready and mPos then 
-                E(mPos)
+                CastSpell(_E, mPos)
             end
         end             
-        if SkillE.ready and Settings.combo.useE and TargetDistance >= Settings.combo.DistanceToE then
-            E(target)
-            myHero:Attack(target)
-        end
         if TargetDistance >= Settings.combo.DistanceToE then
             object = getNearestMinion(mousePos)
             if SkillE.ready and Settings.combo.dash and object then
                 if object.networkID ~= target.networkID then
-                    E(object)
+                    CastSpell(_E, object)
                 end
             end
         end        
@@ -1236,7 +1236,7 @@ end
 function Low(unit)
 
     if unit and unit ~= nil and unit.type == myHero.type then
-        if unit.health <= ((50/100*unit.maxHealth)*1.5) and GetDistance(unit) <= SkillR.range then
+        if unit.health <= ((Settings.combo.ults.low/100*unit.maxHealth)*1.5) and GetDistance(unit) <= SkillR.range then
             return true
         else
             return false
@@ -1264,7 +1264,7 @@ function LastHit(unit)
                 if SkillE.ready and GetDistance(minion) <= SkillE.range and Settings.farm.useE then
                     local eDmg = getEDmg(minion)
                     if eDmg >= minion.health and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
-                        E(minion)
+                       CastSpell(_E, minion)
                     end
                 end
             end
@@ -1293,7 +1293,7 @@ function LaneClear()
                         CastSpell(_Q, BestPos.x, BestPos.z)
                     end
                 end
-                if SkillQ3.ready and GetDistance(minion) <= SkillQ3.range and Settings.lane.useQ then
+                if SkillQ3.ready and GetDistance(minion) <= SkillQ3.range and Settings.lane.useQ3 then
                     local qDmg = myHero:CalcDamage(minion,(GetSpellData(_Q).level*20)+myHero.totalDamage)
                     local BestPos, BestHit = GetBestLineFarmPosition(SkillQ3.range, SkillQ3.width, enemyMinions.objects)
                     
@@ -1306,9 +1306,9 @@ function LaneClear()
                 if Settings.lane.useE == 1 and GetDistance(minion, myHero) <= SkillE.range and SkillE.ready then
                     local eDmg = getEDmg(minion)
                     if eDmg >= minion.health and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil then
-                        E(minion)
+                        CastSpell(_E, minion)
                     elseif Settings.lane.useE == 2 and (not UnderTurret(eEndPos(minion),true)) or towerUnit~=nil and GetDistance(minion, myHero) <= SkillE.range then
-                        E(minion)
+                        CastSpell(_E, minion)
                     end
                 end
                 if Settings.lane.laneItems then UseItems(minion) end
@@ -1335,7 +1335,7 @@ end
 function flee()
     mPos = getNearestMinion(mousePos)
     if SkillE.ready and mPos then
-        E(mPos) 
+        CastSpell(_E, mPos) 
     else 
         myHero:MoveTo(mousePos.x, mousePos.z) 
     end
@@ -1344,14 +1344,14 @@ end
 function smartEgap()
     mPos = getNearestMinion(mousePos)
     if ValidTarget(Target) and GetDistance(Target) >= SkillE.range and SkillE.ready and mPos then
-        E(mPos)
+        CastSpell(_E, mPos)
     else 
         myHero:MoveTo(mousePos.x, mousePos.z)
     end
     if not SkillQ.ready then
         mPos = getNearestMinion(mousePos)
         if SkillE.ready and mPos then
-            E(mPos) 
+            CastSpell(_E, mPos)
         else 
             myHero:MoveTo(mousePos.x, mousePos.z) 
         end
@@ -1369,7 +1369,6 @@ function CastQ12(unit, minion)
 end
 
 function CastQ3(unit, minion)
-    local UsePacket = Settings.misc.usePackets
     if SkillQ3.ready and ValidTarget(unit,1000) then  
 
             local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
@@ -1414,11 +1413,6 @@ function AutoQenemy()
         end
 end    
 
-function E(unit)
-    posAfterE = eEndPos(unit)
-    CastSpell(_E, unit) 
-end
-
 function autoRkillable()
     for i = 1, heroManager.iCount, 1 do
         local eTarget = heroManager:getHero(i)
@@ -1453,28 +1447,18 @@ function EnemiesKnocked()
 end
 
 function KillSteal()
-    for i = 1, heroManager.iCount, 1 do
-        if ksTarget == nil then
-            local damage = 0
-            local eTarget = heroManager:getHero(i)
-            if ValidTarget(eTarget, SkillE.range) then
-                local qDmg = myHero:CalcDamage(eTarget,(GetSpellData(_Q).level*20)+myHero.totalDamage)
-                local eDmg = getEDmg(eTarget)
-                if SkillQ.ready then 
-                    if qDmg >= eTarget.health then
-                        CastSpell(_Q, eTarget)
-                    end
+    for idx, enemy in ipairs(GetEnemyHeroes()) do
+            if ValidTarget(enemy) and GetDistance(enemy) <= SkillQ.range then
+            local qDmg = myHero:CalcDamage(enemy,(GetSpellData(_Q).level*20)+myHero.totalDamage)
+            local eDmg = getEDmg(enemy)
+            if SkillQ.ready then 
+                if qDmg >= enemy.health then
+                    CastSpell(_Q, enemy)
                 end
-                if SkillE.ready then
-                    if eDmg >= eTarget.health and (not UnderTurret(eEndPos(eTarget),true)) or towerUnit~=nil then
-                        E(eTarget)
-                    end
-                end
-                if SkillE.ready and SkillQ.ready then
-                    if (qDmg + eDmg) >= eTarget.health then
-                        CastSpell(_Q, eTarget)
-                        E(eTarget)
-                    end
+            end
+            if SkillE.ready then
+                if eDmg >= enemy.health and (not UnderTurret(eEndPos(enemy),true)) or towerUnit~=nil then
+                    CastSpell(_E, enemy)
                 end
             end
         end
@@ -1650,6 +1634,7 @@ function Menu()
         Settings.combo:addParam("comboItems", "Use Items in Combo", SCRIPT_PARAM_ONOFF, true)
     Settings.combo:addSubMenu("["..myHero.charName.."] - Ult Settings", "ults")
         Settings.combo.ults:addParam("useR", "Use "..SkillR.name.." if Killable ",  SCRIPT_PARAM_ONOFF, true)
+        Settings.combo.ults:addParam("low", "when enemy hp is below", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
         Settings.combo.ults:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3, 0, 5, 0)
         Settings.combo.ults:permaShow("autoult")
@@ -1682,6 +1667,7 @@ function Menu()
     Settings:addSubMenu("["..myHero.charName.."] - Lane Clear Settings", "lane")
         Settings.lane:addParam("laneKey", "Lane Clear", SCRIPT_PARAM_ONKEYDOWN, false, GetKey("X"))
         Settings.lane:addParam("useQ", "LaneClear with "..SkillQ.name.." ", SCRIPT_PARAM_ONOFF, true)
+        Settings.lane:addParam("useQ3", "LaneClear with "..SkillQ3.name.." ", SCRIPT_PARAM_ONOFF, true)
         Settings.lane:addParam("useE", "Use"..SkillE.name.." ", SCRIPT_PARAM_LIST, 1, {"LastHit", "Always"})
         Settings.lane:addParam("laneItems", "Use Items in LaneClear", SCRIPT_PARAM_ONOFF, true)
         
@@ -1754,7 +1740,7 @@ function Menu()
                     if SkillE.ready and ValidTarget(target) then
                         local object = getNearestMinion(mousePos)
                          if ValidTarget(object) and object.networkID ~= target.networkID then
-                            E(object)
+                            CastSpell(_E, object)
                             --print("E-vade Test")
                         end
                     end
@@ -1925,9 +1911,9 @@ end
 
 function Variables()
     SkillQ12 = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1500, width = 55 }
-    SkillQ3 = { name = "Yasuoq3w", range = 1000, delay = 0.75, speed = 1500, width = 90, radius = 90 }
+    SkillQ3 = { name = "Empowered Tempest", range = 1000, delay = 0.75, speed = 1500, width = 90, radius = 90 }
     SkillQ = { name = "Steel Tempest", range = 475, delay = 0.25, speed = 1500, width = 55, ready = false }
-    SkillW = { name = "WindWall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
+    SkillW = { name = "Wind Wall", range = 475, delay = 0.4, speed = math.huge, width = 400, ready = false }
     SkillE = { name = "Sweeping Blade", range = 475, delay = 0.25, speed = 1200, width = nil, ready = false }
     SkillR = { name = "Last Breath", range = 1200, delay = 0.4, speed = math.huge, ready = false }
 
@@ -1935,7 +1921,7 @@ function Variables()
     JungleMinions = minionManager(MINION_JUNGLE, 1300, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     
-    ts = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL, true)
+    ts = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
 
     VP = VPrediction()
 
@@ -2778,6 +2764,7 @@ local EVADE_SPELLS = {
     ["Brand"]                       = "E",
     ["Braum"]                       = "Q",
     ["Cassiopeia"]                  = "R",
+    ["Chogath"]                     = "Q",
     ["Darius"]                      = "E",
     ["Draven"]                      = "E",
     ["DrMundo"]                     = "Q",
@@ -2799,6 +2786,10 @@ local EVADE_SPELLS = {
     ["Jinx"]                        = "W",
     ["Jinx"]                        = "R",
     ["KhaZix"]                      = "W",
+    ["KogMaw"]                      = "Q",
+    ["KogMaw"]                      = "W",
+    ["KogMaw"]                      = "E",
+    ["KogMaw"]                      = "R",
     ["Leblanc"]                     = "E",
     ["LeeSin"]                      = "Q",
     ["Leona"]                       = "E",
