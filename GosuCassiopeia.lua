@@ -213,8 +213,8 @@ function LoadMenu()
         Menu.Harass:addParam("E", "Use E", SCRIPT_PARAM_ONOFF, true)  
         
     Menu:addSubMenu("["..myHero.charName.."] - LaneClear Settings", "LaneClear")
-        Menu.LaneClear:addParam("Q", "Use Q (min. hit)", SCRIPT_PARAM_SLICE, 1, 0, 5, 0)
-        Menu.LaneClear:addParam("W", "Use W (min. hit)", SCRIPT_PARAM_SLICE, 3 , 0, 5, 0)
+        Menu.LaneClear:addParam("Q", "Use Q", SCRIPT_PARAM_ONOFF, true) 
+        Menu.LaneClear:addParam("W", "Use W", SCRIPT_PARAM_ONOFF, true) 
         Menu.LaneClear:addParam("E", "Use E", SCRIPT_PARAM_ONOFF, true) 
 
     Menu:addSubMenu("["..myHero.charName.."] - JungleClear Settings", "JungleClear")
@@ -224,6 +224,7 @@ function LoadMenu()
 
     Menu:addSubMenu("["..myHero.charName.."] - LastHit Settings", "LastHit")
         Menu.LastHit:addParam("Q", "Use Q", SCRIPT_PARAM_ONOFF, true)
+        Menu.LastHit:addParam("W", "Use W", SCRIPT_PARAM_ONOFF, true)
         Menu.LastHit:addParam("E", "Use LastHit E Poisoned ", SCRIPT_PARAM_ONOFF, true)
         Menu.LastHit:addParam("ENP", "Use LastHit E NonPoisoned ", SCRIPT_PARAM_ONOFF, true)
 
@@ -259,6 +260,14 @@ function LoadMenu()
         Menu.KillSteal:addParam("R", "Use R", SCRIPT_PARAM_ONOFF, false)
         Menu.KillSteal:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_ONOFF, true)
 
+    Menu:addSubMenu("["..myHero.charName.."] - Key Settings", "Keys")
+        Menu.Keys:addParam("HarassToggle", "Harass Toggle", SCRIPT_PARAM_ONKEYTOGGLE, true, string.byte("L"))
+        Menu.Keys:addParam("Combo", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("S"))
+        Menu.Keys:addParam("Harass", "Harass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+        Menu.Keys:addParam("LastHit", "LastHit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("A"))
+        Menu.Keys:addParam("Clear", "Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
+        Menu.Keys:permaShow("HarassToggle")
+
         TS:AddToMenu(Menu)
 
 end
@@ -270,16 +279,20 @@ function OnTick()
     --if Menu.Combo.ults.ultR then AutoR() end
     if Menu.Misc.autoPots then AutoPots() end
     if Menu.Misc.autoMPots then AutoMpots() end
-    if Menu.KillSteal.Q or Menu.KillSteal.E or Menu.KillSteal.R or Menu.KillSteal.Ignite then KillSteal() end         
-    if OrbwalkManager:IsCombo() then
-        Combo()
-    elseif OrbwalkManager:IsLastHit() then
+    if Menu.KillSteal.Q or Menu.KillSteal.W or Menu.KillSteal.E or Menu.KillSteal.R or Menu.KillSteal.Ignite then KillSteal() end
+    if Menu.Keys.Combo then
+        Combo()       
+    elseif Menu.Keys.LastHit then
         LastHit()
-    elseif OrbwalkManager:IsClear() then
+    elseif Menu.Keys.Clear then
         Clear()
-    elseif OrbwalkManager:IsHarass() then
+    elseif Menu.Keys.Harass then
         Harass()
     end
+    if Menu.Keys.HarassToggle and not Menu.Keys.Combo and not IsRecalling then
+        Harass()
+    end
+end
 
 function Combo()
     if OrbwalkManager.GotReset then return end
@@ -307,22 +320,21 @@ function Combo()
                            -- end, Menu.Combo.delayW)
                         end
                         if Menu.Combo.E and TargetPoisoned(target) then
-                            DelayAction(function()
+                            --DelayAction(function()
                                     ESpell:Cast(target)
-                                end, Menu.Combo.delayE)
+                                --end, Menu.Combo.delayE)
                             end
                             if Menu.Combo.ults.R2 then
-                                    if dmg > target.health and GetDistance(target) <= ESpell.Range then
+                                    if dmg > target.health and GetDistance(target) <= 600 then
                                                 RSpell:Cast(target)
                                             end
                                     end
                                     if Menu.Combo.ults.R and Menu.Combo.ults.R1 > 0 then
                                         if RSpell:IsReady() then
                                             for i, enemy in ipairs(GetEnemyHeroes()) do
-                                                local CastPosition, WillHit, NumberOfHits = RSpell:GetPrediction(enemy, {TypeOfPrediction = "VPrediction", Type = SPELL_TYPE.CONE, Delay = 0.5, Width = 410, Range = 850, Collision = false, Aoe = true, Accuracy = 60, Source = myHero})
+                                                local CastPosition, WillHit, NumberOfHits = RSpell:GetPrediction(enemy, {TypeOfPrediction = "VPrediction", Type = SPELL_TYPE.CONE, Delay = 0.5, Width = 410, Range = 800, Collision = false, Aoe = true, Accuracy = 60, Source = myHero})
                                                 if NumberOfHits and type(NumberOfHits) == "number" and NumberOfHits >= Menu.Combo.ults.R1 and WillHit then
                                                     CastSpell(RSpell.Slot, CastPosition.x, CastPosition.z)
-                                                end
                                         end
                                  end
                         end
@@ -332,22 +344,30 @@ end
 
 function Clear()
 
-    if Menu.LaneClear.E then
         EnemyMinions:update()
         for i, minion in pairs(EnemyMinions.objects) do
-            if Menu.LaneClear.E and ESpell:IsReady() and ESpell:Damage(minion) >= minion.health and TargetPoisoned(minion) then
-                ESpell:Cast(minion)
-            elseif TargetPoisoned(minion) then
-                ESpell:Cast(minion)
+            if Menu.LaneClear.Q then
+                    local BestPos, BestHit = GetBestCircularFarmPosition(800, 50, EnemyMinions.objects)
+                    
+                    if BestPos ~= nil and BestHit >= 1 and not TargetPoisoned(minion) then
+                        CastSpell(QSpell.Slot, BestPos.x, BestPos.z)
+                    end
+                end
+                if Menu.LaneClear.W then
+                    local BestPos, BestHit = GetBestCircularFarmPosition(800, 100, EnemyMinions.objects)
+                    
+                    if BestPos ~= nil and BestHit >= 2 and not TargetPoisoned(minion) then
+                        CastSpell(WSpell.Slot, BestPos.x, BestPos.z)
+                    end
+                end
+                if Menu.LaneClear.E then
+                    if ESpell:Damage(minion) >= minion.health and TargetPoisoned(minion) then
+                        CastSpell(ESpell.Slot, minion)
+                    elseif TargetPoisoned(minion) then 
+                        CastSpell(ESpell.Slot, minion)
+                    end
+                end
             end
-            if Menu.LaneClear.Q and not TargetPoisoned(minion) then
-                QSpell:LaneClear({ NumberOfHits = Menu.LaneClear.Q})
-            end
-            if Menu.LaneClear.W then
-                WSpell:LaneClear({ NumberOfHits = Menu.LaneClear.W})
-            end
-        end
-    end
     if Menu.JungleClear.E then
         JungleMinions:update()
         for i, minion in pairs(JungleMinions.objects) do
@@ -374,6 +394,13 @@ function LastHit()
             if ESpell:IsReady() and Menu.LastHit.ENP and not Menu.LastHit.E and ESpell:Damage(minion) >= minion.health then
                 ESpell:Cast(minion)
             end
+            if Menu.LastHit.W then
+                    local BestPos, BestHit = GetBestCircularFarmPosition(800, 100, EnemyMinions.objects)
+                    
+                    if BestPos ~= nil and BestHit >= 2 and not TargetPoisoned(minion) then
+                        CastSpell(WSpell.Slot, BestPos.x, BestPos.z)
+                    end
+                end
             if QSpell:IsReady() and Menu.LastHit.Q and not TargetPoisoned(minion) then
                 QSpell:Cast(minion)
             end
@@ -382,11 +409,11 @@ end
 
 function Harass()
     local target = TS.target
-    if IsValidTarget(target) then
+    if IsValidTarget(target) and not UnderTurret(target) then
         if Menu.Harass.Q then
             QSpell:Cast(target)
         end
-        if Menu.Harass.W then
+        if Menu.Harass.W and not UnderTurret(target) then
             WSpell:Cast(target)
         end
         if Menu.Harass.E and TargetPoisoned(target) then
@@ -513,7 +540,7 @@ function KillSteal()
                 if Menu.KillSteal.W and ( w or WSpell:Damage(enemy) > enemy.health) then 
                     WSpell:Cast(enemy)
                 end
-                if Menu.KillSteal.E and ( e or ESpell:Damage(enemy) > enemy.health) then 
+                if Menu.KillSteal.E and ( e or ESpell:Damage(enemy) > enemy.health) and TargetPoisoned(enemy) then 
                     ESpell:Cast(enemy)
                 end
                 if Menu.KillSteal.R and ( r or RSpell:Damage(enemy) > enemy.health) then 
@@ -669,6 +696,64 @@ function CountEnemyHeroInRange(range)
             end
         end
     return enemyinRrange
+end
+
+function GetBestLineFarmPosition(range, width, objects)
+    local BestPos 
+    local BestHit = 0
+    for i, object in ipairs(objects) do
+        local EndPos = Vector(myHero.pos) + range * (Vector(object) - Vector(myHero.pos)):normalized()
+        local hit = CountObjectsOnLineSegment(myHero.pos, EndPos, width, objects)
+        if hit > BestHit then
+            BestHit = hit
+            BestPos = Vector(object)
+            if BestHit == #objects then
+               break
+            end
+         end
+    end
+
+    return BestPos, BestHit
+end
+
+function CountObjectsOnLineSegment(StartPos, EndPos, width, objects)
+    local n = 0
+    for i, object in ipairs(objects) do
+        local pointSegment, pointLine, isOnSegment = VectorPointProjectionOnLineSegment(StartPos, EndPos, object)
+        if isOnSegment and GetDistanceSqr(pointSegment, object) < width * width then
+            n = n + 1
+        end
+    end
+
+    return n
+end
+
+function GetBestCircularFarmPosition(range, radius, objects)
+    local BestPos 
+    local BestHit = 0
+    for i, object in ipairs(objects) do
+        local hit = CountObjectsNearPos(object.pos or object, range, radius, objects)
+        if hit > BestHit then
+            BestHit = hit
+            BestPos = Vector(object)
+            if BestHit == #objects then
+               break
+            end
+         end
+    end
+
+    return BestPos, BestHit
+end
+
+function CountObjectsNearPos(pos, range, radius, objects)
+    local n = 0
+    for i, object in ipairs(objects) do
+        if GetDistanceSqr(pos, object) <= radius * radius then
+            n = n + 1
+        end
+    end
+
+    return n
 end
 
 function OnProcessSpell(object, spellProc)
