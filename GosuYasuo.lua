@@ -715,6 +715,9 @@ local Tdashing = false
 local Tdashing2 = false
 local Eduration = 0.5
 local Eduration2 = 0
+local ePos, sPos, myPos = nil, nil ,nil
+local TargetPos = nil
+local dashPoint = nil
 local UsingPot = false
 local lastRemove = 0
 ------------------------------------------------------
@@ -1200,19 +1203,17 @@ function Combo()
         if Settings.combo.comboItems then
                 UseItems(target)
         end
-        if Settings.combo.useQ12 and SkillQ12.ready then
+        if Settings.combo.useQ12 and SkillQ12.ready and GetDistance(target) <= SkillQ12.range then
                 CastQ12(target)
-                myHero:Attack(target)
         end
-        if Settings.combo.useQ3 and SkillQ3.ready and not IsDashing() then
+        if Settings.combo.useQ3 and SkillQ3.ready and GetDistance(target) <= SkillQ3.range and not IsDashing() then
                 CastQ3(target)
-                myHero:Attack(target)
         end
-        if SkillE.ready and Settings.combo.useE and GetDistance(target) >= Settings.combo.DistanceToE then
+        if SkillE.ready and Settings.combo.useE and GetDistance(target) <= Settings.combo.DistanceToE and not TargetDashed(target) then
             CastSpell(_E, target)
         end
         if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
-            if ValidTarget(target, SkillR.range) and Low(target) then
+            if ValidTarget(target, SkillR.range) and target.health <= ((Settings.combo.ults.low/100*target.maxHealth)*1.5) then
                 CastSpell(_R)
             end
         end
@@ -1224,7 +1225,7 @@ function Combo()
                 CastSpell(_E, mPos)
             end
         end             
-        if TargetDistance >= Settings.combo.DistanceToE then
+        if TargetDistance <= Settings.combo.DistanceToE then
             object = getNearestMinion(mousePos)
             if SkillE.ready and Settings.combo.dash and object then
                 if object.networkID ~= target.networkID then
@@ -1233,6 +1234,13 @@ function Combo()
             end
         end        
     end
+end
+
+function TargetDashed(unit)
+    if TargetHaveBuff("YasuoDashWrapper", unit) then
+            return true
+        end
+    return false
 end
 
 function Low(unit)
@@ -1923,7 +1931,7 @@ function Variables()
     JungleMinions = minionManager(MINION_JUNGLE, 1300, myHero, MINION_SORT_HEALTH_ASC)
     Minions = minionManager(MINION_ENEMY, 1300, player, MINION_SORT_HEALTH_ASC)
     
-    ts = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1300, DAMAGE_PHYSICAL)
+    ts = _SimpleTargetSelector(TARGET_LESS_CAST_PRIORITY, 1100, DAMAGE_PHYSICAL, true)
 
     VP = VPrediction()
 
@@ -2667,6 +2675,7 @@ local KNOCKUP_SPELLS = {
     ["Orianna"]                     = "R",
     ["Pantheon"]                    = "R",
     ["Poppy"]                       = "E",
+    ["Rammus"]                      = "Q",
     ["RekSai"]                      = "E",
     ["Renekton"]                    = "E",
     ["Riven"]                       = "Q",
