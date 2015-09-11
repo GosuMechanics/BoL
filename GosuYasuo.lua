@@ -1209,7 +1209,7 @@ function Combo()
         if Settings.combo.useQ3 and SkillQ3.ready and GetDistance(target) <= SkillQ3.range and not IsDashing() then
                 CastQ3(target)
         end
-        if SkillE.ready and Settings.combo.useE and GetDistance(target) <= Settings.combo.DistanceToE and not TargetDashed(target) then
+        if ValidTarget(target, SkillE.range) and SkillE.ready and Settings.combo.useE and GetDistance(target) >= Settings.combo.DistanceToE and not TargetDashed(target) then
             CastSpell(_E, target)
         end
         if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
