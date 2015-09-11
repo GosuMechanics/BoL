@@ -17,8 +17,8 @@ function OnLoad()
 end
 
 function LoadVariables()
-    EnemyMinions = minionManager(MINION_ENEMY, 1100, myHero, MINION_SORT_MAXHEALTH_DEC)
-    JungleMinions = minionManager(MINION_JUNGLE, 1100, myHero, MINION_SORT_MAXHEALTH_DEC)
+    EnemyMinions = minionManager(MINION_ENEMY, 900, myHero, MINION_SORT_MAXHEALTH_DEC)
+    JungleMinions = minionManager(MINION_JUNGLE, 900, myHero, MINION_SORT_MAXHEALTH_DEC)
     Menu = scriptConfig(ScriptName.." "..champName, ScriptName.."29082015")
     QSpell = _Spell({Slot = _Q, DamageName = "Q", Range = 900, Width = 55, Delay = 0.25, Speed =1875, Collision = false, Aoe = false, Type = SPELL_TYPE.LINEAR}):AddDraw()
     QCSpell = _Spell({Slot = _Q, DamageName = "QC", Range = 900, Width = 55, Delay = 0.25, Speed =1875, Collision = true, Aoe = false, Type = SPELL_TYPE.LINEAR}):AddDraw()
@@ -47,7 +47,7 @@ function LoadMenu()
         Menu.Combo.combo:addParam("ComboWQEQ", "WQEQ 3Stacks noUlt/withUlt", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("S"))
         Menu.Combo.combo:addParam("ComboWQER", "WQER 1 Stack with Ult Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
         Menu.Combo.combo:addParam("ComboQEWR", "EQWR 2 Stacks with Ult Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
-        Menu.Combo.combo:addParam("ComboQEW", "EQW 2Stacks with NoUlt Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
+        Menu.Combo.combo:addParam("ComboQEW", "QEW 2Stacks with NoUlt Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("Z"))
 
         Menu.Combo:addSubMenu("["..myHero.charName.."] - Advanced Ryze Combos", "adv")
         Menu.Combo.adv:addParam("ComboQEQ", "QEQ 3Stacks withUlt Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("H"))
@@ -413,9 +413,7 @@ function ComboWQRE()
                 WSpell:Cast(target)
             elseif not WSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
-            elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast()
-            elseif not RSpell:IsReady() and ESpell:IsReady() then
+            elseif not QSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
             elseif not ESpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
@@ -423,9 +421,7 @@ function ComboWQRE()
                 WSpell:Cast(target)
             elseif not WSpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
-            elseif not QSpell:IsReady() and RSpell:IsReady() then
-                RSpell:Cast()
-            elseif not RSpell:IsReady() and ESpell:IsReady() then
+            elseif not QSpell:IsReady() and ESpell:IsReady() then
                 ESpell:Cast(target)
             elseif not ESpell:IsReady() and QSpell:IsReady() then
                 QSpell:Cast(target)
@@ -555,12 +551,6 @@ function Harass()
             ESpell:Cast(target)
         end
     end
-end
-
-function MoveToMouse()
-    local MousePos = Vector(mousePos.x, mousePos.y, mousePos.z)
-    local Position = myHero + (Vector(MousePos) - myHero):normalized()*300
-    myHero:MoveTo(Position.x, Position.z)
 end
 
 class "Draw"
