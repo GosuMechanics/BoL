@@ -713,6 +713,8 @@ local Tower = nil
 local towerUnit = nil
 local Tdashing = false
 local Tdashing2 = false
+local Eduration = 0.5
+local Eduration2 = 0
 local UsingPot = false
 local lastRemove = 0
 ------------------------------------------------------
@@ -833,7 +835,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.34
+    ToUpdate.Version = 1.35
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1202,7 +1204,7 @@ function Combo()
                 CastQ12(target)
                 myHero:Attack(target)
         end
-        if Settings.combo.useQ3 and SkillQ3.ready and SkillE.ready then
+        if Settings.combo.useQ3 and SkillQ3.ready and not IsDashing() then
                 CastQ3(target)
                 myHero:Attack(target)
         end
@@ -1456,7 +1458,7 @@ function KillSteal()
                     CastSpell(_Q, enemy)
                 end
             end
-            if SkillE.ready then
+            if SkillE.ready and GetDistance(enemy) <= SkillE.range then
                 if eDmg >= enemy.health and (not UnderTurret(eEndPos(enemy),true)) or towerUnit~=nil then
                     CastSpell(_E, enemy)
                 end
@@ -2403,8 +2405,24 @@ function OnProcessSpell(object,spellProc)
     --if(object.charName=="Yasuo") then PrintChat(spellProc.name .. " " .. object.charName) end
     if object.isMe and spellProc.name:lower():find("recall") then
         --PrintChat(spellProc.name)
-    end    
-
+    end
+    local unit = object
+    local spell = spellProc
+    if unit.isMe and spell.name == "YasuoDashWrapper" then
+        lastE = os.clock() * 1000
+        ePos, sPos, myPos = Vector(spell.endPos.x, spell.endPos.y, spell.endPos.z), Vector(spell.startPos.x, spell.startPos.y, spell.startPos.z), Vector(myHero.pos.x, myHero.pos.y, myHero.pos.z)
+        TargetPos = Vector(spell.target.pos.x, spell.target.pos.y, spell.target.pos.z)
+        if GetDistance(sPos,TargetPos) < 410 then
+            dashPoint = sPos + (TargetPos - sPos):normalized() * 475
+        else 
+            dashPoint = sPos + (TargetPos - sPos):normalized() * (GetDistance(sPos,TargetPos) + 65)
+        end
+        Eduration2 = os.clock() + 0.5
+        Eduration3 = os.clock() + 0.3
+        if EStacks == 1 then EStacks = 2 end
+        Tdashing = true
+        Tdashing2 = true  
+    end
     if myHero.dead then return end
     --if object.isMe and spellProc.name:lower():find("attack") then
         --animTime = spellProc.animationTime*0.1
