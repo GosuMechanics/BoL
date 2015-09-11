@@ -1225,7 +1225,7 @@ function Combo()
                 CastSpell(_E, mPos)
             end
         end             
-        if TargetDistance <= Settings.combo.DistanceToE then
+        if TargetDistance >= Settings.combo.DistanceToE then
             object = getNearestMinion(mousePos)
             if SkillE.ready and Settings.combo.dash and object then
                 if object.networkID ~= target.networkID then
