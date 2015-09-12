@@ -77,7 +77,7 @@ function LoadMenu()
     Menu:addSubMenu("["..myHero.charName.."] - Misc Settings", "Misc")
         Menu.Misc:addParam("Overkill", "Overkill % Checks", SCRIPT_PARAM_SLICE, 10, 0, 100, 0)
 
-        Menu.Misc:addSubMenu("Interrupt w/ EmpoweredTempest", "W")
+        Menu.Misc:addSubMenu("Interrupt w/ Rune Prison", "W")
             _Interrupter(Menu.Misc.W):CheckChannelingSpells():CheckGapcloserSpells():AddCallback(
                 function(target)
                     if WSpell:IsReady() then
