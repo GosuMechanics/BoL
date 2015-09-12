@@ -838,7 +838,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.35
+    ToUpdate.Version = 1.36
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1204,17 +1204,21 @@ function Combo()
                 UseItems(target)
         end
         if Settings.combo.useQ12 and SkillQ12.ready and GetDistance(target) <= SkillQ12.range then
-                CastQ12(target)
+                CastQ12(target) 
+            elseif IsDashing() and GetDistance(target) <= SkillE.range then
+                CastQ12(target) 
         end
         if Settings.combo.useQ3 and SkillQ3.ready and GetDistance(target) <= SkillQ3.range and not IsDashing() then
                 CastQ3(target)
+            elseif IsDashing() and GetDistance(target) <= SkillE.range then
+                CastQ3(target) 
         end
         if ValidTarget(target, SkillE.range) and SkillE.ready and Settings.combo.useE and GetDistance(target) >= Settings.combo.DistanceToE and not TargetDashed(target) then
             CastSpell(_E, target)
         end
         if Settings.combo.comboKey and Settings.combo.ults.useR and SkillR.ready then 
             if ValidTarget(target, SkillR.range) and target.health <= ((Settings.combo.ults.low/100*target.maxHealth)*1.5) then
-                CastSpell(_R)
+                CastR(target)
             end
         end
     end
@@ -1428,9 +1432,7 @@ function autoRkillable()
         local eTarget = heroManager:getHero(i)
         if Settings.ks.autoR then
             if ValidTarget(eTarget, SkillR.range) and Low(eTarget) then
-                DelayAction(function()
-                    CastSpell(_R)
-                end, 2 - GetLatency()/1000)
+                CastR(target)
             end
         end
     end
@@ -1443,8 +1445,8 @@ function AutoUlt()
 end
 
 function CastR(target)
-    if SkillR.ready and ValidTarget(target, SkillR.range) and KnockedUnits[target.networkID] ~= nil then
-        CastSpell(_R)
+    if SkillR.ready and ValidTarget(target, SkillR.range) and KnockedUnits[target.networkID] ~= nil and GetGameTimer() > KnockedUnits[target.networkID].startTime + Settings.combo.ults.delayR then
+        CastSpell(_R, target)
     end
 end
 
@@ -1578,8 +1580,8 @@ function OnApplyBuff(source, unit, buff)
         eStack = 1
     end
     if unit and source and buff and buff.name and unit.team and buff.type then
-        if buff.type == 29 and unit.team ~= myHero.team then
-            KnockedUnits[unit.networkID] = true
+        if (buff.type == 29 or  buff.type == 30) and unit.team ~= myHero.team then
+            KnockedUnits[unit.networkID] = buff
         end
     end
     if unit.isMe and Settings.misc.useqss then
@@ -1602,8 +1604,8 @@ function OnRemoveBuff(unit, buff)
             UsingPot = false
     end
     if unit and source and buff and buff.name and unit.team and buff.type then
-        if buff.type == 29 and unit.team ~= myHero.team then
-            KnockedUnits[unit.networkID] = false
+        if (buff.type == 29 or buff.type == 30) and unit.team ~= myHero.team then
+            KnockedUnits[unit.networkID] = nil
         end
     end
     if unit.isMe and buff.name=="yasuodashscalar" then 
@@ -1647,6 +1649,7 @@ function Menu()
         Settings.combo.ults:addParam("low", "when enemy hp is below", SCRIPT_PARAM_SLICE, 50, 0, 100, 0)
         Settings.combo.ults:addParam("autoult", "AutoR Toggle", SCRIPT_PARAM_ONOFF, true)
         Settings.combo.ults:addParam("Ult3", "When x enemy in air", SCRIPT_PARAM_SLICE, 3, 0, 5, 0)
+        Settings.combo.ults:addParam("delayR", "Delay R Cast", SCRIPT_PARAM_SLICE, 0.5, 0, 2, 1)
         Settings.combo.ults:permaShow("autoult")
 
     Settings.combo:addSubMenu("["..myHero.charName.."] - Wombo Combo Ult", "WC")
@@ -2409,13 +2412,12 @@ function findClosestEnemy(obj)
     return closestEnemy
 end
 
-function OnProcessSpell(object,spellProc)
+function OnProcessSpell(object,spell)
     --if(object.charName=="Yasuo") then PrintChat(spellProc.name .. " " .. object.charName) end
-    if object.isMe and spellProc.name:lower():find("recall") then
+    if object.isMe and spell.name:lower():find("recall") then
         --PrintChat(spellProc.name)
     end
     local unit = object
-    local spell = spellProc
     if unit.isMe and spell.name == "YasuoDashWrapper" then
         lastE = os.clock() * 1000
         ePos, sPos, myPos = Vector(spell.endPos.x, spell.endPos.y, spell.endPos.z), Vector(spell.startPos.x, spell.startPos.y, spell.startPos.z), Vector(myHero.pos.x, myHero.pos.y, myHero.pos.z)
@@ -2436,18 +2438,18 @@ function OnProcessSpell(object,spellProc)
         --animTime = spellProc.animationTime*0.1
     --end
     if Settings.misc.blocks.autoW then 
-        if object.team ~= player.team and string.find(spellProc.name, "Basic") == nil then
+        if object.team ~= player.team and string.find(spell.name, "Basic") == nil then
             if Champions[object.charName] ~= nil then
-                skillshot = Champions[object.charName].skillshots[spellProc.name]
+                skillshot = Champions[object.charName].skillshots[spell.name]
                 if  skillshot ~= nil and skillshot.blockable == true and not skillshot.fuckedUp then
                     range = skillshot.range
-                    if not spellProc.startPos then
-                        spellProc.startPos.x = object.x
-                        spellProc.startPos.z = object.z                        
+                    if not spell.startPos then
+                        spell.startPos.x = object.x
+                        spell.startPos.z = object.z                        
                     end                    
-                    if GetDistance(spellProc.startPos) <= range then
-                        if GetDistance(spellProc.endPos) <= SkillW.range then
-                            if SkillW.ready and Settings.misc.blocks[spellProc.name] then 
+                    if GetDistance(spell.startPos) <= range then
+                        if GetDistance(spell.endPos) <= SkillW.range then
+                            if SkillW.ready and Settings.misc.blocks[spell.name] then 
                                 CastSpell(_W, object.x, object.z)
                             end
                         end
@@ -2466,9 +2468,9 @@ function OnProcessSpell(object,spellProc)
     if object.team == myHero.team then return end
     
     if Interrupt[object.charName] ~= nil then
-        spell = Interrupt[object.charName].stop[spellProc.name]
+        spell = Interrupt[object.charName].stop[spell.name]
         if spell ~= nil then
-            if Settings.misc.interrupt[spellProc.name] then
+            if Settings.misc.interrupt[spell.name] then
                 if ValidTarget(unit) and GetDistance(object) < SkillQ3.range and SkillQ3.ready and Settings.misc.interrupt.r then
                     CastQ3(unit)
                 end
@@ -2477,7 +2479,6 @@ function OnProcessSpell(object,spellProc)
     end
         
     local unit = object
-    local spell = spellProc
     
     if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
         if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Settings.misc.gapClose[unit.charName] then
@@ -2592,8 +2593,8 @@ end
 local EnemiesInGame = {}--ICreative's SimpleLib
 
 function IsGapclose(enemy, spelltype)--ICreative's SimpleLib
-    if IsValidTarget(enemy) and GAPCLOSER_SPELLS[enemy.charName] ~= nil then
-        for champ, spell in pairs(GAPCLOSER_SPELLS) do
+    if IsValidTarget(enemy) and KNOCKUP_SPELLS[enemy.charName] ~= nil then
+        for champ, spell in pairs(KNOCKUP_SPELLS) do
             if enemy.charName == champ and spell == spelltype then
                 return true
             end
@@ -2614,8 +2615,8 @@ function IsChanelling(enemy, spelltype)--ICreative's SimpleLib
 end
 
 function IsCC(enemy, spelltype)--ICreative's SimpleLib
-    if IsValidTarget(enemy) and CC_SPELLS[enemy.charName] ~= nil then
-        for champ, spell in pairs(CC_SPELLS) do
+    if IsValidTarget(enemy) and EVADE_SPELLS[enemy.charName] ~= nil then
+        for champ, spell in pairs(EVADE_SPELLS) do
             if enemy.charName == champ and spell == spelltype then
                 return true
             end
@@ -2791,6 +2792,13 @@ local EVADE_SPELLS = {
     ["Brand"]                       = "W",
     ["Brand"]                       = "E",
     ["Braum"]                       = "Q",
+    ["Caitlyn"]                     = "Q",
+    ["Caitlyn"]                     = "R",
+    ["Lucian"]                      = "R",
+    ["MissFortune"]                 = "R",
+    ["VelKoz"]                      = "R",
+    ["Cassiopeia"]                  = "Q",
+    ["Cassiopeia"]                  = "W",
     ["Cassiopeia"]                  = "R",
     ["Chogath"]                     = "Q",
     ["Darius"]                      = "E",
@@ -2838,8 +2846,11 @@ local EVADE_SPELLS = {
     ["Shen"]                        = "E",
     --["Shyvana"]                     = "R",
     ["Sona"]                        = "R",
+    ["Soraka"]                      = "Q",
+    ["Soraka"]                      = "W",
+    ["Soraka"]                      = "E",
     ["Swain"]                       = "W",
-    ["Taric"]                      = "R",
+    ["Taric"]                       = "R",
     ["Thresh"]                      = "Q",
     ["Varus"]                       = "R",
     ["Veigar"]                      = "E",
