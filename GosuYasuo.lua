@@ -838,7 +838,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.36
+    ToUpdate.Version = 1.37
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -1774,6 +1774,7 @@ function Menu()
                 end
             end
         end
+        Settings.misc.blocks:addParam("autoWdelay", "WindWall Humanizer", SCRIPT_PARAM_SLICE, 0.5, 0, 2, 1)
     ts:AddToMenu(Menu)
 end
 
@@ -2450,7 +2451,9 @@ function OnProcessSpell(object,spell)
                     if GetDistance(spell.startPos) <= range then
                         if GetDistance(spell.endPos) <= SkillW.range then
                             if SkillW.ready and Settings.misc.blocks[spell.name] then 
-                                CastSpell(_W, object.x, object.z)
+                                DelayAction(function ()
+                                    CastSpell(_W, object.x, object.z)
+                                end, Settings.misc.blocks.autoWdelay / 1000)
                             end
                         end
                     end
