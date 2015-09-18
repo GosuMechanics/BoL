@@ -41,7 +41,7 @@ Champions = {
         ["Shadow Dance"] = {spellKey = _R, isTargeted = true, name = "Shadow Dance", spellName = "Shadow Dance", spellDelay = 250, projectileName = "swain_shadowGrasp_transform.troy", range = 800, type = "LINE"},
     }},
     ["Ashe"] = {charName = "Ashe", skillshots = {
-        ["EnchantedCrystalArrow"] = { name = "Enchanted Arrow", spellName = "EnchantedCrystalArrow", spellDelay = 250, projectileName = "EnchantedCrystalArrow_mis.troy", projectileSpeed = 1600, range = 25000, radius = 130, type = "LINE", fuckedUp = true, blockable = true, danger = 1},
+        ["EnchantedCrystalArrow"] = { name = "Enchanted Arrow", spellName = "EnchantedCrystalArrow", spellDelay = 250, projectileName = "EnchantedCrystalArrow_mis.troy", projectileSpeed = 1600, range = 25000, radius = 130, type = "LINE", fuckedup = false, blockable = true, danger = 1},
         ["Volley"] = {spellKey = _W, isTrueRange = true, name = "Volley", spellName = "Volley", spellDelay = 250, range = 1200, radius = 200, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["FrostShot"] = { spellKey = _Q, isSelfCast = true, isAutoBuff = true, heroHasNoBuff = "FrostShot", noAnimation = true, spellName = "FrostShot", name = "FrostShot", range = 600, projectileName = "IceArrow_mis.troy",},
     }},
@@ -65,7 +65,7 @@ Champions = {
     ["Caitlyn"] = {charName = "Caitlyn", skillshots = {
         ["CaitlynPiltoverPeacemaker"] = {spellKey = _Q, name = "Piltover Peacemaker", spellName = "CaitlynPiltoverPeacemaker", spellDelay = 625, projectileName = "caitlyn_Q_mis.troy", projectileSpeed = 2200, range = 1300, radius = 90, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["Caitlyn Entrapment"] = {name = "Caitlyn Entrapment", spellName = "CaitlynEntrapment", spellDelay = 150, projectileName = "caitlyn_entrapment_mis.troy", projectileSpeed = 2000, range = 950, radius = 80, type = "LINE"},
-        ["CaitlynHeadshotMissile"] = {name = "Ace in the Hole", spellName = "CaitlynHeadshotMissile", range = 3000, fuckedUp = true, blockable = true, danger = 1, projectileName = "caitlyn_ult_mis.troy"},
+        ["CaitlynHeadshotMissile"] = {name = "Ace in the Hole", spellName = "CaitlynHeadshotMissile", range = 3000, fuckedup = false, blockable = true, danger = 1, projectileName = "caitlyn_ult_mis.troy"},
     }},
     ["Cassiopeia"] = {charName = "Cassiopeia", skillshots = {
         ["Noxious Blast"] = {spellKey = _Q, name = "Noxious Blast", spellName = "Noxious Blast", spellDelay = 600, range = 850, radius = 75, type = "CIRCULAR"},
@@ -117,7 +117,7 @@ Champions = {
         ["EzrealMysticShot"]             = {spellKey = _Q, isCollision = true, name = "Mystic Shot",      spellName = "EzrealMysticShot", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1100, radius = 80, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["EzrealEssenceFlux"]            = {spellKey = _W, name = "Essence Flux",     spellName = "EzrealEssenceFlux",     spellDelay = 250, projectileName = "Ezreal_essenceflux_mis.troy", projectileSpeed = 1500, range = 900,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["EzrealMysticShotPulse"] = {name = "Mystic ShotPulse(E)",      spellName = "EzrealMysticShotPulse", spellDelay = 250, projectileName = "Ezreal_mysticshot_mis.troy",  projectileSpeed = 2000, range = 1200,  radius = 80,  type = "LINE", fuckedUp = false, blockable = true, danger = 1},
-        ["EzrealTrueshotBarrage"]        = {spellKey = _R, isExecute = true, name = "Trueshot Barrage", spellName = "EzrealTrueshotBarrage", spellDelay = 1000, projectileName = "Ezreal_TrueShot_mis.troy", projectileSpeed = 2000, range = 20000, radius = 160, type = "LINE", fuckedUp = true, blockable = true, danger = 1},
+        ["EzrealTrueshotBarrage"]        = {spellKey = _R, isExecute = true, name = "Trueshot Barrage", spellName = "EzrealTrueshotBarrage", spellDelay = 1000, projectileName = "Ezreal_TrueShot_mis.troy", projectileSpeed = 2000, range = 20000, radius = 160, type = "LINE", fuckedup = false, blockable = true, danger = 1},
     }},
     ["Evelynn"] = {charName = "Evelynn", skillshots = {
     --unfinished
@@ -219,7 +219,7 @@ Champions = {
     ["Katarina"] = {charName = "Katarina", skillshots = {
         ["KatarinaE"] = { spellKey = _E, isTargeted = true, spellName = "KatarinaE", name = "KatarinaE", range = 700, projectileSpeed = 0, projectileName = "AnnieBasicAttack_mis.troy",},
         ["KatarinaW"] = { spellKey = _W, isSelfCast = true, spellName = "KatarinaW", name = "KatarinaW", range = 375, projectileSpeed = 1400, projectileName = "Disintegrate_mis.troy",},
-        ["KatarinaR"] = { spellKey = _R, isSelfCast = true, channelDuration = 2500, spellName = "KatarinaR", name = "KatarinaR", range = 550, projectileName = "katarina_deathLotus_mis.troy", fuckedUp = true, blockable = true, danger = 1},
+        ["KatarinaR"] = { spellKey = _R, isSelfCast = true, channelDuration = 2500, spellName = "KatarinaR", name = "KatarinaR", range = 550, projectileName = "katarina_deathLotus_mis.troy", fuckedup = false, blockable = true, danger = 1},
         ["KatarinaQ"] = { spellKey = _Q, isTargeted = true, spellName = "KatarinaQ", name = "KatarinaQ", range = 675, projectileSpeed = 1100, projectileName = "katarina_bouncingBlades_mis.troy", fuckedUp = false, blockable = true, danger = 1},
     }}, 
     ["Kayle"] = {charName = "Kayle", skillshots = {
@@ -621,7 +621,7 @@ Champions = {
         ["ZiggsQ"] =  {spellKey = _Q, isCollision = true, name = "ZiggsQ", spellName = "ZiggsQ", spellDelay = 250, projectileName = "ZiggsQ.troy", projectileSpeed = 1700, range = 1400, radius = 155, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["ZiggsW"] =  {spellKey = _W, name = "ZiggsW", spellName = "ZiggsW", spellDelay = 250, projectileName = "ZiggsW_mis.troy", projectileSpeed = 1700, range = 1000, radius = 325, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
         ["ZiggsE"] =  {spellKey = _E, name = "ZiggsE", spellName = "ZiggsE", spellDelay = 250, projectileName = "ZiggsE_Mis_Large.troy", projectileSpeed = 1700, range = 900, radius = 250, type = "LINE", fuckedUp = false, blockable = true, danger = 1},
-        ["ZiggsR"] = { spellKey = _R, isExecute = true, type = "LINE", spellName = "ZiggsR", name = "ZiggsR", range = 5000, projectileSpeed = 1750, projectileName = "ZiggsR_Mis_Nuke.troy", radius = 550, fuckedUp = true, blockable = true, danger = 1},
+        ["ZiggsR"] = { spellKey = _R, isExecute = true, type = "LINE", spellName = "ZiggsR", name = "ZiggsR", range = 5000, projectileSpeed = 1750, projectileName = "ZiggsR_Mis_Nuke.troy", radius = 550, fuckedup = false, blockable = true, danger = 1},
     }},
     ["Zilean"] = {charName = "Zilean", skillshots = {
     --unfinished
@@ -838,7 +838,7 @@ function OnLoad()
     _G.GetInventorySlotItem = GetSlotItem
 
     local ToUpdate = {}
-    ToUpdate.Version = 1.37
+    ToUpdate.Version = 1.38
     DelayAction(function()
         ToUpdate.UseHttps = true
         ToUpdate.Host = "raw.githubusercontent.com"
@@ -889,8 +889,6 @@ function OnTick()
     target = ts.target
 
     Checks()
-
-    if fuckedUpSpell ~= nil then fuckedUpSpells() end
 
     ComboKey = Settings.combo.comboKey
     HarassKey = Settings.harass.harassKey
@@ -1373,23 +1371,25 @@ function smartEgap()
 end
 
 function CastQ12(unit, minion)
-    if SkillQ12.ready and ValidTarget(unit,500) then
-
+ 
+        if SkillQ12.ready and ValidTarget(unit,500) then
             local CastPosition,  HitChance,  Position = VP:GetLineCastPosition(unit, 0.25, 55, 475, 1500, myHero, false)
-            if HitChance >= 2 and not IsDashing() then
+            if HitChance >= Settings.misc.pred.hc12 and not IsDashing() then
                 CastSpell(_Q, CastPosition.x, CastPosition.z)
             end
-    end
+        end
+
 end
 
 function CastQ3(unit, minion)
-    if SkillQ3.ready and ValidTarget(unit,1000) then  
-
+ 
+        if SkillQ3.ready and ValidTarget(unit,1000) then  
             local AOECastPosition, MainTargetHitChance, nTargets = VP:GetLineAOECastPosition(unit, 0.75, 90, 1000, 1500, myHero, false)
-            if MainTargetHitChance >= 1 and nTargets >= 1 and not IsDashing() then
+            if MainTargetHitChance >= Settings.misc.pred.hc3 and nTargets >= 1 and not IsDashing() then
                 CastSpell(_Q, AOECastPosition.x, AOECastPosition.z)
             end     
-    end
+        end
+
 end
 
 function AutoQminion(unit, minion)
@@ -1463,12 +1463,12 @@ function KillSteal()
         if ValidTarget(enemy, SkillQ.range) then
             local qDmg = myHero:CalcDamage(enemy,(GetSpellData(_Q).level*20)+myHero.totalDamage)
             local eDmg = getEDmg(enemy)
-            if SkillQ.ready then 
+            if SkillQ.ready  and GetDistance(enemy) <= SkillQ12.range then 
                 if qDmg >= enemy.health then
                     CastSpell(_Q, enemy)
                 end
             end
-            if SkillE.ready and GetDistance(enemy) <= SkillE.range then
+            if SkillE.ready and GetDistance(enemy) <= (SkillE.range-50) then
                 if eDmg >= enemy.health and (not UnderTurret(eEndPos(enemy),true)) or towerUnit~=nil then
                     CastSpell(_E, enemy)
                 end
@@ -1631,7 +1631,6 @@ function Checks()
     
 end
 
-
 function Menu()
     Settings = scriptConfig("GosuMechanics", "Yasuo")
     
@@ -1775,7 +1774,12 @@ function Menu()
             end
         end
         Settings.misc.blocks:addParam("autoWdelay", "WindWall Humanizer", SCRIPT_PARAM_SLICE, 0.5, 0, 2, 1)
-    ts:AddToMenu(Menu)
+
+    Settings.misc:addSubMenu("["..myHero.charName.."] - Prediction Settings", "pred")
+        Settings.misc.pred:addParam("hc12", "SteelTempest HitChance", SCRIPT_PARAM_SLICE, 1, 0, 2, 0)
+        Settings.misc.pred:addParam("hc3", "EmpwrdTempest HitChance", SCRIPT_PARAM_SLICE, 1, 0, 2, 0)
+
+        ts:AddToMenu(Menu)
 end
 
 -- Barasia, vadash, viseversa
@@ -2153,23 +2157,6 @@ function OnCreateObj(obj)
         --PrintChat("BLA")
         attacked = true
     end
-    if obj and obj.name==Champions["Ezreal"].skillshots["EzrealTrueshotBarrage"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Ezreal"].skillshots["EzrealTrueshotBarrage"]
-    end
-    if obj and obj.name==Champions["Ashe"].skillshots["EnchantedCrystalArrow"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Ashe"].skillshots["EnchantedCrystalArrow"]        
-    end
-    if obj and obj.name==Champions["Ziggs"].skillshots["ZiggsR"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Ziggs"].skillshots["ZiggsR"]
-    end
-    if obj and obj.name==Champions["Caitlyn"].skillshots["CaitlynHeadshotMissile"].projectileName then 
-        fuckedUpParticle = obj 
-        fuckedUpSpell = Champions["Caitlyn"].skillshots["CaitlynHeadshotMissile"]
-    end
-
  
     if obj and GetDistance(obj)<=50 then
         if obj.name == qBuffName then 
@@ -2442,7 +2429,7 @@ function OnProcessSpell(object,spell)
         if object.team ~= player.team and string.find(spell.name, "Basic") == nil then
             if Champions[object.charName] ~= nil then
                 skillshot = Champions[object.charName].skillshots[spell.name]
-                if  skillshot ~= nil and skillshot.blockable == true and not skillshot.fuckedUp then
+                if  skillshot ~= nil and skillshot.blockable == true then
                     range = skillshot.range
                     if not spell.startPos then
                         spell.startPos.x = object.x
@@ -2456,12 +2443,6 @@ function OnProcessSpell(object,spell)
                                 end, Settings.misc.blocks.autoWdelay / 1000)
                             end
                         end
-                    end
-                end
-                if skillshot ~= nil and skillshot.fuckedUp then 
-                    if fuckedUpObject == nil then
-                        fuckedUpSpell = skillshot 
-                        fuckedUpObject = object
                     end
                 end
             end
@@ -2498,25 +2479,87 @@ function OnProcessSpell(object,spell)
     end
 end
 
-function fuckedUpSpells()
-    if fuckedUpSpell.spellName == "KatarinaR" and fuckedUpObject.charName == "Katarina" then
-        local object = fuckedUpObject
-        if GetDistance(fuckedUpObject)-SkillW.range < fuckedUpSpell.range then
-            if SkillW.ready and Settings.misc.blocks[fuckedUpSpell.spellName] then
-                fuckedUpSpell = nil
-                fuckedUpObject = nil
-                CastSpell(_W, object.x, object.z)
-            end            
+function OnProcessAttack(object,spell)
+    --if(object.charName=="Yasuo") then PrintChat(spellProc.name .. " " .. object.charName) end
+    if object.isMe and spell.name:lower():find("recall") then
+        --PrintChat(spellProc.name)
+    end
+    local unit = object
+    if unit and spell and unit.isMe and spell.name and spell.name:lower():find("attack") and spell.target and not spell.target.dead and Settings.combo.useQ12 and Settings.combo.comboKey and not IsDashing() then
+      local t = spell.target
+      DelayAction(function() CastSpell(_Q, t.x, t.z) end, spell.windUpTime + GetLatency() / 2000)
+    end
+    local unit = object
+    if unit.isMe and spell.name == "YasuoDashWrapper" then
+        lastE = os.clock() * 1000
+        ePos, sPos, myPos = Vector(spell.endPos.x, spell.endPos.y, spell.endPos.z), Vector(spell.startPos.x, spell.startPos.y, spell.startPos.z), Vector(myHero.pos.x, myHero.pos.y, myHero.pos.z)
+        TargetPos = Vector(spell.target.pos.x, spell.target.pos.y, spell.target.pos.z)
+        if GetDistance(sPos,TargetPos) < 410 then
+            dashPoint = sPos + (TargetPos - sPos):normalized() * 475
+        else 
+            dashPoint = sPos + (TargetPos - sPos):normalized() * (GetDistance(sPos,TargetPos) + 65)
+        end
+        Eduration2 = os.clock() + 0.5
+        Eduration3 = os.clock() + 0.3
+        if EStacks == 1 then EStacks = 2 end
+        Tdashing = true
+        Tdashing2 = true  
+    end
+    if myHero.dead then return end
+    --if object.isMe and spellProc.name:lower():find("attack") then
+        --animTime = spellProc.animationTime*0.1
+    --end
+    if Settings.misc.blocks.autoW then 
+        if object.team ~= player.team and string.find(spell.name, "Basic") == nil then
+            if Champions[object.charName] ~= nil then
+                skillshot = Champions[object.charName].skillshots[spell.name]
+                if  skillshot ~= nil and skillshot.blockable == true then
+                    range = skillshot.range
+                    if not spell.startPos then
+                        spell.startPos.x = object.x
+                        spell.startPos.z = object.z                        
+                    end                    
+                    if GetDistance(spell.startPos) <= range then
+                        if GetDistance(spell.endPos) <= SkillW.range then
+                            if SkillW.ready and Settings.misc.blocks[spell.name] then 
+                                DelayAction(function ()
+                                    CastSpell(_W, object.x, object.z)
+                                end, Settings.misc.blocks.autoWdelay / 1000)
+                            end
+                        end
+                    end
+                end
+            end
         end 
-    elseif fuckedUpParticle ~= nil and GetDistance(fuckedUpParticle) < SkillW.range and (fuckedUpSpell.spellName == "EzrealTrueshotBarrage" or fuckedUpSpell.spellName == "EnchantedCrystalArrow" or fuckedUpSpell.spellName == "ZiggsR" or fuckedUpSpell.spellName == "CaitlynHeadshotMissile") then 
-            if SkillW.ready and Settings.misc.blocks[fuckedUpSpell.spellName] and fuckedUpParticle.x > 0 and fuckedUpParticle.z > 0 then
-                fuckedUpSpell = nil
-                fuckedUpObject = nil
-                object = fuckedUpParticle
-                PrintChat("FUP: "..fuckedUpParticle.x .."/"..fuckedUpParticle.z.."   MH:"..myHero.x..""..myHero.z)
-                fuckedUpParticle = nil                
-                CastSpell(_W, object.x, object.z)
-            end 
+    end
+    if myHero.dead then return end
+    if object.team == myHero.team then return end
+    
+    if Interrupt[object.charName] ~= nil then
+        spell = Interrupt[object.charName].stop[spell.name]
+        if spell ~= nil then
+            if Settings.misc.interrupt[spell.name] then
+                if ValidTarget(unit) and GetDistance(object) < SkillQ3.range and SkillQ3.ready and Settings.misc.interrupt.r then
+                    CastQ3(unit)
+                end
+            end
+        end
+    end
+        
+    local unit = object
+    
+    if unit.type == myHero.type and unit.team ~= myHero.team and isAGapcloserUnit[unit.charName] and GetDistance(unit) < 2000 and spell ~= nil then         
+        if spell.name == (type(isAGapcloserUnit[unit.charName].spell) == 'number' and unit:GetSpellData(isAGapcloserUnit[unit.charName].spell).name or isAGapcloserUnit[unit.charName].spell) and Settings.misc.gapClose[unit.charName] then
+            if spell.target ~= nil and spell.target and spell.target.networkID == myHero.networkID or isAGapcloserUnit[unit.charName].spell == 'blindmonkqtwo' then
+               CastQ3(object)
+            elseif not spell.target then
+                local startPos1 = Vector(unit.visionPos) + 300 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                local startPos2 = Vector(unit.visionPos) + 100 * (Vector(spell.endPos) - Vector(unit.visionPos)):normalized()
+                if (GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos1) or GetDistanceSqr(myHero.visionPos, unit.visionPos) > GetDistanceSqr(myHero.visionPos, endPos2))  then
+                   CastQ3(startPos1.x, startPos2.z)
+                end
+            end
+        end
     end
 end
 
