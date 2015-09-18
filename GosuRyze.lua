@@ -39,11 +39,9 @@ end
 function LoadMenu()
 
     Menu:addSubMenu("["..myHero.charName.."] - Combo Settings", "Combo")
-        Menu.Combo:addParam("R5", "Use R in ComboWQEQ",SCRIPT_PARAM_ONOFF, true)
-        Menu.Combo:addParam("R", "when x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
-        Menu.Combo:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_LIST, 1, {"Never", "If Killable" , "Always"})
-
+    
         Menu.Combo:addSubMenu("["..myHero.charName.."] - Ryze Combos", "combo")
+
         Menu.Combo.combo:addParam("ComboWQEQ", "WQEQ 3Stacks noUlt/withUlt", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("S"))
         Menu.Combo.combo:addParam("ComboWQER", "WQER 1 Stack with Ult Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
         Menu.Combo.combo:addParam("ComboQEWR", "EQWR 2 Stacks with Ult Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
@@ -52,6 +50,10 @@ function LoadMenu()
         Menu.Combo:addSubMenu("["..myHero.charName.."] - Advanced Ryze Combos", "adv")
         Menu.Combo.adv:addParam("ComboQEQ", "QEQ 3Stacks withUlt Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("H"))
         Menu.Combo.adv:addParam("ComboWQRE", "WQRE 3Stacks with Ult Only", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("G"))
+
+        Menu.Combo.combo:addParam("R5", "Use R in ComboWQEQ",SCRIPT_PARAM_ONOFF, true)
+        Menu.Combo.combo:addParam("R", "when x enemy in range", SCRIPT_PARAM_SLICE, 2, 0, 5, 0)
+        Menu.Combo.combo:addParam("Ignite", "Use Ignite", SCRIPT_PARAM_LIST, 1, {"Never", "If Killable" , "Always"})
 
     Menu:addSubMenu("["..myHero.charName.."] - Harass Settings", "Harass")
         Menu.Harass:addParam("Q", "Use Q", SCRIPT_PARAM_ONOFF, true)
@@ -146,8 +148,8 @@ function ComboWQEQ()
     if IsValidTarget(target) then
         local q, w, e, r, dmg = GetBestCombo(target)
 
-            if Menu.Combo.Ignite > 1 and Ignite:IsReady() then 
-                if Menu.Combo.Ignite == 2 then
+            if Menu.Combo.combo.Ignite > 1 and Ignite:IsReady() then 
+                if Menu.Combo.combo.Ignite == 2 then
                     if dmg / GetOverkill() > target.health then Ignite:Cast(target) end
                 else
                     Ignite:Cast(target)
@@ -181,7 +183,7 @@ function ComboWQEQ()
                 WSpell:Cast(target)
             end
 
-            if Menu.Combo.R5 and Menu.Combo.R >0 and CountEnemyHeroInRange(WSpell.Range) >= Menu.Combo.R then
+            if Menu.Combo.combo.R5 and Menu.Combo.combo.R >0 and CountEnemyHeroInRange(WSpell.Range) >= Menu.Combo.combo.R then
                 RSpell:Cast()
             end
     end                
@@ -192,8 +194,8 @@ function ComboWQER()
     if IsValidTarget(target) then
         local q, w, e, r, dmg = GetBestCombo(target)
 
-            if Menu.Combo.Ignite > 1 and Ignite:IsReady() then 
-                if Menu.Combo.Ignite == 2 then
+            if Menu.Combo.combo.Ignite > 1 and Ignite:IsReady() then 
+                if Menu.Combo.combo.Ignite == 2 then
                     if dmg / GetOverkill() > target.health then Ignite:Cast(target) end
                 else
                     Ignite:Cast(target)
@@ -250,7 +252,7 @@ function ComboQEWR()
     if IsValidTarget(target) then
         local q, w, e, r, dmg = GetBestCombo(target)
 
-            if Menu.Combo.Ignite > 1 and Ignite:IsReady() then 
+            if Menu.Combo.combo.Ignite > 1 and Ignite:IsReady() then 
                 if Menu.Combo.Ignite == 2 then
                     if dmg / GetOverkill() > target.health then Ignite:Cast(target) end
                 else
@@ -298,7 +300,7 @@ function ComboQEW()
     if IsValidTarget(target) then
         local q, w, e, r, dmg = GetBestCombo(target)
 
-            if Menu.Combo.Ignite > 1 and Ignite:IsReady() then 
+            if Menu.Combo.combo.Ignite > 1 and Ignite:IsReady() then 
                 if Menu.Combo.Ignite == 2 then
                     if dmg / GetOverkill() > target.health then Ignite:Cast(target) end
                 else
@@ -345,7 +347,7 @@ function ComboQEQ()
         local q, w, e, r, dmg = GetBestCombo(target)
 
             if Menu.Combo.Ignite > 1 and Ignite:IsReady() then 
-                if Menu.Combo.Ignite == 2 then
+                if Menu.Combo.combo.Ignite == 2 then
                     if dmg / GetOverkill() > target.health then Ignite:Cast(target) end
                 else
                     Ignite:Cast(target)
@@ -393,7 +395,7 @@ function ComboWQRE()
         local q, w, e, r, dmg = GetBestCombo(target)
 
             if Menu.Combo.Ignite > 1 and Ignite:IsReady() then 
-                if Menu.Combo.Ignite == 2 then
+                if Menu.Combo.combo.Ignite == 2 then
                     if dmg / GetOverkill() > target.health then Ignite:Cast(target) end
                 else
                     Ignite:Cast(target)
@@ -547,7 +549,7 @@ function Harass()
         if Menu.Harass.W then
             WSpell:Cast(target)
         end
-        if Menu.Harass.W then
+        if Menu.Harass.E then
             ESpell:Cast(target)
         end
     end
